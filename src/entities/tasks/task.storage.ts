@@ -1,5 +1,5 @@
-import type { Task } from "./task.types";
-import { storage } from "../../shared/utils/storage";
+import type { Task } from "../../types/task.types";
+import { storage } from "../../lib/storage";
 
 const TASKS_KEY = "tasks";
 

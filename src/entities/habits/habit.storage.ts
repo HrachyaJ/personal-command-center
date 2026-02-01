@@ -1,5 +1,5 @@
-import type { Habit } from "./habit.types";
-import { storage } from "../../shared/utils/storage";
+import type { Habit } from "../../types/habit.types";
+import { storage } from "../../lib/storage";
 
 const HABITS_KEY = "habits";
 

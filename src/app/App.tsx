@@ -1,17 +1,15 @@
-import { Button } from "../shared/ui/button";
-import { Input } from "../shared/ui/input";
+import TaskInput from "../components/shared/TaskInput";
+import TaskList from "../components/shared/TaskList";
+import { useTasks } from "../hooks/task.hooks";
 
 function App() {
+  const { tasks, addTask, removeTask, toggleTask } = useTasks();
+
   return (
     <div>
-      <h1>Hello World!</h1>
-      <div>
-        <Button variant="outline" className="cursor-pointer">
-          Button
-        </Button>
-        <br />
-        <Input placeholder="Input" className="w-1/5" />
-      </div>
+      <h1>Tasks</h1>
+      <TaskInput onAdd={addTask} />
+      <TaskList tasks={tasks} onDelete={removeTask} onToggle={toggleTask} />
     </div>
   );
 }

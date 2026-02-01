@@ -1,5 +1,5 @@
-import type { Note } from "./note.types";
-import { storage } from "../../shared/utils/storage";
+import type { Note } from "../../types/note.types";
+import { storage } from "../../lib/storage";
 
 const NOTES_KEY = "notes";
 
