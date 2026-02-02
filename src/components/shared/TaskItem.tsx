@@ -6,16 +6,21 @@ export default function TaskItem({
   task,
   onDelete,
   onToggle,
+  onClearCompleted,
+  onCountCompleted,
 }: {
   task: Task;
   onDelete: (id: Task["id"]) => void;
   onToggle: (id: Task["id"]) => void;
+  onClearCompleted: () => void;
+  onCountCompleted: () => number;
 }) {
   return (
-    <li className="p-2 border-b w-80 flex items-center justify-between">
+    <li className="p-2 border-b flex items-center justify-between">
       <Checkbox
         checked={task.completed}
         onCheckedChange={() => onToggle(task.id)}
+        className="cursor-pointer"
       />
       <span
         style={{ textDecoration: task.completed ? "line-through" : "none" }}

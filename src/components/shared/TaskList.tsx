@@ -5,23 +5,29 @@ export default function TaskList({
   tasks,
   onDelete,
   onToggle,
+  onClearCompleted,
+  onCountCompleted,
 }: {
   tasks: Task[];
   onDelete: (id: Task["id"]) => void;
   onToggle: (id: Task["id"]) => void;
+  onClearCompleted: () => void;
+  onCountCompleted: () => number;
 }) {
   if (tasks.length === 0) {
-    return <p>No tasks yet.</p>;
+    return <p className="text-center text-gray-500">No tasks yet.</p>;
   }
 
   return (
-    <ul>
+    <ul className="space-y-2">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
           task={task}
           onDelete={onDelete}
           onToggle={onToggle}
+          onClearCompleted={onClearCompleted}
+          onCountCompleted={onCountCompleted}
         />
       ))}
     </ul>

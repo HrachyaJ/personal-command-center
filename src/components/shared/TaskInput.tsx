@@ -18,14 +18,16 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="flex items-center">
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="New task..."
-        className="w-64 mr-1"
+        className="mr-1"
       />
-      <Button variant="outline">Add</Button>
+      <Button variant="default" className="cursor-pointer">
+        Add
+      </Button>
     </form>
   );
 }

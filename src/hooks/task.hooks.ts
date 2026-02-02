@@ -26,10 +26,24 @@ export function useTasks() {
     );
   }
 
+  function clearCompleted() {
+    setTasks((prev) => prev.filter((t) => !t.completed));
+  }
+
+  function countCompleted() {
+    return tasks.filter((t) => t.completed).length;
+  }
+
+  function editTask(id: Task["id"], title: Task["title"]) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
+  }
+
   return {
     tasks,
     addTask,
     removeTask,
     toggleTask,
+    clearCompleted,
+    countCompleted,
   };
 }
