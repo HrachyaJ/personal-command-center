@@ -5,14 +5,14 @@ export default function TaskList({
   tasks,
   onDelete,
   onToggle,
-  onClearCompleted,
-  onCountCompleted,
+  onEdit,
 }: {
   tasks: Task[];
   onDelete: (id: Task["id"]) => void;
   onToggle: (id: Task["id"]) => void;
   onClearCompleted: () => void;
   onCountCompleted: () => number;
+  onEdit: (id: Task["id"], title: Task["title"]) => void;
 }) {
   if (tasks.length === 0) {
     return <p className="text-center text-gray-500">No tasks yet.</p>;
@@ -26,8 +26,7 @@ export default function TaskList({
           task={task}
           onDelete={onDelete}
           onToggle={onToggle}
-          onClearCompleted={onClearCompleted}
-          onCountCompleted={onCountCompleted}
+          onEdit={onEdit}
         />
       ))}
     </ul>

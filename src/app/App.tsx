@@ -9,6 +9,7 @@ function App() {
     addTask,
     removeTask,
     toggleTask,
+    editTask,
     clearCompleted,
     countCompleted,
   } = useTasks();
@@ -23,6 +24,7 @@ function App() {
         onToggle={toggleTask}
         onClearCompleted={clearCompleted}
         onCountCompleted={countCompleted}
+        onEdit={editTask}
       />
       {tasks.length > 0 && (
         <Button

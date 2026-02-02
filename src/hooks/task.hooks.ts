@@ -45,5 +45,6 @@ export function useTasks() {
     toggleTask,
     clearCompleted,
     countCompleted,
+    editTask,
   };
 }
