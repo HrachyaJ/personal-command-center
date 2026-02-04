@@ -1,40 +1,25 @@
-import TaskInput from "../components/shared/TaskInput";
-import TaskList from "../components/shared/TaskList";
-import { Button } from "../components/ui/button";
-import { useTasks } from "../hooks/task.hooks";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Sidebar from "../components/shared/Sidebar";
+import TaskContainer from "../components/shared/containers/TaskContainer";
+import Dashboard from "../components/shared/containers/Dashboard";
+import Goals from "../components/shared/containers/Goals";
 
 function App() {
-  const {
-    tasks,
-    addTask,
-    removeTask,
-    toggleTask,
-    editTask,
-    clearCompleted,
-    countCompleted,
-  } = useTasks();
-
   return (
-    <div className="p-4 space-y-4 max-w-md mx-auto">
-      <h1 className="text-center text-2xl font-bold">Tasks</h1>
-      <TaskInput onAdd={addTask} />
-      <TaskList
-        tasks={tasks}
-        onDelete={removeTask}
-        onToggle={toggleTask}
-        onClearCompleted={clearCompleted}
-        onCountCompleted={countCompleted}
-        onEdit={editTask}
-      />
-      {tasks.length > 0 && (
-        <Button
-          onClick={clearCompleted}
-          className="cursor-pointer float-right"
-          variant="destructive"
-        >
-          Clear Completed ({countCompleted()})
-        </Button>
-      )}
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 bg-background">
+        <Router>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/tasks" element={<TaskContainer />} />
+            <Route path="/pomodoro" element={<TaskContainer />} />
+            <Route path="/analytics" element={<TaskContainer />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/focus-mode" element={<TaskContainer />} />
+          </Routes>
+        </Router>
+      </main>
     </div>
   );
 }

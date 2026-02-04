@@ -55,7 +55,7 @@ export default function TaskItem({
         <Checkbox
           checked={task.completed}
           onCheckedChange={() => onToggle(task.id)}
-          className="mr-2"
+          className="mr-2 cursor-pointer border-border"
         />
         {isEditing ? (
           <div className="grow" onKeyDown={handleKeyDown}>
@@ -63,7 +63,7 @@ export default function TaskItem({
               type="text"
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              className="border p-1"
+              className="border p-1 bg-white w-full"
             />
           </div>
         ) : (

@@ -34,8 +34,16 @@ export function useTasks() {
     return tasks.filter((t) => t.completed).length;
   }
 
+  function getCompletedTasks() {
+    return tasks.filter((t) => t.completed);
+  }
+
   function editTask(id: Task["id"], title: Task["title"]) {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
+  }
+
+  function getTasksLeft() {
+    return tasks.filter((t) => !t.completed).length;
   }
 
   return {
@@ -45,6 +53,8 @@ export function useTasks() {
     toggleTask,
     clearCompleted,
     countCompleted,
+    getCompletedTasks,
+    getTasksLeft,
     editTask,
   };
 }

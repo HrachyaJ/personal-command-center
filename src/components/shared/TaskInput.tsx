@@ -23,7 +23,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="New task..."
-        className="mr-1"
+        className="mr-1 border-border bg-white flex-1"
       />
       <Button variant="default" className="cursor-pointer">
         Add
