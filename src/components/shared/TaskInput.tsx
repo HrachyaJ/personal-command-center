@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { PlusIcon } from "lucide-react";
 
 interface TaskInputProps {
   onAdd: (task: string) => void;
@@ -26,6 +27,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
         className="mr-1 border-border bg-white flex-1"
       />
       <Button variant="default" className="cursor-pointer">
+        <PlusIcon />
         Add
       </Button>
     </form>

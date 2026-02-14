@@ -1,22 +1,26 @@
-import { Card, CardContent, CardHeader } from "../../ui/card";
+import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
-import {
-  BarChart3,
-  Bell,
-  CheckCircle,
-  Clock,
-  Flame,
-  Settings,
-  Shield,
-} from "lucide-react";
+import { Bell, CheckCircle, Flame, Settings, Shield } from "lucide-react";
 import { useTasks } from "../../../hooks/task.hooks";
 
 export default function Dashboard({}: {}) {
-  const { countCompleted, getTasksLeft } = useTasks();
+  const { countCompleted, getTasksLeft, tasks } = useTasks();
 
   const completedTasks = countCompleted();
   const tasksLeft = getTasksLeft();
+  const getTimeOfDayGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) return "Good Morning";
+    if (currentHour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const totalTasks = tasks.length;
+  const completedCount = countCompleted();
+
+  const completionRate =
+    totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   const stats = [
     {
@@ -28,15 +32,24 @@ export default function Dashboard({}: {}) {
       color: "text-green-600",
       bgColor: "bg-green-100 dark:bg-green-900",
     },
-    // {
-    //   title: "Focus Streak",
-    //   // value: analytics?.focusStreak || 0,
-    //   unit: " days",
-    //   change: "Personal best!",
-    //   icon: Flame,
-    //   color: "text-purple-600",
-    //   bgColor: "bg-purple-100 dark:bg-purple-900",
-    // },
+    {
+      title: "Productivity Score",
+      value: `${completionRate}%`,
+      unit: "",
+      change:
+        completionRate >= 80
+          ? "🔥 On fire!"
+          : completionRate >= 60
+            ? "💪 Keep it up!"
+            : completionRate >= 40
+              ? "📈 Building momentum"
+              : completionRate > 0
+                ? "🌱 Just getting started"
+                : "✨ Start your first task",
+      icon: Flame,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100 dark:bg-purple-900",
+    },
   ];
 
   return (
@@ -45,7 +58,7 @@ export default function Dashboard({}: {}) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold" data-testid="greeting">
-              Good morning, John Doe!
+              {getTimeOfDayGreeting()}, John Doe!
               {/* We get the users name and show that name */}
             </h2>
             <p className="text-muted-foreground mt-1">
@@ -69,7 +82,7 @@ export default function Dashboard({}: {}) {
             >
               <div className="relative">
                 <Bell className="h-5 w-5" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></div>
+                {/* <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></div> */}
               </div>
             </Button>
 

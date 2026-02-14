@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Sidebar from "../components/shared/Sidebar";
-import TaskContainer from "../components/shared/containers/TaskContainer";
 import Dashboard from "../components/shared/containers/Dashboard";
 import Goals from "../components/shared/containers/Goals";
+import Tasks from "../components/shared/containers/Tasks";
 
 function App() {
   return (
@@ -12,11 +12,12 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/tasks" element={<TaskContainer />} />
-            <Route path="/pomodoro" element={<TaskContainer />} />
-            <Route path="/analytics" element={<TaskContainer />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/pomodoro" element={<Tasks />} />
+            <Route path="/analytics" element={<Tasks />} />
             <Route path="/goals" element={<Goals />} />
-            <Route path="/focus-mode" element={<TaskContainer />} />
+            <Route path="/focus-mode" element={<Tasks />} />
+            <Route path="/ai-coach" element={<Tasks />} />
           </Routes>
         </Router>
       </main>

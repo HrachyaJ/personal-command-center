@@ -10,6 +10,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Bot,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Focus Mode", href: "/focus-mode", icon: Shield },
+  { name: "AI Coach", href: "/ai-coach", icon: Bot },
 ];
 
 function Sidebar() {
@@ -72,16 +74,17 @@ function Sidebar() {
               <li key={item.name}>
                 <Button
                   className={`w-full ${
-                    collapsed ? "justify-center px-0" : "justify-start"
-                  } cursor-pointer`}
+                    collapsed ? "justify-center px-2" : "justify-start"
+                  } cursor-pointer h-10`}
                   data-testid={`nav-${item.name.toLowerCase()}`}
                   variant={
                     window.location.pathname === item.href ? "default" : "ghost"
                   }
+                  size="default"
                   onClick={() => (window.location.href = item.href)}
                   title={collapsed ? item.name : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${!collapsed && "mr-3"}`} />
+                  <Icon className={`w-5 h-5 ${!collapsed && "ml-1 mr-3"}`} />
                   {!collapsed && item.name}
                 </Button>
               </li>

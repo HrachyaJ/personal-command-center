@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
@@ -21,21 +21,96 @@ import {
 import { Progress } from "../../ui/progress";
 import { Badge } from "../../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import {
-  Plus,
-  Target,
-  Calendar,
-  Clock,
-  TrendingUp,
-  Edit,
-  Trash2,
-  CheckCircle2,
-} from "lucide-react";
+import { Plus, Target, Calendar, Trash2, CheckCircle2 } from "lucide-react";
+import type { Goal } from "../../../types/goal.types";
+import { useGoals } from "../../../hooks/goal.hooks";
 
 export default function Goals() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("active");
+  // ============================================
+  // USE THE HOOK - This handles all data management
+  // ============================================
+  const {
+    goals,
+    addGoal,
+    updateProgress,
+    completeGoal,
+    deleteGoal,
+    getGoalsByStatus,
+    getStats,
+  } = useGoals();
 
+  // Get statistics
+  const stats = getStats();
+
+  // ============================================
+  // LOCAL UI STATE (not persisted)
+  // ============================================
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"active" | "completed" | "paused">(
+    "active",
+  );
+
+  const [newGoal, setNewGoal] = useState({
+    title: "",
+    description: "",
+    targetValue: "",
+    unit: "tasks",
+    deadline: "",
+  });
+
+  // ============================================
+  // EVENT HANDLERS
+  // ============================================
+
+  // Creates a new goal
+  const handleCreateGoal = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Call the hook's addGoal function
+    addGoal({
+      title: newGoal.title,
+      description: newGoal.description,
+      targetValue: parseInt(newGoal.targetValue),
+      unit: newGoal.unit,
+      deadline: newGoal.deadline || undefined,
+    });
+
+    // Reset the form
+    setNewGoal({
+      title: "",
+      description: "",
+      targetValue: "",
+      unit: "tasks",
+      deadline: "",
+    });
+
+    // Close the dialog
+    setIsAddDialogOpen(false);
+  };
+
+  // Updates the progress of a goal
+  const handleUpdateProgress = (goalId: string, addValue: number) => {
+    updateProgress(goalId, addValue);
+  };
+
+  // Marks a goal as complete
+  const handleCompleteGoal = (goalId: string) => {
+    completeGoal(goalId);
+  };
+
+  // Deletes a goal
+  const handleDeleteGoal = (goalId: string) => {
+    deleteGoal(goalId);
+  };
+
+  // ============================================
+  // FILTERED GOALS BY TAB
+  // ============================================
+  const filteredGoals = getGoalsByStatus(activeTab);
+
+  // ============================================
+  // HELPER FUNCTIONS
+  // ============================================
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -49,7 +124,14 @@ export default function Goals() {
     }
   };
 
-  const GoalCard = () => {
+  // ============================================
+  // GOAL CARD COMPONENT
+  // ============================================
+  const GoalCard = ({ goal }: { goal: Goal }) => {
+    const progressPercentage = Math.round(
+      (goal.currentValue / goal.targetValue) * 100,
+    );
+
     return (
       <Card>
         <CardContent className="p-6">
@@ -57,30 +139,27 @@ export default function Goals() {
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">GOAL title</h3>
-
+                <h3 className="font-semibold text-lg">{goal.title}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  GOAL DESCTIPTION
+                  {goal.description}
                 </p>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Badge
-                // className={getStatusColor(goal.status)}
-                // data-testid={`goal-status-${goal.id}`}
-                >
-                  {/* {goal.status === "completed" && ( */}
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  {/* )} */}
-                  {/* {goal.status.charAt(0).toUpperCase() + goal.status.slice(1)} */}
+                <Badge className={getStatusColor(goal.status)}>
+                  {goal.status === "completed" && (
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                  )}
+                  {goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}
                 </Badge>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  // data-testid={`button-edit-goal-${goal.id}`}
+                  onClick={() => handleDeleteGoal(goal.id)}
+                  className="cursor-pointer hover:bg-destructive/10"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -89,91 +168,78 @@ export default function Goals() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>
-                  {/* {goal.currentValue} / {goal.targetValue} {goal.unit} */}
+                  {goal.currentValue} / {goal.targetValue} {goal.unit}
                 </span>
-                <span className="text-muted-foreground">125%</span>
+                <span className="text-muted-foreground">
+                  {progressPercentage}%
+                </span>
               </div>
-              <Progress
-                value={100}
-                // data-testid={`goal-progress-bar-${goal.id}`}
-              />
+              <Progress value={Math.min(progressPercentage, 100)} />
             </div>
 
             {/* Deadline */}
-            {/* {goal.deadline && ( */}
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>Due</span>
-            </div>
-            {/* )} */}
+            {goal.deadline && (
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>Due: {new Date(goal.deadline).toLocaleDateString()}</span>
+              </div>
+            )}
 
-            {/* Actions */}
-            {/* {goal.status === "active" && !isCompleted && ( */}
-            <div className="flex items-center space-x-2 pt-2">
-              <Input
-                type="number"
-                placeholder="Update progress"
-                className="flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const value = parseInt(
-                      (e.target as HTMLInputElement).value,
-                    );
-                    if (value >= 0) {
-                      // handleUpdateProgress(goal.id, value);
-                      (e.target as HTMLInputElement).value = "";
+            {/* Actions - only show for active goals */}
+            {goal.status === "active" && (
+              <div className="flex items-center space-x-2 pt-2">
+                <Input
+                  type="number"
+                  placeholder="Add progress"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const value = parseInt(
+                        (e.target as HTMLInputElement).value,
+                      );
+                      if (value > 0) {
+                        handleUpdateProgress(goal.id, value);
+                        (e.target as HTMLInputElement).value = "";
+                      }
                     }
-                  }
-                }}
-                // data-testid={`input-update-progress-${goal.id}`}
-              />
+                  }}
+                />
 
-              {/* {progressPercentage >= 100 && ( */}
-              <Button
-                size="sm"
-                // onClick={() => handleCompleteGoal(goal.id)}
-                // data-testid={`button-complete-goal-${goal.id}`}
-              >
-                Mark Complete
-              </Button>
-              {/* )} */}
-            </div>
+                {progressPercentage >= 100 && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleCompleteGoal(goal.id)}
+                    className="cursor-pointer"
+                  >
+                    Mark Complete
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
     );
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="p-6">
-  //       <div className="animate-pulse space-y-4">
-  //         <div className="h-8 bg-muted rounded w-1/4"></div>
-  //         <div className="h-4 bg-muted rounded w-1/2"></div>
-  //         <div className="grid grid-cols-2 gap-4">
-  //           {[...Array(4)].map((_, i) => (
-  //             <div key={i} className="h-48 bg-muted rounded"></div>
-  //           ))}
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
+  // ============================================
+  // RENDER THE UI
+  // ============================================
   return (
-    <div className="p-6 space-y-6" data-testid="goals-page">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Goals</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Set and track your productivity goals
           </p>
         </div>
 
+        {/* Add Goal Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button data-testid="button-add-goal">
+            <Button className="cursor-pointer">
               <Plus className="w-4 h-4 mr-2" />
               Add Goal
             </Button>
@@ -183,17 +249,17 @@ export default function Goals() {
               <DialogTitle>Create New Goal</DialogTitle>
             </DialogHeader>
 
-            <form
-              // onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4"
-            >
+            <form onSubmit={handleCreateGoal} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
                   placeholder="Enter goal title"
-                  // {...form.register("title")}
-                  data-testid="input-goal-title"
+                  value={newGoal.title}
+                  onChange={(e) =>
+                    setNewGoal({ ...newGoal, title: e.target.value })
+                  }
+                  required
                 />
               </div>
 
@@ -202,8 +268,10 @@ export default function Goals() {
                 <Textarea
                   id="description"
                   placeholder="Enter goal description"
-                  // {...form.register("description")}
-                  data-testid="input-goal-description"
+                  value={newGoal.description}
+                  onChange={(e) =>
+                    setNewGoal({ ...newGoal, description: e.target.value })
+                  }
                 />
               </div>
 
@@ -214,18 +282,23 @@ export default function Goals() {
                     id="targetValue"
                     type="number"
                     placeholder="100"
-                    // {...form.register("targetValue")}
-                    data-testid="input-goal-target"
+                    value={newGoal.targetValue}
+                    onChange={(e) =>
+                      setNewGoal({ ...newGoal, targetValue: e.target.value })
+                    }
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="unit">Unit</Label>
                   <Select
-                    // onValueChange={(value) => form.setValue("unit", value)}
-                    defaultValue="tasks"
+                    value={newGoal.unit}
+                    onValueChange={(value) =>
+                      setNewGoal({ ...newGoal, unit: value })
+                    }
                   >
-                    <SelectTrigger data-testid="select-goal-unit">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -243,8 +316,10 @@ export default function Goals() {
                 <Input
                   id="deadline"
                   type="date"
-                  // {...form.register("deadline")}
-                  data-testid="input-goal-deadline"
+                  value={newGoal.deadline}
+                  onChange={(e) =>
+                    setNewGoal({ ...newGoal, deadline: e.target.value })
+                  }
                 />
               </div>
 
@@ -253,16 +328,11 @@ export default function Goals() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsAddDialogOpen(false)}
-                  data-testid="button-cancel"
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  // disabled={createGoalMutation.isPending}
-                  data-testid="button-create-goal"
-                >
-                  Create a goal
+                <Button type="submit" className="cursor-pointer">
+                  Create Goal
                 </Button>
               </div>
             </form>
@@ -270,39 +340,28 @@ export default function Goals() {
         </Dialog>
       </div>
 
-      {/* Goal Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card data-testid="total-goals-stat">
+      {/* Statistics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
           <CardContent className="p-6 text-center">
-            <div
-              className="text-3xl font-bold text-primary"
-              data-testid="total-goals-count"
-            >
-              0
-            </div>
+            <div className="text-3xl font-bold text-primary">{stats.total}</div>
             <p className="text-sm text-muted-foreground mt-1">Total Goals</p>
           </CardContent>
         </Card>
 
-        <Card data-testid="active-goals-stat">
+        <Card>
           <CardContent className="p-6 text-center">
-            <div
-              className="text-3xl font-bold text-blue-600"
-              data-testid="active-goals-count"
-            >
-              0
+            <div className="text-3xl font-bold text-blue-600">
+              {stats.active}
             </div>
             <p className="text-sm text-muted-foreground mt-1">Active Goals</p>
           </CardContent>
         </Card>
 
-        <Card data-testid="completed-goals-stat">
+        <Card>
           <CardContent className="p-6 text-center">
-            <div
-              className="text-3xl font-bold text-green-600"
-              data-testid="completed-goals-count"
-            >
-              0
+            <div className="text-3xl font-bold text-green-600">
+              {stats.completed}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               Completed Goals
@@ -310,13 +369,10 @@ export default function Goals() {
           </CardContent>
         </Card>
 
-        <Card data-testid="completion-rate-stat">
+        <Card>
           <CardContent className="p-6 text-center">
-            <div
-              className="text-3xl font-bold text-purple-600"
-              data-testid="completion-rate-percentage"
-            >
-              0
+            <div className="text-3xl font-bold text-purple-600">
+              {stats.completionRate}%
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               Completion Rate
@@ -325,19 +381,39 @@ export default function Goals() {
         </Card>
       </div>
 
-      {/* Goals List */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      {/* Tabs and Goals List */}
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as any)}
+      >
         <TabsList>
-          <TabsTrigger value="active" data-testid="tab-active-goals">
-            Active 0
+          <TabsTrigger value="active">Active ({stats.active})</TabsTrigger>
+          <TabsTrigger value="completed">
+            Completed ({stats.completed})
           </TabsTrigger>
-          <TabsTrigger value="completed" data-testid="tab-completed-goals">
-            Completed 0
-          </TabsTrigger>
-          <TabsTrigger value="paused" data-testid="tab-paused-goals">
-            Paused 0
-          </TabsTrigger>
+          <TabsTrigger value="paused">Paused ({stats.paused})</TabsTrigger>
         </TabsList>
+
+        <TabsContent value={activeTab} className="space-y-4 mt-4">
+          {filteredGoals.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">
+                  No {activeTab} goals yet
+                </p>
+                <Button
+                  className="cursor-pointer"
+                  onClick={() => setIsAddDialogOpen(true)}
+                >
+                  Create your first goal
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredGoals.map((goal) => <GoalCard key={goal.id} goal={goal} />)
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   );
