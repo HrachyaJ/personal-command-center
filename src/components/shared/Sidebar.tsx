@@ -16,13 +16,13 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
-  { name: "Pomodoro", href: "/pomodoro", icon: Clock },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Goals", href: "/goals", icon: Target },
-  { name: "Focus Mode", href: "/focus-mode", icon: Shield },
-  { name: "AI Coach", href: "/ai-coach", icon: Bot },
+  { name: "Habits", href: "/habits", icon: BarChart3 },
+  // { name: "Pomodoro", href: "/pomodoro", icon: Clock },
+  // { name: "Focus Mode", href: "/focus-mode", icon: Shield },
+  // { name: "AI Coach", href: "/ai-coach", icon: Bot },
 ];
 
 function Sidebar() {

@@ -30,7 +30,6 @@ export default function Goals() {
   // USE THE HOOK - This handles all data management
   // ============================================
   const {
-    goals,
     addGoal,
     updateProgress,
     completeGoal,
@@ -157,7 +156,7 @@ export default function Goals() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDeleteGoal(goal.id)}
-                  className="cursor-pointer hover:bg-destructive/10"
+                  className="cursor-pointer hover:bg-red-600"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -387,11 +386,15 @@ export default function Goals() {
         onValueChange={(value) => setActiveTab(value as any)}
       >
         <TabsList>
-          <TabsTrigger value="active">Active ({stats.active})</TabsTrigger>
-          <TabsTrigger value="completed">
+          <TabsTrigger value="active" className="cursor-pointer">
+            Active ({stats.active})
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="cursor-pointer">
             Completed ({stats.completed})
           </TabsTrigger>
-          <TabsTrigger value="paused">Paused ({stats.paused})</TabsTrigger>
+          <TabsTrigger value="paused" className="cursor-pointer">
+            Paused ({stats.paused})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-4 mt-4">

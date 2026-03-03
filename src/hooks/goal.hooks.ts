@@ -145,6 +145,10 @@ export function useGoals() {
     };
   };
 
+  function countCompletedGoals() {
+    return goals.filter((g) => g.status === "completed").length;
+  }
+
   /**
    * Clear all goals (useful for testing/reset)
    */
@@ -177,5 +181,7 @@ export function useGoals() {
 
     // Utilities
     clearAllGoals,
+
+    countCompletedGoals,
   };
 }
