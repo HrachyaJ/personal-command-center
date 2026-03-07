@@ -232,9 +232,9 @@ function AppPreview() {
                 padding: "7px 10px",
                 borderRadius: "8px",
                 fontSize: "11px",
-                color: i === 1 ? "#fff" : "rgba(0,0,0,0.45)",
-                background: i === 1 ? "#2563eb" : "transparent",
-                fontWeight: i === 1 ? 600 : 400,
+                color: i === 0 ? "#fff" : "rgba(0,0,0,0.45)",
+                background: i === 0 ? "#2563eb" : "transparent",
+                fontWeight: i === 0 ? 600 : 400,
               }}
             >
               {item}
@@ -1005,21 +1005,6 @@ export default function LandingPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: "6px",
-                background: "#2563eb",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <span style={{ color: "#fff", fontSize: "1px", fontWeight: 700 }}>
-                <Brain />
-              </span>
-            </div>
             <span style={{ fontSize: "14px", color: "#94a3b8" }}>
               © {getCurrentYear()} FocusFlow
             </span>

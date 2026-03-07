@@ -1,13 +1,11 @@
 import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
 import { Progress } from "../../ui/progress";
 import {
   Bell,
   CheckCircle,
   Flame,
   Settings,
-  Shield,
   Target,
   Repeat2,
 } from "lucide-react";
@@ -63,7 +61,7 @@ function StatCard({
             <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
           </div>
           <div
-            className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}
+            className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
           >
             <Icon className={`w-5 h-5 ${iconColor}`} />
           </div>
@@ -183,10 +181,10 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Badge className="bg-green-50 text-green-700 border-green-200">
+            {/* <Badge className="bg-green-50 text-green-700 border-green-200">
               <Shield className="w-3 h-3 mr-1" />
               AI Coach Active
-            </Badge>
+            </Badge> */}
             <Button
               variant="ghost"
               size="icon"
@@ -230,7 +228,7 @@ export default function Dashboard() {
                   {tasks.slice(0, 6).map((task) => (
                     <div key={task.id} className="flex items-center gap-3 py-1">
                       <div
-                        className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                        className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
                       >
                         {task.completed && (
                           <svg
@@ -283,7 +281,7 @@ export default function Dashboard() {
                           <span className="text-sm font-medium text-foreground truncate max-w-[70%]">
                             {goal.title}
                           </span>
-                          <span className="text-xs text-muted-foreground flex-shrink-0">
+                          <span className="text-xs text-muted-foreground shrink-0">
                             {goal.currentValue}/{goal.targetValue} {goal.unit}
                           </span>
                         </div>
@@ -332,7 +330,7 @@ export default function Dashboard() {
                           className="flex items-center gap-2.5"
                         >
                           <div
-                            className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${done ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                            className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${done ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
                           >
                             {done && (
                               <svg
@@ -351,12 +349,12 @@ export default function Dashboard() {
                             )}
                           </div>
                           <span
-                            className={`text-sm flex-1 truncate ${done ? "line-through text-muted-foreground" : "text-foreground"}`}
+                            className={`text-sm  1 truncate ${done ? "line-through text-muted-foreground" : "text-foreground"}`}
                           >
                             {habit.name}
                           </span>
                           {habit.streak > 0 && (
-                            <span className="text-xs text-orange-500 font-medium flex-shrink-0">
+                            <span className="text-xs text-orange-500 font-medium shrink-0">
                               🔥 {habit.streak}
                             </span>
                           )}

@@ -2,15 +2,12 @@ import {
   Brain,
   Home,
   CheckSquare,
-  Clock,
   BarChart3,
   Target,
-  Shield,
   CreditCard,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Bot,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -73,7 +70,7 @@ function Sidebar() {
             return (
               <li key={item.name}>
                 <Button
-                  className={`w-full ${
+                  className={`w-full rounded-xl ${
                     collapsed ? "justify-center px-2" : "justify-start"
                   } cursor-pointer h-10`}
                   data-testid={`nav-${item.name.toLowerCase()}`}
@@ -111,7 +108,7 @@ function Sidebar() {
 
         <div className={`space-y-2 ${collapsed ? "w-full" : ""}`}>
           <Button
-            className={`w-full cursor-pointer ${
+            className={`w-full cursor-pointer rounded-xl ${
               collapsed ? "justify-center px-2" : ""
             }`}
             data-testid="button-upgrade"
@@ -122,8 +119,8 @@ function Sidebar() {
           </Button>
 
           <Button
-            variant="outline"
-            className={`w-full cursor-pointer ${
+            variant="custom"
+            className={`w-full cursor-pointer rounded-xl ${
               collapsed ? "justify-center px-2" : ""
             }`}
             data-testid="button-logout"
@@ -139,4 +136,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-0;
