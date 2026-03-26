@@ -65,7 +65,7 @@ export default function HabitList({
             {/* Completion circle */}
             <button
               onClick={() => onToggle(habit.id)}
-              className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
+              className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
                 done
                   ? "border-green-500 bg-green-500"
                   : "border-gray-300 hover:border-blue-400"
@@ -92,7 +92,7 @@ export default function HabitList({
             {/* Color dot + name */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span
-                className="w-2 h-2 rounded-full flex-shrink-0"
+                className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: color }}
               />
               <div className="min-w-0">
@@ -111,7 +111,7 @@ export default function HabitList({
             </div>
 
             {/* Streak badge */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               {habit.streak > 0 && (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 text-xs font-semibold">
                   🔥 {habit.streak}
@@ -120,7 +120,7 @@ export default function HabitList({
             </div>
 
             {/* Delete button */}
-            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
               {confirmDelete === habit.id ? (
                 <div className="flex items-center gap-1">
                   <button

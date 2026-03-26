@@ -46,6 +46,7 @@ export default function Habits() {
     completedToday,
     completionRate,
     longestCurrentStreak,
+    loading,
   } = useHabits();
 
   const [newHabitName, setNewHabitName] = useState("");

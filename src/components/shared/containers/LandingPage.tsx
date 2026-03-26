@@ -568,14 +568,14 @@ export default function LandingPage() {
 
           <div style={{ display: "flex", gap: "12px" }}>
             <a
-              href="/login"
+              href="/sign-in"
               className="btn-ghost-light"
               style={{ padding: "9px 20px", fontSize: "14px" }}
             >
               Sign in
             </a>
             <a
-              href="/signup"
+              href="/sign-up"
               className="btn-primary-light"
               style={{ padding: "9px 20px", fontSize: "14px" }}
             >
@@ -700,7 +700,7 @@ export default function LandingPage() {
                   className="hero-cta"
                   style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}
                 >
-                  <a href="/signup" className="btn-primary-light">
+                  <a href="/sign-up" className="btn-primary-light">
                     Start for free →
                   </a>
                   <a href="#features" className="btn-ghost-light">
@@ -983,7 +983,7 @@ export default function LandingPage() {
                 Free to start. No credit card required.
               </p>
               <a
-                href="/signup"
+                href="/sign-up"
                 className="btn-primary-light"
                 style={{ fontSize: "16px", padding: "14px 36px" }}
               >

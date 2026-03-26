@@ -7,72 +7,82 @@ import {
   CreditCard,
   LogOut,
   ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { signOut, useSession } from "../../lib/auth-client";
+import { useNavigate } from "react-router";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Habits", href: "/habits", icon: BarChart3 },
-  // { name: "Pomodoro", href: "/pomodoro", icon: Clock },
-  // { name: "Focus Mode", href: "/focus-mode", icon: Shield },
-  // { name: "AI Coach", href: "/ai-coach", icon: Bot },
 ];
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user;
+  const navigate = useNavigate();
 
   return (
     <aside
-      className={`${
-        collapsed ? "w-20" : "w-64"
-      } bg-card border-r border-border flex flex-col transition-all duration-300 relative`}
+      className="bg-card border-r border-border flex flex-col relative"
+      style={{
+        width: collapsed ? "5rem" : "16rem",
+        minWidth: collapsed ? "5rem" : "16rem",
+        transition:
+          "width 300ms cubic-bezier(0.4, 0, 0.2, 1), min-width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
       data-testid="sidebar"
     >
-      <div className="p-6 border-b border-border flex items-center justify-between">
-        {!collapsed ? (
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Brain className="text-primary-foreground text-sm" />
-            </div>
-            <h1 className="text-xl font-semibold">FocusFlow</h1>
-          </div>
-        ) : (
-          <div className="w-full flex justify-center">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Brain className="text-primary-foreground text-sm" />
-            </div>
-          </div>
-        )}
+      {/* Header */}
+      <div
+        className="p-6 border-b border-border flex items-center overflow-hidden"
+        style={{ height: "73px" }}
+      >
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
+          <Brain className="text-primary-foreground" />
+        </div>
+        <span
+          className="text-xl font-semibold whitespace-nowrap ml-3"
+          style={{
+            opacity: collapsed ? 0 : 1,
+            transition: "opacity 150ms ease",
+          }}
+        >
+          FocusFlow
+        </span>
       </div>
 
+      {/* Toggle button */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-7 bg-card border border-border rounded-full p-1.5 hover:bg-accent hover:text-white transition-colors shadow-md z-10 cursor-pointer"
+        className="absolute -right-3 top-6.5 bg-card border border-border rounded-full p-1.5 shadow-md z-10 cursor-pointer hover:bg-accent hover:text-white"
+        style={{ transition: "background 150ms ease, color 150ms ease" }}
         data-testid="toggle-sidebar"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {collapsed ? (
-          <ChevronRight className="w-4 h-4" />
-        ) : (
-          <ChevronLeft className="w-4 h-4" />
-        )}
+        <ChevronLeft
+          className="w-4 h-4"
+          style={{
+            transform: collapsed ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        />
       </button>
 
+      {/* Nav */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {navigation.map((item) => {
             const Icon = item.icon;
-
             return (
               <li key={item.name}>
                 <Button
-                  className={`w-full rounded-xl ${
-                    collapsed ? "justify-center px-2" : "justify-start"
-                  } cursor-pointer h-10`}
+                  className="w-full rounded-xl cursor-pointer h-10 flex items-center overflow-hidden"
+                  style={{ justifyContent: "flex-start" }}
                   data-testid={`nav-${item.name.toLowerCase()}`}
                   variant={
                     window.location.pathname === item.href ? "default" : "ghost"
@@ -81,8 +91,16 @@ function Sidebar() {
                   onClick={() => (window.location.href = item.href)}
                   title={collapsed ? item.name : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${!collapsed && "ml-1 mr-3"}`} />
-                  {!collapsed && item.name}
+                  <Icon className="w-5 h-5 shrink-0 ml-1" />
+                  <span
+                    className="whitespace-nowrap ml-3"
+                    style={{
+                      opacity: collapsed ? 0 : 1,
+                      transition: "opacity 150ms ease",
+                    }}
+                  >
+                    {item.name}
+                  </span>
                 </Button>
               </li>
             );
@@ -90,44 +108,73 @@ function Sidebar() {
         </ul>
       </nav>
 
-      <div
-        className={`p-4 border-t border-border sticky bottom-0 bg-card ${
-          collapsed ? "flex flex-col items-center" : ""
-        }`}
-      >
-        {!collapsed && (
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="flex-1">
-              <p className="text-sm font-medium" data-testid="user-name">
-                John Doe
-              </p>
-              <p className="text-xs text-muted-foreground">Free Plan</p>
-            </div>
-          </div>
-        )}
+      {/* Footer */}
+      <div className="p-4 border-t border-border sticky bottom-0 bg-card">
+        <div
+          className="overflow-hidden"
+          style={{
+            opacity: collapsed ? 0 : 1,
+            maxHeight: collapsed ? "0px" : "48px",
+            marginBottom: collapsed ? "0px" : "1rem",
+            transition:
+              "opacity 150ms ease, max-height 300ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 300ms ease",
+          }}
+        >
+          <p
+            className="text-sm font-medium whitespace-nowrap"
+            data-testid="user-name"
+          >
+            {user?.name}
+          </p>
+          <p className="text-xs text-muted-foreground whitespace-nowrap">
+            {/* {user?.plan} */}
+            Free Plan
+          </p>
+        </div>
 
-        <div className={`space-y-2 ${collapsed ? "w-full" : ""}`}>
+        <div className="space-y-2">
           <Button
-            className={`w-full cursor-pointer rounded-xl ${
-              collapsed ? "justify-center px-2" : ""
-            }`}
+            className="w-full cursor-pointer rounded-xl flex items-center overflow-hidden"
+            style={{ justifyContent: "flex-start" }}
             data-testid="button-upgrade"
             title={collapsed ? "Upgrade to Pro" : undefined}
           >
-            <CreditCard className={`w-4 h-4 ${!collapsed && "mr-2"}`} />
-            {!collapsed && "Upgrade to Pro"}
+            <CreditCard className="w-4 h-4 shrink-0" />
+            <span
+              className="whitespace-nowrap ml-2"
+              style={{
+                opacity: collapsed ? 0 : 1,
+                transition: "opacity 150ms ease",
+              }}
+            >
+              {
+                // user?.plan === "Pro" ? "Manage Subscription" : "Upgrade to Pro"
+                "Upgrade to Pro"
+              }
+            </span>
           </Button>
 
           <Button
             variant="custom"
-            className={`w-full cursor-pointer rounded-xl ${
-              collapsed ? "justify-center px-2" : ""
-            }`}
+            className="w-full cursor-pointer rounded-xl flex items-center overflow-hidden"
+            style={{ justifyContent: "flex-start" }}
             data-testid="button-logout"
             title={collapsed ? "Logout" : undefined}
+            onClick={async () => {
+              await signOut();
+              navigate("/sign-in");
+            }}
           >
-            <LogOut className={`w-4 h-4 ${!collapsed && "mr-2"}`} />
-            {!collapsed && "Logout"}
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span
+              className="whitespace-nowrap ml-2"
+              style={{
+                opacity: collapsed ? 0 : 1,
+                transition: "opacity 150ms ease",
+              }}
+            >
+              Logout
+            </span>
           </Button>
         </div>
       </div>

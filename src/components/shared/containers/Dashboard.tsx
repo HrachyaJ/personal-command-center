@@ -12,6 +12,7 @@ import {
 import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
 import { useHabits } from "../../../hooks/habit.hooks";
+import { useSession } from "../../../lib/auth-client";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,8 @@ interface StatCardProps {
   iconBg: string;
   testId?: string;
 }
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatCard({
   title,
@@ -101,6 +104,9 @@ export default function Dashboard() {
     completionRate: habitCompletionRate,
     longestCurrentStreak,
   } = useHabits();
+
+  const { data: session } = useSession();
+  const user = session?.user;
 
   // ── Derived: Tasks ────────────────────────────────────────────────────────
   const totalTasks = tasks.length;
@@ -173,7 +179,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold" data-testid="greeting">
-              {getTimeOfDayGreeting()}, John Doe!
+              {getTimeOfDayGreeting()}, {user?.name}
             </h2>
             <p className="text-muted-foreground mt-1">
               Ready to tackle your goals today?
