@@ -25,10 +25,56 @@ import { Plus, Target, Calendar, Trash2, CheckCircle2 } from "lucide-react";
 import type { Goal } from "../../../types/goal.types";
 import { useGoals } from "../../../hooks/goal.hooks";
 
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
+}
+
+function StatCardSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-6 text-center">
+        <Skeleton className="h-9 w-12 mx-auto mb-2" />
+        <Skeleton className="h-3.5 w-24 mx-auto" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function GoalCardSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-6 space-y-4">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-5 w-2/5" />
+            <Skeleton className="h-3.5 w-3/5" />
+          </div>
+          <Skeleton className="h-6 w-16 rounded-full ml-4 shrink-0" />
+        </div>
+        {/* Progress */}
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="h-3.5 w-8" />
+          </div>
+          <Skeleton className="h-2 w-full rounded-full" />
+        </div>
+        {/* Deadline */}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4 rounded" />
+          <Skeleton className="h-3.5 w-32" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Goals ───────────────────────────────────────────────────────────────────
+
 export default function Goals() {
-  // ============================================
-  // USE THE HOOK - This handles all data management
-  // ============================================
   const {
     addGoal,
     updateProgress,
@@ -36,19 +82,15 @@ export default function Goals() {
     deleteGoal,
     getGoalsByStatus,
     getStats,
+    loading,
   } = useGoals();
 
-  // Get statistics
   const stats = getStats();
 
-  // ============================================
-  // LOCAL UI STATE (not persisted)
-  // ============================================
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"active" | "completed" | "paused">(
     "active",
   );
-
   const [newGoal, setNewGoal] = useState({
     title: "",
     description: "",
@@ -57,15 +99,8 @@ export default function Goals() {
     deadline: "",
   });
 
-  // ============================================
-  // EVENT HANDLERS
-  // ============================================
-
-  // Creates a new goal
   const handleCreateGoal = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Call the hook's addGoal function
     addGoal({
       title: newGoal.title,
       description: newGoal.description,
@@ -73,8 +108,6 @@ export default function Goals() {
       unit: newGoal.unit,
       deadline: newGoal.deadline || undefined,
     });
-
-    // Reset the form
     setNewGoal({
       title: "",
       description: "",
@@ -82,34 +115,18 @@ export default function Goals() {
       unit: "tasks",
       deadline: "",
     });
-
-    // Close the dialog
     setIsAddDialogOpen(false);
   };
 
-  // Updates the progress of a goal
   const handleUpdateProgress = (goalId: string, addValue: number) => {
     updateProgress(goalId, addValue);
   };
 
-  // Marks a goal as complete
-  const handleCompleteGoal = (goalId: string) => {
-    completeGoal(goalId);
-  };
+  const handleCompleteGoal = (goalId: string) => completeGoal(goalId);
+  const handleDeleteGoal = (goalId: string) => deleteGoal(goalId);
 
-  // Deletes a goal
-  const handleDeleteGoal = (goalId: string) => {
-    deleteGoal(goalId);
-  };
-
-  // ============================================
-  // FILTERED GOALS BY TAB
-  // ============================================
   const filteredGoals = getGoalsByStatus(activeTab);
 
-  // ============================================
-  // HELPER FUNCTIONS
-  // ============================================
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -123,19 +140,14 @@ export default function Goals() {
     }
   };
 
-  // ============================================
-  // GOAL CARD COMPONENT
-  // ============================================
   const GoalCard = ({ goal }: { goal: Goal }) => {
     const progressPercentage = Math.round(
       (goal.currentValue / goal.targetValue) * 100,
     );
-
     return (
       <Card>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">{goal.title}</h3>
@@ -143,7 +155,6 @@ export default function Goals() {
                   {goal.description}
                 </p>
               </div>
-
               <div className="flex items-center space-x-2">
                 <Badge className={getStatusColor(goal.status)}>
                   {goal.status === "completed" && (
@@ -151,7 +162,6 @@ export default function Goals() {
                   )}
                   {goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}
                 </Badge>
-
                 <Button
                   variant="ghost"
                   size="sm"
@@ -163,7 +173,6 @@ export default function Goals() {
               </div>
             </div>
 
-            {/* Progress */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>
@@ -176,7 +185,6 @@ export default function Goals() {
               <Progress value={Math.min(progressPercentage, 100)} />
             </div>
 
-            {/* Deadline */}
             {goal.deadline && (
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
@@ -184,7 +192,6 @@ export default function Goals() {
               </div>
             )}
 
-            {/* Actions - only show for active goals */}
             {goal.status === "active" && (
               <div className="flex items-center space-x-2 pt-2">
                 <Input
@@ -203,7 +210,6 @@ export default function Goals() {
                     }
                   }}
                 />
-
                 {progressPercentage >= 100 && (
                   <Button
                     size="sm"
@@ -221,9 +227,6 @@ export default function Goals() {
     );
   };
 
-  // ============================================
-  // RENDER THE UI
-  // ============================================
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -234,8 +237,6 @@ export default function Goals() {
             Set and track your productivity goals
           </p>
         </div>
-
-        {/* Add Goal Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="cursor-pointer">
@@ -247,7 +248,6 @@ export default function Goals() {
             <DialogHeader>
               <DialogTitle>Create New Goal</DialogTitle>
             </DialogHeader>
-
             <form onSubmit={handleCreateGoal} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
@@ -261,7 +261,6 @@ export default function Goals() {
                   required
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -273,7 +272,6 @@ export default function Goals() {
                   }
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="targetValue">Target Value *</Label>
@@ -288,7 +286,6 @@ export default function Goals() {
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="unit">Unit</Label>
                   <Select
@@ -309,7 +306,6 @@ export default function Goals() {
                   </Select>
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="deadline">Deadline</Label>
                 <Input
@@ -321,7 +317,6 @@ export default function Goals() {
                   }
                 />
               </div>
-
               <div className="flex justify-end space-x-2">
                 <Button
                   type="button"
@@ -339,66 +334,79 @@ export default function Goals() {
         </Dialog>
       </div>
 
-      {/* Statistics */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-primary">{stats.total}</div>
-            <p className="text-sm text-muted-foreground mt-1">Total Goals</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600">
-              {stats.active}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">Active Goals</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-green-600">
-              {stats.completed}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Completed Goals
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-purple-600">
-              {stats.completionRate}%
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Completion Rate
-            </p>
-          </CardContent>
-        </Card>
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-primary">
+                  {stats.total}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Total Goals
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-blue-600">
+                  {stats.active}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Active Goals
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-green-600">
+                  {stats.completed}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Completed Goals
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="text-3xl font-bold text-purple-600">
+                  {stats.completionRate}%
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Completion Rate
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
-      {/* Tabs and Goals List */}
+      {/* Tabs + Goal List */}
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as any)}
       >
         <TabsList>
           <TabsTrigger value="active" className="cursor-pointer">
-            Active ({stats.active})
+            Active ({loading ? "…" : stats.active})
           </TabsTrigger>
           <TabsTrigger value="completed" className="cursor-pointer">
-            Completed ({stats.completed})
+            Completed ({loading ? "…" : stats.completed})
           </TabsTrigger>
           <TabsTrigger value="paused" className="cursor-pointer">
-            Paused ({stats.paused})
+            Paused ({loading ? "…" : stats.paused})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="space-y-4 mt-4">
-          {filteredGoals.length === 0 ? (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <GoalCardSkeleton key={i} />
+            ))
+          ) : filteredGoals.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

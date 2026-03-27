@@ -31,6 +31,100 @@ function getMomentumLabel(rate: number): string {
   return "✨ Nothing yet";
 }
 
+// ─── Skeleton primitives ─────────────────────────────────────────────────────
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
+}
+
+// ─── Skeleton screens ────────────────────────────────────────────────────────
+
+function StatCardSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-3.5 w-24" />
+            <Skeleton className="h-7 w-12 mt-1" />
+            <Skeleton className="h-3 w-20 mt-1" />
+          </div>
+          <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TasksSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 py-1">
+          <Skeleton className="w-4 h-4 rounded-full shrink-0" />
+          <Skeleton
+            className={`h-3.5 ${i % 3 === 0 ? "w-3/4" : i % 3 === 1 ? "w-1/2" : "w-2/3"}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GoalsSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i}>
+          <div className="flex items-center justify-between mb-1.5">
+            <Skeleton className={`h-3.5 ${i % 2 === 0 ? "w-2/5" : "w-1/2"}`} />
+            <Skeleton className="h-3 w-16 shrink-0" />
+          </div>
+          <Skeleton className="h-1.5 w-full rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HabitsSkeleton() {
+  return (
+    <>
+      <div className="mb-4">
+        <div className="flex justify-between mb-1.5">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-3 w-8" />
+        </div>
+        <Skeleton className="h-1.5 w-full rounded-full" />
+      </div>
+      <div className="space-y-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-2.5">
+            <Skeleton className="w-4 h-4 rounded-full shrink-0" />
+            <Skeleton className={`h-3.5 ${i % 2 === 0 ? "w-3/4" : "w-1/2"}`} />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function OverallProgressSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i}>
+          <div className="flex justify-between mb-1">
+            <Skeleton className="h-3 w-10" />
+            <Skeleton className="h-3 w-8" />
+          </div>
+          <Skeleton className="h-1.5 w-full rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 interface StatCardProps {
@@ -42,8 +136,6 @@ interface StatCardProps {
   iconBg: string;
   testId?: string;
 }
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatCard({
   title,
@@ -94,8 +186,18 @@ function SectionCard({ title, children }: SectionCardProps) {
 
 export default function Dashboard() {
   // ── Data ──────────────────────────────────────────────────────────────────
-  const { tasks, countCompleted, getTasksLeft } = useTasks();
-  const { goals, countCompletedGoals, getGoalsByStatus } = useGoals();
+  const {
+    tasks,
+    countCompleted,
+    getTasksLeft,
+    loading: tasksLoading,
+  } = useTasks();
+  const {
+    goals,
+    countCompletedGoals,
+    getGoalsByStatus,
+    loading: goalsLoading,
+  } = useGoals();
   const {
     habits,
     isCompletedToday,
@@ -103,10 +205,14 @@ export default function Dashboard() {
     totalHabits,
     completionRate: habitCompletionRate,
     longestCurrentStreak,
+    loading: habitsLoading,
   } = useHabits();
 
-  const { data: session } = useSession();
+  const { data: session, isPending: sessionLoading } = useSession();
   const user = session?.user;
+
+  const isLoading =
+    tasksLoading || goalsLoading || habitsLoading || sessionLoading;
 
   // ── Derived: Tasks ────────────────────────────────────────────────────────
   const totalTasks = tasks.length;
@@ -124,7 +230,7 @@ export default function Dashboard() {
       : 0;
 
   // ── Derived: Habits ───────────────────────────────────────────────────────
-  const todaysHabits = habits.slice(0, 5); // Show first 5 on dashboard
+  const todaysHabits = habits.slice(0, 5);
 
   // ── Stat cards config ─────────────────────────────────────────────────────
   const statCards: StatCardProps[] = [
@@ -178,19 +284,24 @@ export default function Dashboard() {
       <header className="bg-card border-b border-border p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold" data-testid="greeting">
-              {getTimeOfDayGreeting()}, {user?.name}
-            </h2>
-            <p className="text-muted-foreground mt-1">
-              Ready to tackle your goals today?
-            </p>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-7 w-56 mb-2" />
+                <Skeleton className="h-4 w-44" />
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-semibold" data-testid="greeting">
+                  {getTimeOfDayGreeting()}, {user?.name}
+                </h2>
+                <p className="text-muted-foreground mt-1">
+                  Ready to tackle your goals today?
+                </p>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
-            {/* <Badge className="bg-green-50 text-green-700 border-green-200">
-              <Shield className="w-3 h-3 mr-1" />
-              AI Coach Active
-            </Badge> */}
             <Button
               variant="ghost"
               size="icon"
@@ -214,9 +325,11 @@ export default function Dashboard() {
       <div className="p-6 space-y-6">
         {/* ── Stat Cards ───────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statCards.map((card) => (
-            <StatCard key={card.title} {...card} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <StatCardSkeleton key={i} />
+              ))
+            : statCards.map((card) => <StatCard key={card.title} {...card} />)}
         </div>
 
         {/* ── Main Grid ────────────────────────────────────────────────────── */}
@@ -225,7 +338,9 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             {/* Today's Tasks */}
             <SectionCard title="Today's Tasks">
-              {tasks.length === 0 ? (
+              {isLoading ? (
+                <TasksSkeleton />
+              ) : tasks.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No tasks yet. Head to Tasks to add some.
                 </p>
@@ -270,7 +385,9 @@ export default function Dashboard() {
 
             {/* Active Goals */}
             <SectionCard title="Active Goals">
-              {activeGoals.length === 0 ? (
+              {isLoading ? (
+                <GoalsSkeleton />
+              ) : activeGoals.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No active goals. Head to Goals to create one.
                 </p>
@@ -309,7 +426,9 @@ export default function Dashboard() {
           <div className="space-y-6">
             {/* Today's Habits */}
             <SectionCard title="Today's Habits">
-              {totalHabits === 0 ? (
+              {isLoading ? (
+                <HabitsSkeleton />
+              ) : totalHabits === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No habits yet. Head to Habits to add some.
                 </p>
@@ -355,7 +474,7 @@ export default function Dashboard() {
                             )}
                           </div>
                           <span
-                            className={`text-sm  1 truncate ${done ? "line-through text-muted-foreground" : "text-foreground"}`}
+                            className={`text-sm flex-1 truncate ${done ? "line-through text-muted-foreground" : "text-foreground"}`}
                           >
                             {habit.name}
                           </span>
@@ -379,38 +498,42 @@ export default function Dashboard() {
 
             {/* Overall Progress */}
             <SectionCard title="Overall Progress">
-              <div className="space-y-3">
-                {[
-                  {
-                    label: "Tasks",
-                    rate: taskCompletionRate,
-                    color: "bg-emerald-500",
-                  },
-                  {
-                    label: "Goals",
-                    rate: goalsCompletionRate,
-                    color: "bg-blue-500",
-                  },
-                  {
-                    label: "Habits",
-                    rate: habitCompletionRate,
-                    color: "bg-orange-500",
-                  },
-                ].map(({ label, rate, color }) => (
-                  <div key={label}>
-                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                      <span>{label}</span>
-                      <span>{rate}%</span>
+              {isLoading ? (
+                <OverallProgressSkeleton />
+              ) : (
+                <div className="space-y-3">
+                  {[
+                    {
+                      label: "Tasks",
+                      rate: taskCompletionRate,
+                      color: "bg-emerald-500",
+                    },
+                    {
+                      label: "Goals",
+                      rate: goalsCompletionRate,
+                      color: "bg-blue-500",
+                    },
+                    {
+                      label: "Habits",
+                      rate: habitCompletionRate,
+                      color: "bg-orange-500",
+                    },
+                  ].map(({ label, rate, color }) => (
+                    <div key={label}>
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span>{label}</span>
+                        <span>{rate}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5">
+                        <div
+                          className={`${color} h-1.5 rounded-full transition-all duration-500`}
+                          style={{ width: `${rate}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-1.5">
-                      <div
-                        className={`${color} h-1.5 rounded-full transition-all duration-500`}
-                        style={{ width: `${rate}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </SectionCard>
           </div>
         </div>

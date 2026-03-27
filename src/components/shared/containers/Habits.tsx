@@ -21,7 +21,6 @@ const CATEGORY_COLORS: Record<HabitCategory, string> = {
   other: "#6b7280",
 };
 
-// Last 7 days analytics helper
 function getLast7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -34,6 +33,79 @@ function getDayLabel(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", { weekday: "short" }).charAt(0);
 }
+
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
+}
+
+function StatCardSkeleton() {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 flex flex-col items-center justify-center">
+      <Skeleton className="h-9 w-12 mb-2" />
+      <Skeleton className="h-3.5 w-20" />
+    </div>
+  );
+}
+
+function HabitListSkeleton() {
+  return (
+    <div className="py-2 space-y-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-2 py-3">
+          <Skeleton className="w-5 h-5 rounded-full shrink-0" />
+          <Skeleton
+            className={`h-4 ${i % 3 === 0 ? "w-2/3" : i % 3 === 1 ? "w-1/2" : "w-3/5"}`}
+          />
+          <Skeleton className="h-4 w-8 ml-auto shrink-0" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WeeklyChartSkeleton() {
+  return (
+    <div className="flex items-end gap-1.5 h-16">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          <div className="w-full flex items-end h-10">
+            <Skeleton className="w-full rounded-sm" />
+          </div>
+          <Skeleton className="h-3 w-3 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProgressSidebarSkeleton() {
+  return (
+    <>
+      <div className="flex items-end justify-between mb-2">
+        <Skeleton className="h-8 w-12" />
+        <Skeleton className="h-3.5 w-16" />
+      </div>
+      <Skeleton className="h-2 w-full rounded-full" />
+    </>
+  );
+}
+
+function TopStreaksSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex items-center justify-between">
+          <Skeleton className={`h-3.5 ${i % 2 === 0 ? "w-2/5" : "w-1/3"}`} />
+          <Skeleton className="h-3.5 w-8" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Habits ───────────────────────────────────────────────────────────────────
 
 export default function Habits() {
   const {
@@ -75,7 +147,6 @@ export default function Habits() {
     if (e.key === "Escape") setShowForm(false);
   }
 
-  // Weekly heatmap: for each of last 7 days, how many habits were completed
   const weeklyData = last7Days.map((day) => {
     const count = habits.filter((h) => h.completedDates.includes(day)).length;
     const pct = totalHabits > 0 ? count / totalHabits : 0;
@@ -92,28 +163,34 @@ export default function Habits() {
         </p>
       </div>
 
-      {/* Stats row — mirrors Tasks page */}
+      {/* Stats row */}
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <StatCard
-          value={totalHabits}
-          label="Total Habits"
-          color="text-blue-600"
-        />
-        <StatCard
-          value={completedToday}
-          label="Done Today"
-          color="text-orange-500"
-        />
-        <StatCard
-          value={completionRate + "%"}
-          label="Completion"
-          color="text-green-600"
-        />
-        <StatCard
-          value={longestCurrentStreak}
-          label="Best Streak 🔥"
-          color="text-purple-600"
-        />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              value={totalHabits}
+              label="Total Habits"
+              color="text-blue-600"
+            />
+            <StatCard
+              value={completedToday}
+              label="Done Today"
+              color="text-orange-500"
+            />
+            <StatCard
+              value={completionRate + "%"}
+              label="Completion"
+              color="text-green-600"
+            />
+            <StatCard
+              value={longestCurrentStreak}
+              label="Best Streak 🔥"
+              color="text-purple-600"
+            />
+          </>
+        )}
       </div>
 
       {/* Main content grid */}
@@ -164,7 +241,6 @@ export default function Habits() {
                   className="w-full text-sm text-gray-700 placeholder-gray-400 outline-none border-b border-gray-200 pb-1 focus:border-blue-400 transition-colors"
                 />
                 <div className="flex items-center gap-3 flex-wrap">
-                  {/* Category */}
                   <div className="flex gap-1 flex-wrap">
                     {CATEGORIES.map((c) => (
                       <button
@@ -180,28 +256,20 @@ export default function Habits() {
                       </button>
                     ))}
                   </div>
-                  {/* Frequency */}
                   <div className="flex gap-1 ml-auto">
-                    <button
-                      onClick={() => setFrequency("daily")}
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                        frequency === "daily"
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
-                    >
-                      Daily
-                    </button>
-                    <button
-                      onClick={() => setFrequency("weekly")}
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                        frequency === "weekly"
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      }`}
-                    >
-                      Weekly
-                    </button>
+                    {(["daily", "weekly"] as HabitFrequency[]).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setFrequency(f)}
+                        className={`px-2 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                          frequency === f
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`}
+                      >
+                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">
@@ -228,12 +296,16 @@ export default function Habits() {
 
           {/* List */}
           <div className="px-4">
-            <HabitList
-              habits={habits}
-              onToggle={toggleHabitToday}
-              onRemove={removeHabit}
-              isCompletedToday={isCompletedToday}
-            />
+            {loading ? (
+              <HabitListSkeleton />
+            ) : (
+              <HabitList
+                habits={habits}
+                onToggle={toggleHabitToday}
+                onRemove={removeHabit}
+                isCompletedToday={isCompletedToday}
+              />
+            )}
           </div>
         </div>
 
@@ -244,45 +316,45 @@ export default function Habits() {
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               This Week
             </h3>
-            <div className="flex items-end gap-1.5 h-16">
-              {weeklyData.map(({ day, count, pct }) => {
-                const today = last7Days[last7Days.length - 1];
-                const isToday = day === today;
-                return (
-                  <div
-                    key={day}
-                    className="flex-1 flex flex-col items-center gap-1"
-                    title={`${count} / ${totalHabits} habits`}
-                  >
-                    <div className="w-full relative flex items-end h-10">
-                      <div
-                        className={`w-full rounded-sm transition-all ${
-                          isToday
-                            ? "bg-blue-500"
-                            : pct > 0
-                              ? "bg-blue-200"
-                              : "bg-gray-100"
-                        }`}
-                        style={{
-                          height:
-                            pct > 0 ? `${Math.max(pct * 100, 15)}%` : "4px",
-                          minHeight: "4px",
-                        }}
-                      />
-                    </div>
-                    <span
-                      className={`text-xs ${
-                        isToday
-                          ? "text-blue-600 font-semibold"
-                          : "text-gray-400"
-                      }`}
+            {loading ? (
+              <WeeklyChartSkeleton />
+            ) : (
+              <div className="flex items-end gap-1.5 h-16">
+                {weeklyData.map(({ day, count, pct }) => {
+                  const today = last7Days[last7Days.length - 1];
+                  const isToday = day === today;
+                  return (
+                    <div
+                      key={day}
+                      className="flex-1 flex flex-col items-center gap-1"
+                      title={`${count} / ${totalHabits} habits`}
                     >
-                      {getDayLabel(day)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                      <div className="w-full relative flex items-end h-10">
+                        <div
+                          className={`w-full rounded-sm transition-all ${
+                            isToday
+                              ? "bg-blue-500"
+                              : pct > 0
+                                ? "bg-blue-200"
+                                : "bg-gray-100"
+                          }`}
+                          style={{
+                            height:
+                              pct > 0 ? `${Math.max(pct * 100, 15)}%` : "4px",
+                            minHeight: "4px",
+                          }}
+                        />
+                      </div>
+                      <span
+                        className={`text-xs ${isToday ? "text-blue-600 font-semibold" : "text-gray-400"}`}
+                      >
+                        {getDayLabel(day)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Today's progress */}
@@ -290,7 +362,9 @@ export default function Habits() {
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               Today's Progress
             </h3>
-            {totalHabits === 0 ? (
+            {loading ? (
+              <ProgressSidebarSkeleton />
+            ) : totalHabits === 0 ? (
               <p className="text-xs text-gray-400">No habits to track yet</p>
             ) : (
               <>
@@ -318,11 +392,15 @@ export default function Habits() {
           </div>
 
           {/* Top streaks */}
-          {habits.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                Top Streaks
-              </h3>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Top Streaks
+            </h3>
+            {loading ? (
+              <TopStreaksSkeleton />
+            ) : habits.length === 0 ? (
+              <p className="text-xs text-gray-400">No habits yet</p>
+            ) : (
               <div className="space-y-2">
                 {[...habits]
                   .sort((a, b) => b.streak - a.streak)
@@ -336,24 +414,23 @@ export default function Habits() {
                         {h.name}
                       </span>
                       <span
-                        className={`text-xs font-semibold ${
-                          h.streak > 0 ? "text-orange-500" : "text-gray-300"
-                        }`}
+                        className={`text-xs font-semibold ${h.streak > 0 ? "text-orange-500" : "text-gray-300"}`}
                       >
                         {h.streak > 0 ? `🔥 ${h.streak}` : "—"}
                       </span>
                     </div>
                   ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Shared stat card matching Tasks page
+// ─── Shared stat card ─────────────────────────────────────────────────────────
+
 function StatCard({
   value,
   label,

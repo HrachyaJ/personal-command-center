@@ -12,6 +12,16 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { signOut, useSession } from "../../lib/auth-client";
 import { useNavigate } from "react-router";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -20,11 +30,21 @@ const navigation = [
   { name: "Habits", href: "/habits", icon: BarChart3 },
 ];
 
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
+}
+
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { data: session } = useSession();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const { data: session, isPending } = useSession();
   const user = session?.user;
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/sign-in");
+  };
 
   return (
     <aside
@@ -120,16 +140,24 @@ function Sidebar() {
               "opacity 150ms ease, max-height 300ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 300ms ease",
           }}
         >
-          <p
-            className="text-sm font-medium whitespace-nowrap"
-            data-testid="user-name"
-          >
-            {user?.name}
-          </p>
-          <p className="text-xs text-muted-foreground whitespace-nowrap">
-            {/* {user?.plan} */}
-            Free Plan
-          </p>
+          {isPending ? (
+            <div className="space-y-1.5">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ) : (
+            <>
+              <p
+                className="text-sm font-medium whitespace-nowrap"
+                data-testid="user-name"
+              >
+                {user?.name}
+              </p>
+              <p className="text-xs text-muted-foreground whitespace-nowrap">
+                Free Plan
+              </p>
+            </>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -147,10 +175,7 @@ function Sidebar() {
                 transition: "opacity 150ms ease",
               }}
             >
-              {
-                // user?.plan === "Pro" ? "Manage Subscription" : "Upgrade to Pro"
-                "Upgrade to Pro"
-              }
+              Upgrade to Pro
             </span>
           </Button>
 
@@ -160,10 +185,7 @@ function Sidebar() {
             style={{ justifyContent: "flex-start" }}
             data-testid="button-logout"
             title={collapsed ? "Logout" : undefined}
-            onClick={async () => {
-              await signOut();
-              navigate("/sign-in");
-            }}
+            onClick={() => setLogoutOpen(true)}
           >
             <LogOut className="w-4 h-4 shrink-0" />
             <span
@@ -178,6 +200,30 @@ function Sidebar() {
           </Button>
         </div>
       </div>
+
+      {/* Logout confirmation dialog */}
+      <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out of FocusFlow?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll need to sign back in to access your tasks, goals, and
+              habits.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="cursor-pointer bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleLogout}
+            >
+              Log out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }

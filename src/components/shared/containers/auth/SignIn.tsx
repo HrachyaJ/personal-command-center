@@ -1,7 +1,9 @@
 import { Brain } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "../../../../lib/auth-client";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const REMEMBERED_EMAIL_KEY = "focusflow:last_email";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -9,28 +11,54 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
+  const [fastSignInMode, setFastSignInMode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const from =
     (location.state as { from?: Location })?.from?.pathname ?? "/dashboard";
+
+  // Load remembered email on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+    if (saved) {
+      setRememberedEmail(saved);
+      setEmail(saved);
+      setFastSignInMode(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const { error } = await signIn.email({
-      email,
-      password,
-    });
+    const { error } = await signIn.email({ email, password });
 
     if (error) {
       setError(error.message ?? "Something went wrong. Please try again.");
       setLoading(false);
     } else {
+      localStorage.setItem(REMEMBERED_EMAIL_KEY, email);
       navigate(from, { replace: true });
     }
   };
+
+  const handleNotMe = () => {
+    setRememberedEmail(null);
+    setFastSignInMode(false);
+    setEmail("");
+    setPassword("");
+    localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+  };
+
+  // Derive a display name from the email (part before @)
+  const displayName = rememberedEmail
+    ? rememberedEmail
+        .split("@")[0]
+        .replace(/[._-]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+    : null;
 
   return (
     <>
@@ -59,6 +87,17 @@ export default function SignIn() {
         .auth-link { color: #2563eb; text-decoration: none; font-weight: 500; transition: color 0.15s; }
         .auth-link:hover { color: #1d4ed8; }
         .auth-divider-line { flex: 1; height: 1px; background: rgba(37,99,235,0.1); }
+        .not-me-btn {
+          background: none; border: none; padding: 0; font-family: 'DM Sans', sans-serif;
+          font-size: 12px; color: #94a3b8; cursor: pointer; transition: color 0.15s;
+          text-decoration: underline; text-underline-offset: 2px;
+        }
+        .not-me-btn:hover { color: #64748b; }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .fast-signin-chip { animation: fadeIn 0.3s ease both; }
       `}</style>
 
       <div
@@ -150,11 +189,56 @@ export default function SignIn() {
               marginBottom: "8px",
             }}
           >
-            Welcome back
+            {fastSignInMode ? `Welcome back` : "Welcome back"}
           </h1>
-          <p style={{ fontSize: "15px", color: "#64748b" }}>
-            Sign in to continue your focus journey.
-          </p>
+
+          {/* Fast sign-in chip */}
+          {fastSignInMode && rememberedEmail ? (
+            <div
+              className="fast-signin-chip"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "6px",
+                background: "#eff6ff",
+                border: "1px solid rgba(37,99,235,0.15)",
+                borderRadius: "999px",
+                padding: "5px 12px 5px 8px",
+              }}
+            >
+              {/* Avatar */}
+              <div
+                style={{
+                  width: "22px",
+                  height: "22px",
+                  background: "#2563eb",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "11px",
+                  color: "#fff",
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}
+              >
+                {displayName?.[0] ?? "?"}
+              </div>
+              <span
+                style={{ fontSize: "13px", color: "#374151", fontWeight: 500 }}
+              >
+                {rememberedEmail}
+              </span>
+              <button className="not-me-btn" onClick={handleNotMe}>
+                Not me
+              </button>
+            </div>
+          ) : (
+            <p style={{ fontSize: "15px", color: "#64748b" }}>
+              Sign in to continue your focus journey.
+            </p>
+          )}
         </div>
 
         {/* Card */}
@@ -192,43 +276,49 @@ export default function SignIn() {
             onSubmit={handleSubmit}
             style={{ display: "flex", flexDirection: "column", gap: "20px" }}
           >
-            {/* Email */}
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "6px" }}
-            >
-              <label
-                style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
+            {/* Email — hidden in fast sign-in mode, still submitted */}
+            {!fastSignInMode && (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "6px" }}
               >
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField(null)}
-                placeholder="you@example.com"
-                required
-                style={{
-                  padding: "11px 14px",
-                  borderRadius: "10px",
-                  border:
-                    focusedField === "email"
-                      ? "1.5px solid #2563eb"
-                      : "1.5px solid rgba(37,99,235,0.15)",
-                  fontSize: "14px",
-                  fontFamily: "'DM Sans', sans-serif",
-                  color: "#0f172a",
-                  background: focusedField === "email" ? "#fafcff" : "#fff",
-                  outline: "none",
-                  transition: "border-color 0.15s, background 0.15s",
-                  boxShadow:
-                    focusedField === "email"
-                      ? "0 0 0 3px rgba(37,99,235,0.08)"
-                      : "none",
-                }}
-              />
-            </div>
+                <label
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#374151",
+                  }}
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="you@example.com"
+                  required
+                  style={{
+                    padding: "11px 14px",
+                    borderRadius: "10px",
+                    border:
+                      focusedField === "email"
+                        ? "1.5px solid #2563eb"
+                        : "1.5px solid rgba(37,99,235,0.15)",
+                    fontSize: "14px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    color: "#0f172a",
+                    background: focusedField === "email" ? "#fafcff" : "#fff",
+                    outline: "none",
+                    transition: "border-color 0.15s, background 0.15s",
+                    boxShadow:
+                      focusedField === "email"
+                        ? "0 0 0 3px rgba(37,99,235,0.08)"
+                        : "none",
+                  }}
+                />
+              </div>
+            )}
 
             {/* Password */}
             <div
@@ -247,6 +337,7 @@ export default function SignIn() {
                 onBlur={() => setFocusedField(null)}
                 placeholder="••••••••"
                 required
+                autoFocus={fastSignInMode}
                 style={{
                   padding: "11px 14px",
                   borderRadius: "10px",
@@ -273,7 +364,11 @@ export default function SignIn() {
               className="btn-primary-light"
               disabled={loading}
             >
-              {loading ? "Signing in…" : "Sign in →"}
+              {loading
+                ? "Signing in…"
+                : fastSignInMode
+                  ? `Continue as ${displayName} →`
+                  : "Sign in →"}
             </button>
           </form>
 
