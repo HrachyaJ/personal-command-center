@@ -1,6 +1,6 @@
 import { Brain } from "lucide-react";
 import { useState } from "react";
-import { signIn, signUp } from "../../../../lib/auth-client";
+import { authClient, signUp } from "../../../../lib/auth-client";
 import { useNavigate } from "react-router";
 
 export default function SignUp() {
@@ -366,7 +366,7 @@ export default function SignUp() {
           <button
             type="button"
             onClick={() =>
-              signIn.social({
+              authClient.signIn.social({
                 provider: "google",
                 callbackURL: `${window.location.origin}/dashboard`,
               })
