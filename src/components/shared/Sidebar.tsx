@@ -207,8 +207,7 @@ function Sidebar() {
           <AlertDialogHeader>
             <AlertDialogTitle>Log out of FocusFlow?</AlertDialogTitle>
             <AlertDialogDescription>
-              You'll need to sign back in to access your tasks, goals, and
-              habits.
+              You'll need to sign back in to access your account.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

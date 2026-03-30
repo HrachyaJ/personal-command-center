@@ -366,7 +366,10 @@ export default function SignUp() {
           <button
             type="button"
             onClick={() =>
-              signIn.social({ provider: "google", callbackURL: "/dashboard" })
+              signIn.social({
+                provider: "google",
+                callbackURL: `${window.location.origin}/dashboard`,
+              })
             }
             style={{
               width: "100%",

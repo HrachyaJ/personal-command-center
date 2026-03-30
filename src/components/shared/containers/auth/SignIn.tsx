@@ -1,6 +1,6 @@
 import { Brain } from "lucide-react";
 import { useState, useEffect } from "react";
-import { signIn } from "../../../../lib/auth-client";
+import { authClient, signIn } from "../../../../lib/auth-client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const REMEMBERED_EMAIL_KEY = "focusflow:last_email";
@@ -398,7 +398,10 @@ export default function SignIn() {
           <button
             type="button"
             onClick={() =>
-              signIn.social({ provider: "google", callbackURL: "/dashboard" })
+              authClient.signIn.social({
+                provider: "google",
+                callbackURL: `${window.location.origin}/dashboard`,
+              })
             }
             style={{
               width: "100%",
