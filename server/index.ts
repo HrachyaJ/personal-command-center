@@ -31,10 +31,7 @@ app.use("/api/habits", habitRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// Only listen locally, not on Vercel
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT ?? 3001;
-  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
-}
+const PORT = process.env.PORT ?? 3001;
+app.listen(PORT, () => console.log(`Server running on :${PORT}`));
 
 export default app;
