@@ -7,7 +7,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { user } from "./auth-schema"; // Better Auth owns the user table
+import { user } from "./auth-schema.js"; // Better Auth owns the user table
 
 // ─── Tasks ────────────────────────────────────────────────────────────────────
 export const tasks = pgTable("tasks", {

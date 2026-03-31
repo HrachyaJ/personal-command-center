@@ -1,8 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
-import * as authSchema from "./db/auth-schema";
-import { LOCALHOST_ORIGIN } from "./constants";
+import { db } from "./db.js";
+import * as authSchema from "./db/auth-schema.js";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -19,5 +18,9 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  trustedOrigins: ["http://localhost:5173", "http://localhost:3001"],
+  trustedOrigins: [
+    "http://localhost:5173",
+    "http://localhost:3001",
+    "https://focus-flow-site.vercel.app",
+  ],
 });

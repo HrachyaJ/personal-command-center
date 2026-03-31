@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "./auth";
-import taskRoutes from "./routes/tasks";
-import goalRoutes from "./routes/goals";
-import habitRoutes from "./routes/habits";
-import { LOCALHOST_ORIGIN } from "./constants";
+import { auth } from "./auth.js";
+import taskRoutes from "./routes/tasks.js";
+import goalRoutes from "./routes/goals.js";
+import habitRoutes from "./routes/habits.js";
+import { LOCALHOST_ORIGIN } from "./constants.js";
 
 const app = express();
 
