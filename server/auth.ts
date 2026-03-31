@@ -22,5 +22,6 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "http://localhost:3001",
     "https://focus-flow-site.vercel.app",
+    "https://personal-command-center.onrender.com",
   ],
 });
