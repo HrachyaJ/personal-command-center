@@ -7,16 +7,12 @@ import { auth } from "./auth.js";
 import taskRoutes from "./routes/tasks.js";
 import goalRoutes from "./routes/goals.js";
 import habitRoutes from "./routes/habits.js";
-import { LOCALHOST_ORIGIN } from "./constants.js";
 
 const app = express();
 
 app.use(
   cors({
-    origin: [
-      LOCALHOST_ORIGIN,
-      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
-    ],
+    origin: ["http://localhost:5173", "https://focus-flow-site.vercel.app"],
     credentials: true,
   }),
 );
