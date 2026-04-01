@@ -48,6 +48,8 @@ export default function SignUp() {
       focusedField === field ? "0 0 0 3px rgba(37,99,235,0.08)" : "none",
   });
 
+  const VERCEL_ORIGIN = "https://focus-flow-site.vercel.app";
+
   return (
     <>
       <link
@@ -368,7 +370,7 @@ export default function SignUp() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: `${window.location.origin}/dashboard`,
+                callbackURL: `${VERCEL_ORIGIN}/dashboard`,
               })
             }
             style={{

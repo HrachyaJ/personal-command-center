@@ -60,6 +60,8 @@ export default function SignIn() {
         .replace(/\b\w/g, (c) => c.toUpperCase())
     : null;
 
+  const VERCEL_ORIGIN = "https://focus-flow-site.vercel.app";
+
   return (
     <>
       <link
@@ -400,7 +402,7 @@ export default function SignIn() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: `${window.location.origin}/dashboard`,
+                callbackURL: `${VERCEL_ORIGIN}/dashboard`,
               })
             }
             style={{
