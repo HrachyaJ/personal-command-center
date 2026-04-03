@@ -13,7 +13,6 @@ export const auth = betterAuth({
       secure: true,
       httpOnly: true,
       sameSite: "none",
-      partitioned: true,
     },
   },
   database: drizzleAdapter(db, {
