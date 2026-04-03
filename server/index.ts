@@ -1,5 +1,4 @@
 import "dotenv/config";
-
 import express from "express";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
@@ -17,7 +16,8 @@ app.use(
   }),
 );
 
-app.all("/api/auth/{*path}", toNodeHandler(auth));
+// Fix: use /* instead of /{*path}
+app.all("/api/auth/*", toNodeHandler(auth));
 
 app.use(express.json());
 
@@ -27,7 +27,10 @@ app.use("/api/habits", habitRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-const PORT = process.env.PORT ?? 3001;
-app.listen(PORT, () => console.log(`Server running on :${PORT}`));
+// Only listen locally, not on Vercel
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT ?? 3001;
+  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
+}
 
 export default app;

@@ -17,7 +17,7 @@ export default function SignIn() {
   const location = useLocation();
   const from =
     (location.state as { from?: Location })?.from?.pathname ?? "/dashboard";
-  const callbackURL = `${window.location.origin}/dashboard`;
+  // const callbackURL = `${window.location.origin}/dashboard`;
 
   // Load remembered email on mount
   useEffect(() => {
@@ -401,7 +401,7 @@ export default function SignIn() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL,
+                callbackURL: `${window.location.origin}/auth/callback`,
               })
             }
             style={{

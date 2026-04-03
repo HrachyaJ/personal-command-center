@@ -13,6 +13,7 @@ import LandingPage from "../components/shared/containers/LandingPage";
 import SignIn from "../components/shared/containers/auth/SignIn";
 import SignUp from "../components/shared/containers/auth/SignUp";
 import ProtectedRoute from "../components/shared/ProtectedRoute";
+import AuthCallback from "../components/shared/containers/auth/AuthCallback";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -41,7 +42,6 @@ function AppLayout() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-
           {/* Protected routes */}
           <Route
             path="/dashboard"
@@ -99,6 +99,7 @@ function AppLayout() {
               </ProtectedRoute>
             }
           />
+          <Route path="/auth/callback" element={<AuthCallback />} />{" "}
         </Routes>
       </main>
     </div>

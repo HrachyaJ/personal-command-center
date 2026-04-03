@@ -369,7 +369,7 @@ export default function SignUp() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL,
+                callbackURL: `${window.location.origin}/auth/callback`,
               })
             }
             style={{
