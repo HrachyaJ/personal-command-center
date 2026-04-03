@@ -11,6 +11,7 @@ export default function SignUp() {
   const [error, setError] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const navigate = useNavigate();
+  const callbackURL = `${window.location.origin}/dashboard`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +48,6 @@ export default function SignUp() {
     boxShadow:
       focusedField === field ? "0 0 0 3px rgba(37,99,235,0.08)" : "none",
   });
-
-  const VERCEL_ORIGIN = "https://focus-flow-site.vercel.app";
 
   return (
     <>
@@ -370,7 +369,7 @@ export default function SignUp() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: `${VERCEL_ORIGIN}/dashboard`,
+                callbackURL,
               })
             }
             style={{
