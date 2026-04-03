@@ -5,7 +5,7 @@ import type {
   HabitFrequency,
 } from "../types/habit.types";
 
-const API = "http://localhost:3001/api/habits";
+const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/habits`;
 
 function getTodayISO(): string {
   return new Date().toISOString().split("T")[0];

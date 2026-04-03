@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Goal } from "../types/goal.types";
 
-const API = "http://localhost:3001/api/goals";
+const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/goals`;
 
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
