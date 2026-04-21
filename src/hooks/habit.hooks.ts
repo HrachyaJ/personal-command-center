@@ -14,12 +14,27 @@ function getTodayISO(): string {
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(API, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => setHabits(data))
-      .finally(() => setLoading(false));
+    async function fetchHabits() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(API, { credentials: "include" });
+        if (!response.ok) {
+          throw new Error("Failed to fetch habits");
+        }
+        const data = await response.json();
+        setHabits(data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchHabits();
   }, []);
 
   async function addHabit(params: {
@@ -29,56 +44,86 @@ export function useHabits() {
     frequency: HabitFrequency;
     color?: string;
   }) {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(params),
-    });
-    const newHabit = await res.json();
-    setHabits((prev) => [...prev, newHabit]);
-  }
-
-  async function removeHabit(id: string) {
-    await fetch(`${API}/${id}`, { method: "DELETE", credentials: "include" });
-    setHabits((prev) => prev.filter((h) => h.id !== id));
-  }
-
-  async function toggleHabitToday(id: string) {
-    const today = getTodayISO();
-    const habit = habits.find((h) => h.id === id);
-    if (!habit) return;
-
-    const alreadyDone = habit.completedDates?.includes(today);
-
-    if (alreadyDone) {
-      // undo
-      await fetch(`${API}/${id}/complete`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ date: today }),
-      });
-      setHabits((prev) =>
-        prev.map((h) =>
-          h.id === id
-            ? {
-                ...h,
-                completedDates: h.completedDates.filter((d) => d !== today),
-              }
-            : h,
-        ),
-      );
-    } else {
-      // complete
-      const res = await fetch(`${API}/${id}/complete`, {
+    try {
+      setError(null);
+      const res = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ date: today }),
+        body: JSON.stringify(params),
       });
-      const updated = await res.json();
-      setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
+      if (!res.ok) {
+        throw new Error("Failed to add habit");
+      }
+      const newHabit = await res.json();
+      setHabits((prev) => [...prev, newHabit]);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  async function removeHabit(id: string) {
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to remove habit");
+      }
+      setHabits((prev) => prev.filter((h) => h.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  async function toggleHabitToday(id: string) {
+    try {
+      setError(null);
+      const today = getTodayISO();
+      const habit = habits.find((h) => h.id === id);
+      if (!habit) return;
+
+      const alreadyDone = habit.completedDates?.includes(today);
+
+      if (alreadyDone) {
+        // undo
+        const res = await fetch(`${API}/${id}/complete`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ date: today }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to undo habit completion");
+        }
+        setHabits((prev) =>
+          prev.map((h) =>
+            h.id === id
+              ? {
+                  ...h,
+                  completedDates: h.completedDates.filter((d) => d !== today),
+                }
+              : h,
+          ),
+        );
+      } else {
+        // complete
+        const res = await fetch(`${API}/${id}/complete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ date: today }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to complete habit");
+        }
+        const updated = await res.json();
+        setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
+      }
+    } catch (err) {
+      setError((err as Error).message);
     }
   }
 
@@ -98,6 +143,7 @@ export function useHabits() {
   return {
     habits,
     loading,
+    error,
     addHabit,
     removeHabit,
     toggleHabitToday,

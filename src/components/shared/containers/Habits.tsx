@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { HabitCategory, HabitFrequency } from "../../../types/habit.types";
 import { useHabits } from "../../../hooks/habit.hooks";
 import HabitList from "../HabitList";
+import { CATEGORY_COLORS } from "../../../lib/theme";
 
 const CATEGORIES: { value: HabitCategory; label: string; emoji: string }[] = [
   { value: "health", label: "Health", emoji: "🩺" },
@@ -11,15 +12,6 @@ const CATEGORIES: { value: HabitCategory; label: string; emoji: string }[] = [
   { value: "productivity", label: "Productivity", emoji: "⚡" },
   { value: "other", label: "Other", emoji: "✨" },
 ];
-
-const CATEGORY_COLORS: Record<HabitCategory, string> = {
-  health: "#22c55e",
-  fitness: "#f97316",
-  mindfulness: "#a855f7",
-  learning: "#3b82f6",
-  productivity: "#eab308",
-  other: "#6b7280",
-};
 
 function getLast7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {

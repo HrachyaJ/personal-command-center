@@ -9,11 +9,12 @@ import Dashboard from "../components/shared/containers/Dashboard";
 import Goals from "../components/shared/containers/Goals";
 import Tasks from "../components/shared/containers/Tasks";
 import Habits from "../components/shared/containers/Habits";
-import LandingPage from "../components/shared/containers/LandingPage";
+import LandingPage from "../components/shared/containers/landing/LandingPage";
 import SignIn from "../components/shared/containers/auth/SignIn";
 import SignUp from "../components/shared/containers/auth/SignUp";
 import ProtectedRoute from "../components/shared/ProtectedRoute";
 import AuthCallback from "../components/shared/containers/auth/AuthCallback";
+import React from "react";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -27,11 +28,19 @@ const SIDEBAR_ROUTES = [
 
 function AppLayout() {
   const location = useLocation();
-  document.title = "FocusFlow - Your Ultimate Productivity Companion";
+  document.title = "FocusFlow";
 
   const showSidebar = SIDEBAR_ROUTES.some(
     (r) => location.pathname.replace(/\/$/, "") === r,
   );
+
+  // Set favicon
+  React.useEffect(() => {
+    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+    if (link) {
+      link.href = "/focus-flow-favicon.png";
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen">
