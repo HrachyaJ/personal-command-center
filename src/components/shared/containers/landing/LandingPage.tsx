@@ -9,12 +9,16 @@ import {
 import { GridBackground } from "./GridBackground";
 import { AppPreview } from "./AppPreview";
 import { FeatureCard } from "./FeatureCard";
+import { authClient } from "../../../../lib/auth-client";
 
 export default function LandingPage() {
-  const scrollY = useScrollY();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [LoggedIn, setLoggedIn] = useState(false);
+  const scrollY = useScrollY();
   const statsSection = useInView();
   const ctaSection = useInView();
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = !!session?.user;
 
   useEffect(() => {
     const id = setInterval(
@@ -22,6 +26,13 @@ export default function LandingPage() {
       4000,
     );
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setLoggedIn(true);
+    }
   }, []);
 
   return (
@@ -126,7 +137,6 @@ export default function LandingPage() {
               FocusFlow
             </span>
           </div>
-
           <div style={{ display: "flex", gap: "32px" }}>
             <a href="#features" className="nav-link-light">
               Features
@@ -135,23 +145,34 @@ export default function LandingPage() {
               Reviews
             </a>
           </div>
-
-          <div style={{ display: "flex", gap: "12px" }}>
-            <a
-              href="/sign-in"
-              className="btn-ghost-light"
-              style={{ padding: "9px 20px", fontSize: "14px" }}
-            >
-              Sign in
-            </a>
-            <a
-              href="/sign-up"
-              className="btn-primary-light"
-              style={{ padding: "9px 20px", fontSize: "14px" }}
-            >
-              Get started free
-            </a>
-          </div>
+          {isPending ? null : isLoggedIn ? (
+            <div>
+              <a
+                href="/dashboard"
+                className="btn-primary-light"
+                style={{ padding: "9px 20px", fontSize: "14px" }}
+              >
+                Dashboard →
+              </a>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: "12px" }}>
+              <a
+                href="/sign-in"
+                className="btn-ghost-light"
+                style={{ padding: "9px 20px", fontSize: "14px" }}
+              >
+                Sign in
+              </a>
+              <a
+                href="/sign-up"
+                className="btn-primary-light"
+                style={{ padding: "9px 20px", fontSize: "14px" }}
+              >
+                Get started free
+              </a>
+            </div>
+          )}
         </nav>
 
         {/* HERO */}

@@ -1,0 +1,17 @@
+[
+  {
+    "hour": 23,
+    "day": 6,
+    "completed": 1
+  },
+  {
+    "hour": 21,
+    "day": 5,
+    "completed": 1
+  },
+  {
+    "hour": 20,
+    "day": 2,
+    "completed": 0
+  }
+]

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Task } from "../types/task.types";
+import type { Task, TaskFormData } from "../types/task.types";
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/tasks`;
 
@@ -16,12 +16,21 @@ export function useTasks() {
   }, []);
 
   // ── CRUD ────────────────────────────────────────────────────────────────
-  async function addTask(title: Task["title"]) {
+  async function addTask(data: TaskFormData) {
     const res = await fetch(API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ title }),
+      body: JSON.stringify({
+        title: data.title,
+        dueDate: data.dueDate,
+        scheduledFor: data.scheduledFor,
+        priority: data.priority,
+        category: data.category,
+        estimatedMinutes: data.estimatedMinutes,
+        isRecurring: data.isRecurring,
+        recurrenceRule: data.recurrenceRule,
+      }),
     });
     const newTask = await res.json();
     setTasks((prev) => [...prev, newTask]);
@@ -35,22 +44,29 @@ export function useTasks() {
   async function toggleTask(id: Task["id"]) {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
+
+    // Also stamp completedAt when completing, clear it when un-completing
+    const patch = {
+      completed: !task.completed,
+      completedAt: !task.completed ? new Date().toISOString() : null,
+    };
+
     const res = await fetch(`${API}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ completed: !task.completed }),
+      body: JSON.stringify(patch),
     });
     const updated = await res.json();
     setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
   }
 
-  async function editTask(id: Task["id"], title: Task["title"]) {
+  async function editTask(id: Task["id"], data: Partial<TaskFormData>) {
     const res = await fetch(`${API}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ title }),
+      body: JSON.stringify(data),
     });
     const updated = await res.json();
     setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
@@ -66,7 +82,7 @@ export function useTasks() {
     setTasks((prev) => prev.filter((t) => !t.completed));
   }
 
-  // ── Helpers (kept synchronous — no DB call needed) ──────────────────────
+  // ── Helpers (synchronous — no DB call needed) ───────────────────────────
   function countCompleted() {
     return tasks.filter((t) => t.completed).length;
   }

@@ -30,30 +30,82 @@ router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-  const { title } = req.body;
+  const {
+    title,
+    dueDate,
+    scheduledFor,
+    priority,
+    category,
+    estimatedMinutes,
+    isRecurring,
+    recurrenceRule,
+  } = req.body;
+
   if (!title?.trim())
     return res.status(400).json({ error: "Title is required" });
 
   const [task] = await db
     .insert(tasks)
-    .values({ userId: session.user.id, title: title.trim() })
+    .values({
+      id: crypto.randomUUID(),
+      userId: session.user.id,
+      title: title.trim(),
+      ...(dueDate !== undefined && { dueDate: new Date(dueDate) }),
+      ...(scheduledFor !== undefined && {
+        scheduledFor: new Date(scheduledFor),
+      }),
+      ...(priority !== undefined && { priority }),
+      ...(category !== undefined && { category }),
+      ...(estimatedMinutes !== undefined && {
+        estimatedMinutes: estimatedMinutes,
+      }),
+      ...(isRecurring !== undefined && { isRecurring: isRecurring }),
+      ...(recurrenceRule !== undefined && { recurrenceRule: recurrenceRule }),
+    })
     .returning();
 
   res.status(201).json(task);
 });
 
-// PATCH /api/tasks/:id — update a task (title or completed)
+// PATCH /api/tasks/:id — update a task
 router.patch("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-  const { title, completed } = req.body;
+  const {
+    title,
+    completed,
+    completedAt,
+    dueDate,
+    scheduledFor,
+    priority,
+    category,
+    estimatedMinutes,
+    isRecurring,
+    recurrenceRule,
+  } = req.body;
 
   const [task] = await db
     .update(tasks)
     .set({
       ...(title !== undefined && { title }),
       ...(completed !== undefined && { completed }),
+      ...(completedAt !== undefined && {
+        completedAt: completedAt ? new Date(completedAt) : null,
+      }),
+      ...(dueDate !== undefined && {
+        dueDate: dueDate ? new Date(dueDate) : null,
+      }),
+      ...(scheduledFor !== undefined && {
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
+      }),
+      ...(priority !== undefined && { priority }),
+      ...(category !== undefined && { category }),
+      ...(estimatedMinutes !== undefined && {
+        estimatedMinutes: estimatedMinutes,
+      }),
+      ...(isRecurring !== undefined && { isRecurring: isRecurring }),
+      ...(recurrenceRule !== undefined && { recurrenceRule: recurrenceRule }),
     })
     .where(and(eq(tasks.id, req.params.id), eq(tasks.userId, session.user.id)))
     .returning();
@@ -69,7 +121,7 @@ router.delete("/:id", async (req, res) => {
 
   await db
     .delete(tasks)
-    .where(eq(tasks.id, req.params.id) && eq(tasks.userId, session.user.id));
+    .where(and(eq(tasks.id, req.params.id), eq(tasks.userId, session.user.id)));
 
   res.status(204).send();
 });

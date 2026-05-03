@@ -1,9 +1,81 @@
-import type { Task } from "../../types/task.types";
-import { Edit } from "lucide-react";
+import type {
+  Task,
+  TaskFormData,
+  TaskCategory,
+  TaskPriority,
+} from "../../types/task.types";
+import {
+  Edit,
+  Trash2,
+  Calendar,
+  Clock,
+  RefreshCw,
+  Tag,
+  Save,
+  X,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
-import { useState } from "react";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Badge } from "../ui/badge";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Switch } from "../ui/switch";
+import { Collapsible, CollapsibleContent } from "../ui/collapsible";
+import { useState } from "react";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const PRIORITY_STYLES: Record<TaskPriority, { badge: string; dot: string }> = {
+  low: {
+    badge: "bg-slate-100 text-slate-600 border-slate-200",
+    dot: "bg-slate-400",
+  },
+  medium: {
+    badge: "bg-amber-100 text-amber-700 border-amber-200",
+    dot: "bg-amber-400",
+  },
+  high: { badge: "bg-red-100 text-red-700 border-red-200", dot: "bg-red-500" },
+};
+
+const CATEGORY_ICONS: Record<TaskCategory, string> = {
+  work: "💼",
+  health: "🏃",
+  personal: "🏠",
+  learning: "📚",
+  finance: "💰",
+  other: "📌",
+};
+
+function parseDate(dateStr: string): Date {
+  // Date-only strings like "2025-04-29" are parsed as UTC by default,
+  // which shifts the day in local timezones. Append local midnight instead.
+  // Full ISO strings (contain "T") are left untouched.
+  return new Date(dateStr.includes("T") ? dateStr : dateStr + "T00:00");
+}
+
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return null;
+  const d = parseDate(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function isOverdue(dateStr: string | null, completed: boolean) {
+  if (!dateStr || completed) return false;
+  const d = parseDate(dateStr);
+  if (isNaN(d.getTime())) return false;
+  return d < new Date();
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function TaskItem({
   task,
@@ -14,84 +86,371 @@ export default function TaskItem({
   task: Task;
   onDelete: (id: Task["id"]) => void;
   onToggle: (id: Task["id"]) => void;
-  onEdit: (id: Task["id"], title: Task["title"]) => void;
+  onEdit: (id: Task["id"], data: Partial<TaskFormData>) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(task.title);
+  const [editData, setEditData] = useState<TaskFormData>({
+    title: task.title,
+    dueDate: task.dueDate,
+    scheduledFor: task.scheduledFor,
+    priority: task.priority,
+    category: task.category,
+    estimatedMinutes: task.estimatedMinutes,
+    isRecurring: task.isRecurring,
+    recurrenceRule: task.recurrenceRule,
+  });
 
-  function startEditing() {
-    setIsEditing(true);
+  function set<K extends keyof TaskFormData>(key: K, value: TaskFormData[K]) {
+    setEditData((prev) => ({ ...prev, [key]: value }));
   }
 
   function saveChanges() {
-    onEdit(task.id, editValue);
+    if (!editData.title.trim()) return;
+    if (!editData.priority) return;
+    if (!editData.category) return;
+    onEdit(task.id, { ...editData, title: editData.title.trim() });
     setIsEditing(false);
   }
 
   function cancelEditing() {
+    setEditData({
+      title: task.title,
+      dueDate: task.dueDate,
+      scheduledFor: task.scheduledFor,
+      priority: task.priority,
+      category: task.category,
+      estimatedMinutes: task.estimatedMinutes,
+      isRecurring: task.isRecurring,
+      recurrenceRule: task.recurrenceRule,
+    });
     setIsEditing(false);
-    setEditValue(task.title);
   }
 
-  function handleEdit() {
-    if (isEditing) {
-      saveChanges();
-    } else {
-      startEditing();
-    }
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && isEditing) {
-      saveChanges();
-    } else if (e.key === "Escape" && isEditing) {
-      cancelEditing();
-    }
-  }
+  const overdue = isOverdue(task.dueDate, task.completed);
 
   return (
-    <div className="w-full">
-      <li className="p-2 border-b flex items-center justify-between gap-4">
+    <li
+      className={`rounded-lg border bg-white transition-all ${task.completed ? "opacity-60" : ""} ${overdue ? "border-red-200 bg-red-50/30" : "border-slate-200"}`}
+    >
+      {/* ── Main row ── */}
+      <div className="flex items-center gap-3 px-3 py-3">
         <Checkbox
           checked={task.completed}
           onCheckedChange={() => onToggle(task.id)}
-          className="mr-2 cursor-pointer border-border"
+          className="cursor-pointer border-border shrink-0"
         />
-        {isEditing ? (
-          <div className="grow" onKeyDown={handleKeyDown}>
+
+        <div className="flex-1 min-w-0">
+          {isEditing ? (
             <Input
-              type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              className="border p-1 bg-white w-full"
+              autoFocus
+              value={editData.title}
+              onChange={(e) => set("title", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveChanges();
+                if (e.key === "Escape") cancelEditing();
+              }}
+              className="h-7 text-sm bg-white border-border"
             />
-          </div>
-        ) : (
-          <span
-            className={`grow ${
-              task.completed ? "line-through text-gray-500" : ""
-            }`}
-          >
-            {task.title}
-          </span>
-        )}
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleEdit}
-            variant="outline"
-            className="p-1 cursor-pointer size-7 rounded-full"
-          >
-            <Edit size={14} />
-          </Button>
-          <Button
-            onClick={() => onDelete(task.id)}
-            variant="outline"
-            className="p-1 cursor-pointer size-7 rounded-full"
-          >
-            ✕
-          </Button>
+          ) : (
+            <span
+              className={`text-sm font-medium ${task.completed ? "line-through text-slate-400" : "text-slate-800"}`}
+            >
+              {task.title}
+            </span>
+          )}
+
+          {/* Metadata badges — only shown when not editing */}
+          {!isEditing && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+              {task.priority && (
+                <Badge
+                  className={`text-[10px] px-1.5 py-0 h-4 ${PRIORITY_STYLES[task.priority].badge}`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full mr-1 inline-block ${PRIORITY_STYLES[task.priority].dot}`}
+                  />
+                  {task.priority}
+                </Badge>
+              )}
+              {task.category && (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0 h-4 text-slate-500"
+                >
+                  {CATEGORY_ICONS[task.category]} {task.category}
+                </Badge>
+              )}
+              {task.dueDate && (
+                <span
+                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-slate-400"}`}
+                >
+                  <Calendar size={10} />
+                  {overdue ? "Overdue · " : "Due "}
+                  {formatDate(task.dueDate)}
+                </span>
+              )}
+              {task.scheduledFor && (
+                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                  <Clock size={10} />
+                  Scheduled {formatDate(task.scheduledFor)}
+                </span>
+              )}
+              {task.estimatedMinutes && (
+                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                  <Clock size={10} />~{task.estimatedMinutes}m
+                </span>
+              )}
+              {task.isRecurring && (
+                <span className="flex items-center gap-0.5 text-[10px] text-blue-500">
+                  <RefreshCw size={10} />
+                  {task.recurrenceRule ?? "recurring"}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-      </li>
-    </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 shrink-0">
+          {isEditing ? (
+            <>
+              <Button
+                onClick={saveChanges}
+                size="sm"
+                variant="default"
+                className="cursor-pointer h-7 px-2 text-xs gap-1"
+              >
+                <Save size={12} /> Save
+              </Button>
+              <Button
+                onClick={cancelEditing}
+                size="sm"
+                variant="outline"
+                className="cursor-pointer h-7 px-2 text-xs gap-1"
+              >
+                <X size={12} /> Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="ghost"
+                size="sm"
+                className="cursor-pointer h-7 w-7 p-0 text-slate-400 hover:text-slate-700"
+              >
+                <Edit size={13} />
+              </Button>
+              <Button
+                onClick={() => onDelete(task.id)}
+                variant="ghost"
+                size="sm"
+                className="cursor-pointer h-7 w-7 p-0 text-slate-400 hover:text-red-500"
+              >
+                <Trash2 size={13} />
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── Expanded edit fields ── */}
+      <Collapsible open={isEditing}>
+        <CollapsibleContent>
+          <div className="border-t border-slate-100 px-3 py-3 space-y-3 bg-slate-50/50">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Priority */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Priority
+                </Label>
+                <Select
+                  value={editData.priority ?? ""}
+                  onValueChange={(v) => set("priority", v as TaskPriority)}
+                >
+                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      value="low"
+                      className="cursor-pointer text-xs text-slate-500"
+                    >
+                      Low
+                    </SelectItem>
+                    <SelectItem
+                      value="medium"
+                      className="cursor-pointer text-xs text-amber-600"
+                    >
+                      Medium
+                    </SelectItem>
+                    <SelectItem
+                      value="high"
+                      className="cursor-pointer text-xs text-red-600"
+                    >
+                      High
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Category
+                </Label>
+                <Select
+                  value={editData.category ?? "none"}
+                  onValueChange={(v) => set("category", v as TaskCategory)}
+                >
+                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="work" className="cursor-pointer text-xs">
+                      💼 Work
+                    </SelectItem>
+                    <SelectItem
+                      value="health"
+                      className="cursor-pointer text-xs"
+                    >
+                      🏃 Health
+                    </SelectItem>
+                    <SelectItem
+                      value="personal"
+                      className="cursor-pointer text-xs"
+                    >
+                      🏠 Personal
+                    </SelectItem>
+                    <SelectItem
+                      value="learning"
+                      className="cursor-pointer text-xs"
+                    >
+                      📚 Learning
+                    </SelectItem>
+                    <SelectItem
+                      value="finance"
+                      className="cursor-pointer text-xs"
+                    >
+                      💰 Finance
+                    </SelectItem>
+                    <SelectItem
+                      value="other"
+                      className="cursor-pointer text-xs"
+                    >
+                      📌 Other
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Est. minutes */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Est. minutes
+                </Label>
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="e.g. 30"
+                  value={editData.estimatedMinutes ?? ""}
+                  onChange={(e) =>
+                    set(
+                      "estimatedMinutes",
+                      e.target.value === "" ? null : parseInt(e.target.value),
+                    )
+                  }
+                  className="h-7 text-xs bg-white border-slate-200"
+                />
+              </div>
+
+              {/* Due date */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Due date
+                </Label>
+                <Input
+                  type="date"
+                  value={editData.dueDate ?? ""}
+                  onChange={(e) => set("dueDate", e.target.value || null)}
+                  className="h-7 text-xs bg-white border-slate-200"
+                />
+              </div>
+
+              {/* Scheduled for */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                  Schedule for
+                </Label>
+                <Input
+                  type="date"
+                  value={editData.scheduledFor ?? ""}
+                  onChange={(e) => set("scheduledFor", e.target.value || null)}
+                  className="h-7 text-xs bg-white border-slate-200"
+                />
+              </div>
+            </div>
+
+            {/* Recurring */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id={`recurring-${task.id}`}
+                  checked={editData.isRecurring}
+                  onCheckedChange={(v) => {
+                    set("isRecurring", v);
+                    if (!v) set("recurrenceRule", null);
+                  }}
+                  className="[&_span]:shadow-sm data-unchecked:bg-slate-300 data-unchecked:border-slate-400 data-checked:bg-blue-600"
+                />
+                <Label
+                  htmlFor={`recurring-${task.id}`}
+                  className="text-xs text-slate-500 cursor-pointer"
+                >
+                  Recurring
+                </Label>
+              </div>
+              {editData.isRecurring && (
+                <Select
+                  value={editData.recurrenceRule ?? ""}
+                  onValueChange={(v) => set("recurrenceRule", v || null)}
+                >
+                  <SelectTrigger className="w-[130px] h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                    <SelectValue placeholder="Frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      value="daily"
+                      className="cursor-pointer text-xs"
+                    >
+                      Daily
+                    </SelectItem>
+                    <SelectItem
+                      value="weekdays"
+                      className="cursor-pointer text-xs"
+                    >
+                      Weekdays
+                    </SelectItem>
+                    <SelectItem
+                      value="weekly"
+                      className="cursor-pointer text-xs"
+                    >
+                      Weekly
+                    </SelectItem>
+                    <SelectItem
+                      value="monthly"
+                      className="cursor-pointer text-xs"
+                    >
+                      Monthly
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </li>
   );
 }

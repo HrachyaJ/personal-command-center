@@ -28,6 +28,7 @@ const navigation = [
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Habits", href: "/habits", icon: BarChart3 },
+  { name: "AI Coach", href: "/ai-coach", icon: Brain },
 ];
 
 function Skeleton({ className = "" }: { className?: string }) {

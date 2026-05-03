@@ -7,19 +7,24 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { user } from "./auth-schema.js"; // Better Auth owns the user table
+import { user } from "./auth-schema"; // Better Auth owns the user table
 
 // ─── Tasks ────────────────────────────────────────────────────────────────────
 export const tasks = pgTable("tasks", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+  id: varchar("id").primaryKey(),
+  userId: text("user_id").notNull(),
   title: text("title").notNull(),
   completed: boolean("completed").default(false),
-  createdAt: timestamp("created_at").default(sql`now()`),
+  createdAt: timestamp("created_at").defaultNow(),
+
+  dueDate: timestamp("due_date"),
+  scheduledFor: timestamp("scheduled_for"),
+  priority: text("priority"), // 'low' | 'medium' | 'high'
+  category: text("category"),
+  estimatedMinutes: integer("estimated_minutes"),
+  completedAt: timestamp("completed_at"),
+  isRecurring: boolean("is_recurring").default(false),
+  recurrenceRule: text("recurrence_rule"),
 });
 
 // ─── Goals ────────────────────────────────────────────────────────────────────

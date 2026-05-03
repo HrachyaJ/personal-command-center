@@ -15,6 +15,8 @@ import SignUp from "../components/shared/containers/auth/SignUp";
 import ProtectedRoute from "../components/shared/ProtectedRoute";
 import AuthCallback from "../components/shared/containers/auth/AuthCallback";
 import React from "react";
+import NotFound from "../components/shared/NotFound";
+import AICoach from "../components/shared/containers/AI-Coach";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -104,11 +106,12 @@ function AppLayout() {
             path="/ai-coach"
             element={
               <ProtectedRoute>
-                <Tasks />
+                <AICoach />
               </ProtectedRoute>
             }
           />
           <Route path="/auth/callback" element={<AuthCallback />} />{" "}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>

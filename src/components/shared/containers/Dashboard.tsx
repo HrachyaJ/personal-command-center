@@ -8,11 +8,16 @@ import {
   Settings,
   Target,
   Repeat2,
+  Shield,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
 import { useHabits } from "../../../hooks/habit.hooks";
 import { useSession } from "../../../lib/auth-client";
+import Insights from "../Insights";
+import { Badge } from "../../ui/badge";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -214,6 +219,48 @@ export default function Dashboard() {
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || sessionLoading;
 
+  const PRIORITY_DOT: Record<string, string> = {
+    high: "bg-red-500",
+    medium: "bg-amber-400",
+    low: "bg-slate-400",
+  };
+
+  const CATEGORY_ICON: Record<string, string> = {
+    work: "💼",
+    health: "🏃",
+    personal: "🏠",
+    learning: "📚",
+    finance: "💰",
+    other: "📌",
+  };
+
+  function formatShortDate(d: string | null) {
+    if (!d) return null;
+    return new Date(d).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  function isTaskOverdue(dateStr: string | null, completed: boolean) {
+    if (!dateStr || completed) return false;
+    return new Date(dateStr) < new Date();
+  }
+
+  const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+  const sortedDashboardTasks = [...tasks].sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    const pa = PRIORITY_RANK[a.priority ?? ""] ?? 3;
+    const pb = PRIORITY_RANK[b.priority ?? ""] ?? 3;
+    if (pa !== pb) return pa - pb;
+    if (a.dueDate && b.dueDate)
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    if (a.dueDate) return -1;
+    if (b.dueDate) return 1;
+    return 0;
+  });
+
   // ── Derived: Tasks ────────────────────────────────────────────────────────
   const totalTasks = tasks.length;
   const completedTasksCount = countCompleted();
@@ -302,6 +349,10 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Badge className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+              <Shield className="w-3 h-3 mr-1" />
+              AI Coach Active
+            </Badge>
             <Button
               variant="ghost"
               size="icon"
@@ -346,34 +397,74 @@ export default function Dashboard() {
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {tasks.slice(0, 6).map((task) => (
-                    <div key={task.id} className="flex items-center gap-3 py-1">
+                  {sortedDashboardTasks.slice(0, 6).map((task) => {
+                    const overdue = isTaskOverdue(task.dueDate, task.completed);
+                    return (
                       <div
-                        className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                        key={task.id}
+                        className="flex items-start gap-3 py-1"
                       >
-                        {task.completed && (
-                          <svg
-                            className="w-2.5 h-2.5 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={3}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        )}
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                        >
+                          {task.completed && (
+                            <svg
+                              className="w-2.5 h-2.5 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={3}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {task.priority && (
+                              <span
+                                className={`w-2 h-2 rounded-full shrink-0 ${PRIORITY_DOT[task.priority]}`}
+                              />
+                            )}
+                            <span
+                              className={`text-sm truncate ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
+                            >
+                              {task.title}
+                            </span>
+                          </div>
+                          {(task.category ||
+                            task.dueDate ||
+                            task.estimatedMinutes) && (
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                              {task.category && (
+                                <span className="text-[10px] text-slate-400">
+                                  {CATEGORY_ICON[task.category]} {task.category}
+                                </span>
+                              )}
+                              {task.dueDate && (
+                                <span
+                                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-slate-400"}`}
+                                >
+                                  <Calendar size={9} />
+                                  {overdue ? "Overdue · " : ""}
+                                  {formatShortDate(task.dueDate)}
+                                </span>
+                              )}
+                              {task.estimatedMinutes && (
+                                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                                  <Clock size={9} />~{task.estimatedMinutes}m
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <span
-                        className={`text-sm ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
-                      >
-                        {task.title}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {tasks.length > 6 && (
                     <p className="text-xs text-muted-foreground pt-1">
                       +{tasks.length - 6} more tasks
@@ -493,6 +584,17 @@ export default function Dashboard() {
                     )}
                   </div>
                 </>
+              )}
+            </SectionCard>
+
+            <SectionCard title="AI Insights">
+              {isLoading ? (
+                <OverallProgressSkeleton />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {/* AI insights will be displayed here. */}
+                  <Insights />
+                </p>
               )}
             </SectionCard>
 

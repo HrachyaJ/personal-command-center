@@ -3,6 +3,7 @@ import TaskList from "../TaskList";
 import { Button } from "../../ui/button";
 import { useTasks } from "../../../hooks/task.hooks";
 import { ListTodo } from "lucide-react";
+import type { TaskFormData } from "../../../types/task.types";
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
@@ -21,10 +22,13 @@ function StatCardSkeleton() {
 
 function TaskListSkeleton() {
   return (
-    <div className="py-4 space-y-1">
+    <div className="py-4 space-y-2">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-2 py-2.5">
-          <Skeleton className="w-5 h-5 rounded-full shrink-0" />
+        <div
+          key={i}
+          className="rounded-lg border border-slate-200 px-3 py-3 flex items-center gap-3"
+        >
+          <Skeleton className="w-4 h-4 rounded shrink-0" />
           <Skeleton
             className={`h-4 ${i % 3 === 0 ? "w-3/4" : i % 3 === 1 ? "w-1/2" : "w-2/3"}`}
           />
@@ -64,6 +68,15 @@ const Tasks = () => {
       color: "text-purple-600",
     },
   ];
+
+  // addTask now receives the full TaskFormData instead of just a string
+  function handleAdd(data: TaskFormData) {
+    addTask(data);
+  }
+
+  function handleEdit(id: string, data: Partial<TaskFormData>) {
+    editTask(id, data);
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -110,7 +123,7 @@ const Tasks = () => {
       {/* Task Panel */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-4 py-4 border-b bg-slate-50/50">
-          <TaskInput onAdd={addTask} />
+          <TaskInput onAdd={handleAdd} />
         </div>
 
         <div className="px-4 py-2">
@@ -131,7 +144,7 @@ const Tasks = () => {
               onToggle={toggleTask}
               onClearCompleted={clearCompleted}
               onCountCompleted={countCompleted}
-              onEdit={editTask}
+              onEdit={handleEdit}
             />
           )}
         </div>
