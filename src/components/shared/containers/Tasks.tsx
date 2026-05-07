@@ -13,8 +13,8 @@ function Skeleton({ className = "" }: { className?: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-      <Skeleton className="h-9 w-12 mx-auto mb-2" />
+    <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+      <Skeleton className="h-8 sm:h-9 w-12 mx-auto mb-2" />
       <Skeleton className="h-3.5 w-20 mx-auto" />
     </div>
   );
@@ -69,7 +69,6 @@ const Tasks = () => {
     },
   ];
 
-  // addTask now receives the full TaskFormData instead of just a string
   function handleAdd(data: TaskFormData) {
     addTask(data);
   }
@@ -79,10 +78,11 @@ const Tasks = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Tasks</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Tasks</h1>
           <p className="text-muted-foreground text-sm">
             Set and track your productivity goals
           </p>
@@ -92,15 +92,15 @@ const Tasks = () => {
             onClick={clearCompleted}
             variant="destructive"
             size="sm"
-            className="cursor-pointer"
+            className="cursor-pointer shrink-0 text-xs sm:text-sm"
           >
-            Clear Completed ({completedCount})
+            Clear ({completedCount})
           </Button>
         )}
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stat Cards — 2 cols on mobile, 4 on sm+ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
               <StatCardSkeleton key={i} />
@@ -108,12 +108,14 @@ const Tasks = () => {
           : stats.map((stat) => (
               <div
                 key={stat.label}
-                className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow"
+                className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow"
               >
-                <span className={`block text-3xl font-bold ${stat.color} mb-1`}>
+                <span
+                  className={`block text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}
+                >
                   {stat.value}
                 </span>
-                <span className="text-sm font-medium text-slate-600">
+                <span className="text-xs sm:text-sm font-medium text-slate-600">
                   {stat.label}
                 </span>
               </div>
@@ -122,17 +124,17 @@ const Tasks = () => {
 
       {/* Task Panel */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 py-4 border-b bg-slate-50/50">
+        <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-slate-50/50">
           <TaskInput onAdd={handleAdd} />
         </div>
 
-        <div className="px-4 py-2">
+        <div className="px-3 sm:px-4 py-2">
           {loading ? (
             <TaskListSkeleton />
           ) : tasks.length === 0 ? (
-            <div className="py-16 flex flex-col items-center justify-center text-slate-400">
+            <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-slate-400">
               <ListTodo
-                className="w-16 h-16 mb-3 opacity-20"
+                className="w-12 h-12 sm:w-16 sm:h-16 mb-3 opacity-20"
                 strokeWidth={1.5}
               />
               <p className="text-sm">No tasks found. Add one to get started!</p>

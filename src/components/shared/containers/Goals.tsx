@@ -34,8 +34,8 @@ function Skeleton({ className = "" }: { className?: string }) {
 function StatCardSkeleton() {
   return (
     <Card>
-      <CardContent className="p-6 text-center">
-        <Skeleton className="h-9 w-12 mx-auto mb-2" />
+      <CardContent className="p-4 sm:p-6 text-center">
+        <Skeleton className="h-8 sm:h-9 w-12 mx-auto mb-2" />
         <Skeleton className="h-3.5 w-24 mx-auto" />
       </CardContent>
     </Card>
@@ -45,8 +45,7 @@ function StatCardSkeleton() {
 function GoalCardSkeleton() {
   return (
     <Card>
-      <CardContent className="p-6 space-y-4">
-        {/* Header */}
+      <CardContent className="p-4 sm:p-6 space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 space-y-2">
             <Skeleton className="h-5 w-2/5" />
@@ -54,7 +53,6 @@ function GoalCardSkeleton() {
           </div>
           <Skeleton className="h-6 w-16 rounded-full ml-4 shrink-0" />
         </div>
-        {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between">
             <Skeleton className="h-3.5 w-28" />
@@ -62,7 +60,6 @@ function GoalCardSkeleton() {
           </div>
           <Skeleton className="h-2 w-full rounded-full" />
         </div>
-        {/* Deadline */}
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-4 rounded" />
           <Skeleton className="h-3.5 w-32" />
@@ -118,10 +115,8 @@ export default function Goals() {
     setIsAddDialogOpen(false);
   };
 
-  const handleUpdateProgress = (goalId: string, addValue: number) => {
+  const handleUpdateProgress = (goalId: string, addValue: number) =>
     updateProgress(goalId, addValue);
-  };
-
   const handleCompleteGoal = (goalId: string) => completeGoal(goalId);
   const handleDeleteGoal = (goalId: string) => deleteGoal(goalId);
 
@@ -146,17 +141,22 @@ export default function Goals() {
     );
     return (
       <Card>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">{goal.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">
+        <CardContent className="p-4 sm:p-6">
+          <div className="space-y-3 sm:space-y-4">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-base sm:text-lg truncate">
+                  {goal.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
                   {goal.description}
                 </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Badge className={getStatusColor(goal.status)}>
+              <div className="flex items-center gap-1 shrink-0">
+                <Badge
+                  className={`${getStatusColor(goal.status)} text-xs whitespace-nowrap`}
+                >
                   {goal.status === "completed" && (
                     <CheckCircle2 className="w-3 h-3 mr-1" />
                   )}
@@ -166,13 +166,14 @@ export default function Goals() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDeleteGoal(goal.id)}
-                  className="cursor-pointer hover:bg-red-600"
+                  className="cursor-pointer hover:bg-red-600 h-7 w-7 p-0"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
 
+            {/* Progress */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>
@@ -185,19 +186,21 @@ export default function Goals() {
               <Progress value={Math.min(progressPercentage, 100)} />
             </div>
 
+            {/* Deadline */}
             {goal.deadline && (
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4 shrink-0" />
                 <span>Due: {new Date(goal.deadline).toLocaleDateString()}</span>
               </div>
             )}
 
+            {/* Progress input */}
             {goal.status === "active" && (
-              <div className="flex items-center space-x-2 pt-2">
+              <div className="flex items-center gap-2 pt-1">
                 <Input
                   type="number"
                   placeholder="Add progress"
-                  className="flex-1"
+                  className="flex-1 h-8 text-sm"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       const value = parseInt(
@@ -214,7 +217,7 @@ export default function Goals() {
                   <Button
                     size="sm"
                     onClick={() => handleCompleteGoal(goal.id)}
-                    className="cursor-pointer"
+                    className="cursor-pointer h-8 text-xs whitespace-nowrap"
                   >
                     Mark Complete
                   </Button>
@@ -228,23 +231,23 @@ export default function Goals() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Goals</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Goals</h1>
           <p className="text-muted-foreground text-sm">
             Set and track your productivity goals
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Goal
+            <Button className="cursor-pointer shrink-0" size="sm">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Goal</span>
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[calc(100vw-2rem)] max-w-lg sm:w-full rounded-xl">
             <DialogHeader>
               <DialogTitle>Create New Goal</DialogTitle>
             </DialogHeader>
@@ -334,48 +337,48 @@ export default function Goals() {
         </Dialog>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stat Cards — 2 cols on mobile, 4 on lg */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
             <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-primary">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-primary">
                   {stats.total}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                   Total Goals
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-blue-600">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600">
                   {stats.active}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                   Active Goals
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-green-600">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600">
                   {stats.completed}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Completed Goals
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                  Completed
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-purple-600">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600">
                   {stats.completionRate}%
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                   Completion Rate
                 </p>
               </CardContent>
@@ -389,19 +392,28 @@ export default function Goals() {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as any)}
       >
-        <TabsList>
-          <TabsTrigger value="active" className="cursor-pointer">
+        <TabsList className="w-full sm:w-auto">
+          <TabsTrigger
+            value="active"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+          >
             Active ({loading ? "…" : stats.active})
           </TabsTrigger>
-          <TabsTrigger value="completed" className="cursor-pointer">
+          <TabsTrigger
+            value="completed"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+          >
             Completed ({loading ? "…" : stats.completed})
           </TabsTrigger>
-          <TabsTrigger value="paused" className="cursor-pointer">
+          <TabsTrigger
+            value="paused"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+          >
             Paused ({loading ? "…" : stats.paused})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="space-y-4 mt-4">
+        <TabsContent value={activeTab} className="space-y-3 sm:space-y-4 mt-4">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <GoalCardSkeleton key={i} />
@@ -409,8 +421,8 @@ export default function Goals() {
           ) : filteredGoals.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
+                <Target className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4 text-sm">
                   No {activeTab} goals yet
                 </p>
                 <Button

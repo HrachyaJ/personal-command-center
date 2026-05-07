@@ -34,8 +34,8 @@ function Skeleton({ className = "" }: { className?: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 flex flex-col items-center justify-center">
-      <Skeleton className="h-9 w-12 mb-2" />
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-5 flex flex-col items-center justify-center">
+      <Skeleton className="h-8 sm:h-9 w-12 mb-2" />
       <Skeleton className="h-3.5 w-20" />
     </div>
   );
@@ -146,17 +146,19 @@ export default function Habits() {
   });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Habits</h1>
+      <div>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+          Habits
+        </h1>
         <p className="text-sm text-gray-500 mt-0.5">
           Build consistency, one day at a time
         </p>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      {/* Stats row — 2 cols on mobile, 4 on sm+ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
@@ -185,12 +187,12 @@ export default function Habits() {
         )}
       </div>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Habits list — 2/3 width */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm">
+      {/* Main content — stacked on mobile, side-by-side on lg+ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Habits list — full width on mobile, 2/3 on lg */}
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm">
           {/* Add habit bar */}
-          <div className="flex items-center gap-3 p-4 border-b border-gray-100">
+          <div className="flex items-center gap-3 p-3 sm:p-4 border-b border-gray-100">
             {!showForm ? (
               <>
                 <input
@@ -203,7 +205,7 @@ export default function Habits() {
                 />
                 <button
                   onClick={() => setShowForm(true)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
                 >
                   <svg
                     className="w-4 h-4"
@@ -218,7 +220,7 @@ export default function Habits() {
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  Add
+                  <span className="hidden sm:inline">Add</span>
                 </button>
               </>
             ) : (
@@ -232,7 +234,8 @@ export default function Habits() {
                   autoFocus
                   className="w-full text-sm text-gray-700 placeholder-gray-400 outline-none border-b border-gray-200 pb-1 focus:border-blue-400 transition-colors"
                 />
-                <div className="flex items-center gap-3 flex-wrap">
+                {/* Category buttons — wrap on mobile */}
+                <div className="flex items-start gap-3 flex-col sm:flex-row">
                   <div className="flex gap-1 flex-wrap">
                     {CATEGORIES.map((c) => (
                       <button
@@ -248,7 +251,7 @@ export default function Habits() {
                       </button>
                     ))}
                   </div>
-                  <div className="flex gap-1 ml-auto">
+                  <div className="flex gap-1 sm:ml-auto">
                     {(["daily", "weekly"] as HabitFrequency[]).map((f) => (
                       <button
                         key={f}
@@ -287,7 +290,7 @@ export default function Habits() {
           </div>
 
           {/* List */}
-          <div className="px-4">
+          <div className="px-3 sm:px-4">
             {loading ? (
               <HabitListSkeleton />
             ) : (
@@ -301,8 +304,8 @@ export default function Habits() {
           </div>
         </div>
 
-        {/* Right sidebar: Analytics */}
-        <div className="space-y-4">
+        {/* Right sidebar — row on mobile (2 cols), column on lg */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
           {/* Weekly overview */}
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
@@ -402,11 +405,11 @@ export default function Habits() {
                       key={h.id}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-xs text-gray-600 truncate max-w-30px">
+                      <span className="text-xs text-gray-600 truncate mr-2">
                         {h.name}
                       </span>
                       <span
-                        className={`text-xs font-semibold ${h.streak > 0 ? "text-orange-500" : "text-gray-300"}`}
+                        className={`text-xs font-semibold shrink-0 ${h.streak > 0 ? "text-orange-500" : "text-gray-300"}`}
                       >
                         {h.streak > 0 ? `🔥 ${h.streak}` : "—"}
                       </span>
@@ -433,9 +436,11 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 flex flex-col items-center justify-center">
-      <span className={`text-3xl font-bold ${color}`}>{value}</span>
-      <span className="text-sm text-gray-500 mt-1">{label}</span>
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-5 flex flex-col items-center justify-center">
+      <span className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</span>
+      <span className="text-xs sm:text-sm text-gray-500 mt-1 text-center">
+        {label}
+      </span>
     </div>
   );
 }

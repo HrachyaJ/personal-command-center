@@ -47,14 +47,14 @@ function Skeleton({ className = "" }: { className?: string }) {
 function StatCardSkeleton() {
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2 flex-1">
             <Skeleton className="h-3.5 w-24" />
             <Skeleton className="h-7 w-12 mt-1" />
             <Skeleton className="h-3 w-20 mt-1" />
           </div>
-          <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
+          <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shrink-0" />
         </div>
       </CardContent>
     </Card>
@@ -153,7 +153,7 @@ function StatCard({
 }: StatCardProps) {
   return (
     <Card data-testid={testId}>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{title}</p>
@@ -161,7 +161,7 @@ function StatCard({
             <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
           </div>
           <div
-            className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
           >
             <Icon className={`w-5 h-5 ${iconColor}`} />
           </div>
@@ -179,7 +179,7 @@ interface SectionCardProps {
 function SectionCard({ title, children }: SectionCardProps) {
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-foreground mb-4">{title}</h3>
         {children}
       </CardContent>
@@ -326,37 +326,42 @@ export default function Dashboard() {
   ];
 
   return (
-    <div data-testid="dashboard-page">
+    // pb-20 gives space above the mobile bottom nav
+    <div data-testid="dashboard-page" className="pb-20 md:pb-0">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="bg-card border-b border-border p-6">
-        <div className="flex items-center justify-between">
-          <div>
+      <header className="bg-card border-b border-border p-4 sm:p-6">
+        <div className="flex items-start sm:items-center justify-between gap-3">
+          <div className="min-w-0">
             {isLoading ? (
               <>
-                <Skeleton className="h-7 w-56 mb-2" />
-                <Skeleton className="h-4 w-44" />
+                <Skeleton className="h-7 w-48 sm:w-56 mb-2" />
+                <Skeleton className="h-4 w-36 sm:w-44" />
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-semibold" data-testid="greeting">
+                <h2
+                  className="text-xl sm:text-2xl font-semibold truncate"
+                  data-testid="greeting"
+                >
                   {getTimeOfDayGreeting()}, {user?.name}
                 </h2>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Ready to tackle your goals today?
                 </p>
               </>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <Badge className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+            {/* Hide badge on very small screens */}
+            <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
               <Shield className="w-3 h-3 mr-1" />
               AI Coach Active
             </Badge>
             <Button
               variant="ghost"
               size="icon"
-              className="cursor-pointer"
+              className="cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
               data-testid="button-notifications"
             >
               <Bell className="h-5 w-5" />
@@ -364,7 +369,7 @@ export default function Dashboard() {
             <Button
               variant="ghost"
               size="icon"
-              className="cursor-pointer"
+              className="cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
               data-testid="button-settings"
             >
               <Settings className="h-5 w-5" />
@@ -373,9 +378,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* ── Stat Cards ───────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <StatCardSkeleton key={i} />
@@ -384,9 +389,9 @@ export default function Dashboard() {
         </div>
 
         {/* ── Main Grid ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left: Tasks + Goals ───────────────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Today's Tasks */}
             <SectionCard title="Today's Tasks">
               {isLoading ? (
@@ -514,7 +519,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right: Habits + Overview ──────────────────────────────────────── */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Today's Habits */}
             <SectionCard title="Today's Habits">
               {isLoading ? (
@@ -592,7 +597,6 @@ export default function Dashboard() {
                 <OverallProgressSkeleton />
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {/* AI insights will be displayed here. */}
                   <Insights />
                 </p>
               )}
