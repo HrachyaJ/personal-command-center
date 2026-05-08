@@ -63,10 +63,7 @@ app.get("/api/ml-insights", (_req, res) => {
   });
 });
 
-// Only listen locally, not on Vercel
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT ?? 3001;
-  app.listen(PORT, () => console.log(`Server running on :${PORT}`));
-}
+const PORT = process.env.PORT ?? 3001;
+app.listen(PORT, () => console.log(`Server running on :${PORT}`));
 
 export default app;
