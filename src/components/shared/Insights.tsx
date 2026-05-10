@@ -19,7 +19,7 @@ export default function Insights() {
   }
 
   return (
-    <div className=" bg-white space-y-2">
+    <div className=" bg-card space-y-2">
       {insights.map((insight, i) => (
         <p key={i} className="text-sm text-muted-foreground">
           • {insight}

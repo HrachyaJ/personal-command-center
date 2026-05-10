@@ -4,7 +4,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import Sidebar from "../components/shared/Sidebar";
+import { useEffect } from "react";
 import Dashboard from "../components/shared/containers/Dashboard";
 import Goals from "../components/shared/containers/Goals";
 import Tasks from "../components/shared/containers/Tasks";
@@ -14,9 +14,11 @@ import SignIn from "../components/shared/containers/auth/SignIn";
 import SignUp from "../components/shared/containers/auth/SignUp";
 import ProtectedRoute from "../components/shared/ProtectedRoute";
 import AuthCallback from "../components/shared/containers/auth/AuthCallback";
-import React from "react";
 import NotFound from "../components/shared/NotFound";
 import AICoach from "../components/shared/containers/AI-Coach";
+import { useThemeStore } from "../stores/useThemeStore";
+import { useUserStore } from "../stores/useUserStore";
+import Sidebar from "../components/shared/Sidebar";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -30,19 +32,46 @@ const SIDEBAR_ROUTES = [
 
 function AppLayout() {
   const location = useLocation();
+  const { theme } = useThemeStore();
+  const fetchUser = useUserStore((s) => s.fetch);
+
   document.title = "FocusFlow";
+
+  // Apply dark class to <html>
+  useEffect(() => {
+    console.log("theme changed:", theme);
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "light") {
+      root.classList.remove("dark");
+    } else {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      root.classList.toggle("dark", prefersDark);
+    }
+  }, [theme]);
+
+  // Also listen for system preference changes when theme is "system"
+  useEffect(() => {
+    if (theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      document.documentElement.classList.toggle("dark", e.matches);
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [theme]);
+
+  // Fetch user once on mount
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const showSidebar = SIDEBAR_ROUTES.some(
     (r) => location.pathname.replace(/\/$/, "") === r,
   );
-
-  // Set favicon
-  React.useEffect(() => {
-    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-    if (link) {
-      link.href = "/focus-flow-favicon.png";
-    }
-  }, []);
 
   return (
     <div className="flex min-h-screen">
@@ -110,7 +139,7 @@ function AppLayout() {
               </ProtectedRoute>
             }
           />
-          <Route path="/auth/callback" element={<AuthCallback />} />{" "}
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

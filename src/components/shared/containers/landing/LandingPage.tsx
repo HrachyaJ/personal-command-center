@@ -15,8 +15,8 @@ export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [LoggedIn, setLoggedIn] = useState(false);
   const scrollY = useScrollY();
-  const statsSection = useInView();
   const ctaSection = useInView();
+  const statsSection = useInView();
   const { data: session, isPending } = authClient.useSession();
   const isLoggedIn = !!session?.user;
 
@@ -75,6 +75,71 @@ export default function LandingPage() {
         .btn-ghost-light:hover { border-color:rgba(0,0,0,0.3); color:#0f172a; }
         .t-dot { width:6px; height:6px; border-radius:50%; border:none; cursor:pointer; transition:background 0.2s,transform 0.2s; }
         .feature-card-hover:hover { border-color: rgba(37,99,235,0.2) !important; box-shadow: 0 8px 32px rgba(37,99,235,0.1) !important; transform: translateY(-2px); transition: all 0.2s ease; }
+
+        /* ── Responsive ── */
+
+        /* Nav: hide text links on mobile, shrink padding */
+        @media (max-width: 640px) {
+          .nav-links { display: none !important; }
+          .nav-auth-full { display: none !important; }
+          .nav-auth-compact { display: flex !important; }
+          .nav-inner { padding: 0 20px !important; }
+        }
+
+        /* Hero: single column on mobile */
+        @media (max-width: 768px) {
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+            text-align: center;
+          }
+          .hero-badge-wrap { justify-content: center; }
+          .hero-sub { max-width: 100% !important; }
+          .hero-cta { justify-content: center !important; }
+          .hero-social { justify-content: center !important; }
+          .hero-preview { display: none !important; }
+          .hero-section { min-height: auto !important; padding: 100px 0 60px !important; }
+          .hero-inner { padding: 0 20px !important; }
+        }
+
+        /* Stats: 2 columns on mobile */
+        @media (max-width: 640px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px !important;
+          }
+          .stats-section { padding: 48px 20px !important; }
+        }
+
+        /* Features: 1 column on mobile */
+        @media (max-width: 640px) {
+          .features-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .features-section { padding: 64px 20px !important; }
+        }
+
+        /* Testimonials */
+        @media (max-width: 640px) {
+          .testimonials-section { padding: 64px 20px !important; }
+        }
+
+        /* CTA section */
+        @media (max-width: 640px) {
+          .cta-section { padding: 64px 20px !important; }
+          .cta-box { padding: 40px 24px !important; }
+          .cta-btn { width: 100%; text-align: center; }
+        }
+
+        /* Footer */
+        @media (max-width: 640px) {
+          .footer-inner {
+            flex-direction: column !important;
+            gap: 16px !important;
+            text-align: center;
+            padding: 24px 20px !important;
+          }
+        }
       `}</style>
 
       <div
@@ -94,7 +159,6 @@ export default function LandingPage() {
             left: 0,
             right: 0,
             zIndex: 100,
-            padding: "0 40px",
             height: "64px",
             display: "flex",
             alignItems: "center",
@@ -106,7 +170,9 @@ export default function LandingPage() {
                 : "1px solid transparent",
             backdropFilter: scrollY > 40 ? "blur(12px)" : "none",
             transition: "all 0.3s ease",
+            padding: "0 40px",
           }}
+          className="nav-inner"
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div
@@ -137,7 +203,9 @@ export default function LandingPage() {
               FocusFlow
             </span>
           </div>
-          <div style={{ display: "flex", gap: "32px" }}>
+
+          {/* Desktop nav links */}
+          <div className="nav-links" style={{ display: "flex", gap: "32px" }}>
             <a href="#features" className="nav-link-light">
               Features
             </a>
@@ -145,8 +213,10 @@ export default function LandingPage() {
               Reviews
             </a>
           </div>
+
+          {/* Desktop auth buttons */}
           {isPending ? null : isLoggedIn ? (
-            <div>
+            <div className="nav-auth-full">
               <a
                 href="/dashboard"
                 className="btn-primary-light"
@@ -156,7 +226,10 @@ export default function LandingPage() {
               </a>
             </div>
           ) : (
-            <div style={{ display: "flex", gap: "12px" }}>
+            <div
+              className="nav-auth-full"
+              style={{ display: "flex", gap: "12px" }}
+            >
               <a
                 href="/sign-in"
                 className="btn-ghost-light"
@@ -173,10 +246,44 @@ export default function LandingPage() {
               </a>
             </div>
           )}
+
+          {/* Mobile compact auth — shown only on small screens via CSS */}
+          <div
+            className="nav-auth-compact"
+            style={{ display: "none", gap: "8px" }}
+          >
+            {isLoggedIn ? (
+              <a
+                href="/dashboard"
+                className="btn-primary-light"
+                style={{ padding: "8px 14px", fontSize: "13px" }}
+              >
+                Dashboard →
+              </a>
+            ) : (
+              <>
+                <a
+                  href="/sign-in"
+                  className="btn-ghost-light"
+                  style={{ padding: "8px 14px", fontSize: "13px" }}
+                >
+                  Sign in
+                </a>
+                <a
+                  href="/sign-up"
+                  className="btn-primary-light"
+                  style={{ padding: "8px 14px", fontSize: "13px" }}
+                >
+                  Sign up
+                </a>
+              </>
+            )}
+          </div>
         </nav>
 
         {/* HERO */}
         <section
+          className="hero-section"
           style={{
             position: "relative",
             minHeight: "100vh",
@@ -201,6 +308,7 @@ export default function LandingPage() {
           />
 
           <div
+            className="hero-inner"
             style={{
               maxWidth: "1200px",
               margin: "0 auto",
@@ -211,6 +319,7 @@ export default function LandingPage() {
             }}
           >
             <div
+              className="hero-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
@@ -220,7 +329,7 @@ export default function LandingPage() {
             >
               <div>
                 <div
-                  className="hero-badge"
+                  className="hero-badge hero-badge-wrap"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -347,6 +456,7 @@ export default function LandingPage() {
 
         {/* STATS */}
         <section
+          className="stats-section"
           style={{
             padding: "60px 40px",
             borderTop: "1px solid rgba(37,99,235,0.08)",
@@ -356,6 +466,7 @@ export default function LandingPage() {
         >
           <div
             ref={statsSection.ref}
+            className="stats-grid"
             style={{
               maxWidth: "1200px",
               margin: "0 auto",
@@ -403,6 +514,7 @@ export default function LandingPage() {
         {/* FEATURES */}
         <section
           id="features"
+          className="features-section"
           style={{ padding: "100px 40px", background: "#f8faff" }}
         >
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -432,6 +544,7 @@ export default function LandingPage() {
               </h2>
             </div>
             <div
+              className="features-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(2,1fr)",
@@ -448,6 +561,7 @@ export default function LandingPage() {
         {/* TESTIMONIALS */}
         <section
           id="testimonials"
+          className="testimonials-section"
           style={{ padding: "100px 40px", background: "#fff" }}
         >
           <div
@@ -528,7 +642,10 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section style={{ padding: "100px 40px", background: "#f8faff" }}>
+        <section
+          className="cta-section"
+          style={{ padding: "100px 40px", background: "#f8faff" }}
+        >
           <div
             ref={ctaSection.ref}
             style={{
@@ -543,6 +660,7 @@ export default function LandingPage() {
             }}
           >
             <div
+              className="cta-box"
               style={{
                 background:
                   "linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(37,99,235,0.02) 100%)",
@@ -575,7 +693,7 @@ export default function LandingPage() {
               </p>
               <a
                 href="/sign-up"
-                className="btn-primary-light"
+                className="btn-primary-light cta-btn"
                 style={{ fontSize: "16px", padding: "14px 36px" }}
               >
                 Create your account →
@@ -586,6 +704,7 @@ export default function LandingPage() {
 
         {/* FOOTER */}
         <footer
+          className="footer-inner"
           style={{
             borderTop: "1px solid rgba(37,99,235,0.08)",
             padding: "32px 40px",

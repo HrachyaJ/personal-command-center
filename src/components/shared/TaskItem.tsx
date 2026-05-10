@@ -35,8 +35,8 @@ import { useState } from "react";
 
 const PRIORITY_STYLES: Record<TaskPriority, { badge: string; dot: string }> = {
   low: {
-    badge: "bg-slate-100 text-slate-600 border-slate-200",
-    dot: "bg-slate-400",
+    badge: "bg-muted text-muted-foreground border-border",
+    dot: "bg-secondary",
   },
   medium: {
     badge: "bg-amber-100 text-amber-700 border-amber-200",
@@ -130,7 +130,7 @@ export default function TaskItem({
 
   return (
     <li
-      className={`rounded-lg border bg-white transition-all ${task.completed ? "opacity-60" : ""} ${overdue ? "border-red-200 bg-red-50/30" : "border-slate-200"}`}
+      className={`rounded-lg border bg-card transition-all ${task.completed ? "opacity-60" : ""} ${overdue ? "border-red-200 bg-red-50/30" : "border-border"}`}
     >
       {/* ── Main row ── */}
       <div className="flex items-center gap-3 px-3 py-3">
@@ -150,11 +150,11 @@ export default function TaskItem({
                 if (e.key === "Enter") saveChanges();
                 if (e.key === "Escape") cancelEditing();
               }}
-              className="h-7 text-sm bg-white border-border"
+              className="h-7 text-sm bg-card border-border"
             />
           ) : (
             <span
-              className={`text-sm font-medium ${task.completed ? "line-through text-slate-400" : "text-slate-800"}`}
+              className={`text-sm font-medium ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
             >
               {task.title}
             </span>
@@ -176,14 +176,14 @@ export default function TaskItem({
               {task.category && (
                 <Badge
                   variant="outline"
-                  className="text-[10px] px-1.5 py-0 h-4 text-slate-500"
+                  className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground"
                 >
                   {CATEGORY_ICONS[task.category]} {task.category}
                 </Badge>
               )}
               {task.dueDate && (
                 <span
-                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-slate-400"}`}
+                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-muted-foreground"}`}
                 >
                   <Calendar size={10} />
                   {overdue ? "Overdue · " : "Due "}
@@ -191,18 +191,18 @@ export default function TaskItem({
                 </span>
               )}
               {task.scheduledFor && (
-                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                   <Clock size={10} />
                   Scheduled {formatDate(task.scheduledFor)}
                 </span>
               )}
               {task.estimatedMinutes && (
-                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                   <Clock size={10} />~{task.estimatedMinutes}m
                 </span>
               )}
               {task.isRecurring && (
-                <span className="flex items-center gap-0.5 text-[10px] text-blue-500">
+                <span className="flex items-center gap-0.5 text-[10px] bg-primary/100">
                   <RefreshCw size={10} />
                   {task.recurrenceRule ?? "recurring"}
                 </span>
@@ -238,7 +238,7 @@ export default function TaskItem({
                 onClick={() => setIsEditing(true)}
                 variant="ghost"
                 size="sm"
-                className="cursor-pointer h-7 w-7 p-0 text-slate-400 hover:text-slate-700"
+                className="cursor-pointer h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
               >
                 <Edit size={13} />
               </Button>
@@ -246,7 +246,7 @@ export default function TaskItem({
                 onClick={() => onDelete(task.id)}
                 variant="ghost"
                 size="sm"
-                className="cursor-pointer h-7 w-7 p-0 text-slate-400 hover:text-red-500"
+                className="cursor-pointer h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
               >
                 <Trash2 size={13} />
               </Button>
@@ -258,24 +258,24 @@ export default function TaskItem({
       {/* ── Expanded edit fields ── */}
       <Collapsible open={isEditing}>
         <CollapsibleContent>
-          <div className="border-t border-slate-100 px-3 py-3 space-y-3 bg-slate-50/50">
+          <div className="border-t border-border px-3 py-3 space-y-3 bg-muted">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {/* Priority */}
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
                   Priority
                 </Label>
                 <Select
                   value={editData.priority ?? ""}
                   onValueChange={(v) => set("priority", v as TaskPriority)}
                 >
-                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                  <SelectTrigger className="h-7 text-xs bg-card border-border cursor-pointer">
                     <SelectValue placeholder="None" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
                       value="low"
-                      className="cursor-pointer text-xs text-slate-500"
+                      className="cursor-pointer text-xs text-muted-foreground"
                     >
                       Low
                     </SelectItem>
@@ -297,14 +297,14 @@ export default function TaskItem({
 
               {/* Category */}
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
                   Category
                 </Label>
                 <Select
                   value={editData.category ?? "none"}
                   onValueChange={(v) => set("category", v as TaskCategory)}
                 >
-                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                  <SelectTrigger className="h-7 text-xs bg-card border-border cursor-pointer">
                     <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
@@ -347,7 +347,7 @@ export default function TaskItem({
 
               {/* Est. minutes */}
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
                   Est. minutes
                 </Label>
                 <Input
@@ -361,33 +361,33 @@ export default function TaskItem({
                       e.target.value === "" ? null : parseInt(e.target.value),
                     )
                   }
-                  className="h-7 text-xs bg-white border-slate-200"
+                  className="h-7 text-xs bg-card border-border"
                 />
               </div>
 
               {/* Due date */}
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
                   Due date
                 </Label>
                 <Input
                   type="date"
                   value={editData.dueDate ?? ""}
                   onChange={(e) => set("dueDate", e.target.value || null)}
-                  className="h-7 text-xs bg-white border-slate-200"
+                  className="h-7 text-xs bg-card border-border"
                 />
               </div>
 
               {/* Scheduled for */}
               <div className="space-y-1">
-                <Label className="text-[10px] text-slate-400 uppercase tracking-wide">
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
                   Schedule for
                 </Label>
                 <Input
                   type="date"
                   value={editData.scheduledFor ?? ""}
                   onChange={(e) => set("scheduledFor", e.target.value || null)}
-                  className="h-7 text-xs bg-white border-slate-200"
+                  className="h-7 text-xs bg-card border-border"
                 />
               </div>
             </div>
@@ -402,11 +402,11 @@ export default function TaskItem({
                     set("isRecurring", v);
                     if (!v) set("recurrenceRule", null);
                   }}
-                  className="[&_span]:shadow-sm data-unchecked:bg-slate-300 data-unchecked:border-slate-400 data-checked:bg-blue-600"
+                  className="[&_span]:shadow-sm data-unchecked:bg-secondary data-unchecked:border-border data-checked:bg-blue-600"
                 />
                 <Label
                   htmlFor={`recurring-${task.id}`}
-                  className="text-xs text-slate-500 cursor-pointer"
+                  className="text-xs text-muted-foreground cursor-pointer"
                 >
                   Recurring
                 </Label>
@@ -416,7 +416,7 @@ export default function TaskItem({
                   value={editData.recurrenceRule ?? ""}
                   onValueChange={(v) => set("recurrenceRule", v || null)}
                 >
-                  <SelectTrigger className="w-[130px] h-7 text-xs bg-white border-slate-200 cursor-pointer">
+                  <SelectTrigger className="w-[130px] h-7 text-xs bg-card border-border cursor-pointer">
                     <SelectValue placeholder="Frequency" />
                   </SelectTrigger>
                   <SelectContent>

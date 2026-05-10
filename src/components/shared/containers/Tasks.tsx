@@ -13,7 +13,7 @@ function Skeleton({ className = "" }: { className?: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+    <div className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-sm text-center">
       <Skeleton className="h-8 sm:h-9 w-12 mx-auto mb-2" />
       <Skeleton className="h-3.5 w-20 mx-auto" />
     </div>
@@ -26,7 +26,7 @@ function TaskListSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-lg border border-slate-200 px-3 py-3 flex items-center gap-3"
+          className="rounded-lg border border-border px-3 py-3 flex items-center gap-3"
         >
           <Skeleton className="w-4 h-4 rounded shrink-0" />
           <Skeleton
@@ -108,14 +108,14 @@ const Tasks = () => {
           : stats.map((stat) => (
               <div
                 key={stat.label}
-                className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow"
+                className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-sm text-center hover:shadow-md transition-shadow"
               >
                 <span
                   className={`block text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}
                 >
                   {stat.value}
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-slate-600">
+                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                   {stat.label}
                 </span>
               </div>
@@ -123,8 +123,8 @@ const Tasks = () => {
       </div>
 
       {/* Task Panel */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-slate-50/50">
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+        <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-muted">
           <TaskInput onAdd={handleAdd} />
         </div>
 
@@ -132,7 +132,7 @@ const Tasks = () => {
           {loading ? (
             <TaskListSkeleton />
           ) : tasks.length === 0 ? (
-            <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-slate-400">
+            <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-muted-foreground">
               <ListTodo
                 className="w-12 h-12 sm:w-16 sm:h-16 mb-3 opacity-20"
                 strokeWidth={1.5}

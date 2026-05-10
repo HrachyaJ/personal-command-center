@@ -11,26 +11,8 @@ export default function ProtectedRoute({
 
   if (isPending) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#f8faff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: "32px",
-            height: "32px",
-            border: "3px solid rgba(37,99,235,0.15)",
-            borderTop: "3px solid #2563eb",
-            borderRadius: "50%",
-            animation: "spin 0.7s linear infinite",
-          }}
-        />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-primary/15 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }

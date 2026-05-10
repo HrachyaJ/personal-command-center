@@ -5,6 +5,7 @@ import { auth } from "./auth.js";
 import taskRoutes from "./routes/tasks.js";
 import goalRoutes from "./routes/goals.js";
 import habitRoutes from "./routes/habits.js";
+import userRouter from "./routes/user.js";
 import { db } from "./db.js";
 import { tasks } from "./db/schema.js";
 import { exec } from "child_process";
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use("/api/tasks", taskRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
+app.use("/api/user", userRouter);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 

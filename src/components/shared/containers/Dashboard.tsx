@@ -18,6 +18,16 @@ import { useHabits } from "../../../hooks/habit.hooks";
 import { useSession } from "../../../lib/auth-client";
 import Insights from "../Insights";
 import { Badge } from "../../ui/badge";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../ui/dialog";
+import { SettingsDialog } from "./SettingsDialog";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -216,13 +226,15 @@ export default function Dashboard() {
   const { data: session, isPending: sessionLoading } = useSession();
   const user = session?.user;
 
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || sessionLoading;
 
   const PRIORITY_DOT: Record<string, string> = {
     high: "bg-red-500",
     medium: "bg-amber-400",
-    low: "bg-slate-400",
+    low: "bg-secondary",
   };
 
   const CATEGORY_ICON: Record<string, string> = {
@@ -371,6 +383,7 @@ export default function Dashboard() {
               size="icon"
               className="cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
               data-testid="button-settings"
+              onClick={() => setSettingsOpen(true)}
             >
               <Settings className="h-5 w-5" />
             </Button>
@@ -410,7 +423,7 @@ export default function Dashboard() {
                         className="flex items-start gap-3 py-1"
                       >
                         <div
-                          className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                          className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${task.completed ? "bg-emerald-500 border-emerald-500" : "border-border"}`}
                         >
                           {task.completed && (
                             <svg
@@ -446,13 +459,13 @@ export default function Dashboard() {
                             task.estimatedMinutes) && (
                             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                               {task.category && (
-                                <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-muted-foreground">
                                   {CATEGORY_ICON[task.category]} {task.category}
                                 </span>
                               )}
                               {task.dueDate && (
                                 <span
-                                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-slate-400"}`}
+                                  className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-muted-foreground"}`}
                                 >
                                   <Calendar size={9} />
                                   {overdue ? "Overdue · " : ""}
@@ -460,7 +473,7 @@ export default function Dashboard() {
                                 </span>
                               )}
                               {task.estimatedMinutes && (
-                                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
+                                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                                   <Clock size={9} />~{task.estimatedMinutes}m
                                 </span>
                               )}
@@ -551,7 +564,7 @@ export default function Dashboard() {
                           className="flex items-center gap-2.5"
                         >
                           <div
-                            className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${done ? "bg-emerald-500 border-emerald-500" : "border-slate-300"}`}
+                            className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${done ? "bg-emerald-500 border-emerald-500" : "border-border"}`}
                           >
                             {done && (
                               <svg
@@ -596,9 +609,9 @@ export default function Dashboard() {
               {isLoading ? (
                 <OverallProgressSkeleton />
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   <Insights />
-                </p>
+                </div>
               )}
             </SectionCard>
 
@@ -630,7 +643,7 @@ export default function Dashboard() {
                         <span>{label}</span>
                         <span>{rate}%</span>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-1.5">
+                      <div className="w-full bg-secondary rounded-full h-1.5">
                         <div
                           className={`${color} h-1.5 rounded-full transition-all duration-500`}
                           style={{ width: `${rate}%` }}
@@ -644,6 +657,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }

@@ -49,11 +49,11 @@ function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-        checked ? "bg-blue-600" : "bg-slate-200"
+        checked ? "bg-blue-600" : "bg-secondary"
       }`}
     >
       <span
-        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-lg transition-transform duration-200 ${
+        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-card shadow-lg transition-transform duration-200 ${
           checked ? "translate-x-4" : "translate-x-0"
         }`}
       />
@@ -73,7 +73,7 @@ const EMPTY_FORM: TaskFormData = {
 };
 
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  low: "text-slate-500",
+  low: "text-muted-foreground",
   medium: "text-amber-600",
   high: "text-red-600",
 };
@@ -149,18 +149,21 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
           placeholder="New task..."
-          className="flex-1 bg-white border-border"
+          className="flex-1 bg-card border-border"
         />
         {/* Priority quick-select inline */}
         <Select
           value={form.priority ?? ""}
           onValueChange={(v) => set("priority", v as TaskPriority)}
         >
-          <SelectTrigger className="w-[110px] bg-white border-border text-xs cursor-pointer">
+          <SelectTrigger className="w-[110px] bg-card border-border text-xs cursor-pointer">
             <SelectValue placeholder="Priority" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="low" className="cursor-pointer text-slate-500">
+            <SelectItem
+              value="low"
+              className="cursor-pointer text-muted-foreground"
+            >
               Low
             </SelectItem>
             <SelectItem
@@ -180,7 +183,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           variant="outline"
           size="sm"
           onClick={() => setShowOptions((v) => !v)}
-          className="cursor-pointer gap-1 px-2.5 text-slate-500"
+          className="cursor-pointer gap-1 px-2.5 text-muted-foreground"
           title="More options"
         >
           <SlidersHorizontal size={14} />
@@ -203,12 +206,12 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 pb-1 px-0.5">
             {/* Category */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Category</Label>
+              <Label className="text-xs text-muted-foreground">Category</Label>
               <Select
                 value={form.category ?? ""}
                 onValueChange={(v) => set("category", v as TaskCategory)}
               >
-                <SelectTrigger className="bg-white border-border text-xs h-8 cursor-pointer">
+                <SelectTrigger className="bg-card border-border text-xs h-8 cursor-pointer">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -236,7 +239,9 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
 
             {/* Estimated time */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Est. minutes</Label>
+              <Label className="text-xs text-muted-foreground">
+                Est. minutes
+              </Label>
               <Input
                 type="number"
                 min={1}
@@ -248,29 +253,31 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                     e.target.value === "" ? null : parseInt(e.target.value),
                   )
                 }
-                className="bg-white border-border text-xs h-8"
+                className="bg-card border-border text-xs h-8"
               />
             </div>
 
             {/* Due date */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Due date</Label>
+              <Label className="text-xs text-muted-foreground">Due date</Label>
               <Input
                 type="date"
                 value={form.dueDate ?? ""}
                 onChange={(e) => set("dueDate", e.target.value || null)}
-                className="bg-white border-border text-xs h-8"
+                className="bg-card border-border text-xs h-8"
               />
             </div>
 
             {/* Scheduled for */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-slate-500">Schedule for</Label>
+              <Label className="text-xs text-muted-foreground">
+                Schedule for
+              </Label>
               <Input
                 type="date"
                 value={form.scheduledFor ?? ""}
                 onChange={(e) => set("scheduledFor", e.target.value || null)}
-                className="bg-white border-border text-xs h-8"
+                className="bg-card border-border text-xs h-8"
               />
             </div>
           </div>
@@ -288,7 +295,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
               />
               <Label
                 htmlFor="recurring"
-                className="text-xs text-slate-500 cursor-pointer"
+                className="text-xs text-muted-foreground cursor-pointer"
               >
                 Recurring
               </Label>
@@ -299,7 +306,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 value={form.recurrenceRule ?? ""}
                 onValueChange={(v) => set("recurrenceRule", v || null)}
               >
-                <SelectTrigger className="w-[130px] bg-white border-border text-xs h-8 cursor-pointer">
+                <SelectTrigger className="w-[130px] bg-card border-border text-xs h-8 cursor-pointer">
                   <SelectValue placeholder="Frequency" />
                 </SelectTrigger>
                 <SelectContent>

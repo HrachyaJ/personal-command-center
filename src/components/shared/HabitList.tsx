@@ -40,8 +40,10 @@ export default function HabitList({
         <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
           <span className="text-3xl">🌱</span>
         </div>
-        <p className="text-gray-500 text-sm font-medium">No habits yet</p>
-        <p className="text-gray-400 text-xs mt-1">
+        <p className="text-muted-foreground text-sm font-medium">
+          No habits yet
+        </p>
+        <p className="text-muted-foreground text-xs mt-1">
           Add your first habit to start tracking
         </p>
       </div>
@@ -49,7 +51,7 @@ export default function HabitList({
   }
 
   return (
-    <div className="divide-y divide-gray-100">
+    <div className="divide-y divide-border">
       {habits.map((habit) => {
         const done = isCompletedToday(habit);
         const color =
@@ -59,7 +61,7 @@ export default function HabitList({
           <div
             key={habit.id}
             className={`flex items-center gap-4 py-4 px-1 group transition-colors ${
-              done ? "bg-green-50/40" : "hover:bg-gray-50/60"
+              done ? "bg-green-500/10" : "hover:bg-muted/60"
             }`}
           >
             {/* Completion circle */}
@@ -68,7 +70,7 @@ export default function HabitList({
               className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer ${
                 done
                   ? "border-green-500 bg-green-500"
-                  : "border-gray-300 hover:border-blue-400"
+                  : "border-border hover:border-primary"
               }`}
               aria-label={done ? "Mark incomplete" : "Mark complete"}
             >
@@ -98,12 +100,14 @@ export default function HabitList({
               <div className="min-w-0">
                 <p
                   className={`text-sm font-medium truncate ${
-                    done ? "line-through text-gray-400" : "text-gray-800"
+                    done
+                      ? "line-through text-muted-foreground"
+                      : "text-foreground"
                   }`}
                 >
                   {habit.name}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   {CATEGORY_LABELS[habit.category]} ·{" "}
                   {habit.frequency === "daily" ? "Daily" : "Weekly"}
                 </p>
@@ -113,7 +117,7 @@ export default function HabitList({
             {/* Streak badge */}
             <div className="flex items-center gap-1 shrink-0">
               {habit.streak > 0 && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 text-xs font-semibold">
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-xs font-semibold">
                   🔥 {habit.streak}
                 </span>
               )}
@@ -132,10 +136,10 @@ export default function HabitList({
                   >
                     Delete
                   </button>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-muted-foreground">|</span>
                   <button
                     onClick={() => setConfirmDelete(null)}
-                    className="text-xs text-gray-400 hover:text-gray-600"
+                    className="text-xs text-muted-foreground hover:text-muted-foreground"
                   >
                     Cancel
                   </button>
@@ -143,7 +147,7 @@ export default function HabitList({
               ) : (
                 <button
                   onClick={() => setConfirmDelete(habit.id)}
-                  className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-400 transition-colors"
+                  className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-red-400 transition-colors"
                   aria-label="Remove habit"
                 >
                   <svg

@@ -9,9 +9,11 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { useState } from "react";
-import { signOut, useSession } from "../../lib/auth-client";
+import { useUserStore } from "../../stores/useUserStore";
+import { useUIStore } from "../../stores/useUIStore";
+import { signOut } from "../../lib/auth-client";
 import { useNavigate } from "react-router";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,17 +38,9 @@ function Skeleton({ className = "" }: { className?: string }) {
 }
 
 function Sidebar() {
-  const [collapsed, setCollapsed] = useState(() => {
-    return localStorage.getItem("sidebar-collapsed") === "true";
-  });
-
-  const toggleCollapsed = (value: boolean) => {
-    setCollapsed(value);
-    localStorage.setItem("sidebar-collapsed", String(value));
-  };
+  const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();
+  const { user, loading: isPending } = useUserStore();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const { data: session, isPending } = useSession();
-  const user = session?.user;
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -90,7 +84,7 @@ function Sidebar() {
 
         {/* Toggle button */}
         <button
-          onClick={() => toggleCollapsed(!collapsed)}
+          onClick={() => setSidebarCollapsed(!collapsed)}
           className="absolute -right-3 top-6.5 bg-card border border-border rounded-full p-1.5 shadow-md z-10 cursor-pointer hover:bg-accent hover:text-white"
           style={{ transition: "background 150ms ease, color 150ms ease" }}
           data-testid="toggle-sidebar"

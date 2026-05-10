@@ -254,7 +254,7 @@ function priorityColors(priority: Priority) {
     case "medium":
       return "bg-orange-100 text-orange-700 border-orange-200";
     case "low":
-      return "bg-gray-100 text-gray-600 border-gray-200";
+      return "bg-muted text-muted-foreground border-border";
   }
 }
 
@@ -265,7 +265,7 @@ function impactColors(impact: "high" | "medium" | "low") {
     case "medium":
       return "bg-blue-100 text-blue-700 border-blue-200";
     case "low":
-      return "bg-gray-100 text-gray-600 border-gray-200";
+      return "bg-muted text-muted-foreground border-border";
   }
 }
 
@@ -443,7 +443,7 @@ export default function AICoach() {
             label: "Avg Tasks / Day",
             value: patternData.avgTasksPerDay,
             sub: "last 30 days",
-            icon: <BarChart3 className="w-4 h-4 text-blue-500" />,
+            icon: <BarChart3 className="w-4 h-4 bg-primary/100" />,
             color: "text-blue-600",
           },
           {
