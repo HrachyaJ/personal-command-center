@@ -5,10 +5,10 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useEffect } from "react";
-import Dashboard from "../components/shared/containers/Dashboard";
-import Goals from "../components/shared/containers/Goals";
-import Tasks from "../components/shared/containers/Tasks";
-import Habits from "../components/shared/containers/Habits";
+import Dashboard from "../components/shared/containers/dashboard/Dashboard";
+import Tasks from "../components/shared/containers/tasks/Tasks";
+import Goals from "../components/shared/containers/goals/Goals";
+import Habits from "../components/shared/containers/habits/Habits";
 import LandingPage from "../components/shared/containers/landing/LandingPage";
 import SignIn from "../components/shared/containers/auth/SignIn";
 import SignUp from "../components/shared/containers/auth/SignUp";
@@ -37,9 +37,7 @@ function AppLayout() {
 
   document.title = "FocusFlow";
 
-  // Apply dark class to <html>
   useEffect(() => {
-    console.log("theme changed:", theme);
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");

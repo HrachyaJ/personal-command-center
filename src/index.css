@@ -1,4 +1,3 @@
-/* 1. Import the actual font files */
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";

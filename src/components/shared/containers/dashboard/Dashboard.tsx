@@ -1,6 +1,6 @@
-import { Card, CardContent } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { Progress } from "../../ui/progress";
+import { Card, CardContent } from "../../../ui/card";
+import { Button } from "../../../ui/button";
+import { Progress } from "../../../ui/progress";
 import {
   Bell,
   CheckCircle,
@@ -12,135 +12,28 @@ import {
   Calendar,
   Clock,
 } from "lucide-react";
-import { useTasks } from "../../../hooks/task.hooks";
-import { useGoals } from "../../../hooks/goal.hooks";
-import { useHabits } from "../../../hooks/habit.hooks";
-import { useSession } from "../../../lib/auth-client";
-import Insights from "../Insights";
-import { Badge } from "../../ui/badge";
+import { useTasks } from "../../../../hooks/task.hooks";
+import { useGoals } from "../../../../hooks/goal.hooks";
+import { useHabits } from "../../../../hooks/habit.hooks";
+import { useSession } from "../../../../lib/auth-client";
+import Insights from "../../Insights";
+import { Badge } from "../../../ui/badge";
 import { useState } from "react";
+import { SettingsDialog } from "../settings/SettingsDialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../ui/dialog";
-import { SettingsDialog } from "./SettingsDialog";
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function getTimeOfDayGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good Morning";
-  if (hour < 18) return "Good Afternoon";
-  return "Good Evening";
-}
-
-function getMomentumLabel(rate: number): string {
-  if (rate >= 80) return "🔥 On fire!";
-  if (rate >= 60) return "💪 Keep it up!";
-  if (rate >= 40) return "📈 Building momentum";
-  if (rate > 0) return "🌱 Just getting started";
-  return "✨ Nothing yet";
-}
-
-// ─── Skeleton primitives ─────────────────────────────────────────────────────
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
-}
-
-// ─── Skeleton screens ────────────────────────────────────────────────────────
-
-function StatCardSkeleton() {
-  return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-3.5 w-24" />
-            <Skeleton className="h-7 w-12 mt-1" />
-            <Skeleton className="h-3 w-20 mt-1" />
-          </div>
-          <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg shrink-0" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function TasksSkeleton() {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 py-1">
-          <Skeleton className="w-4 h-4 rounded-full shrink-0" />
-          <Skeleton
-            className={`h-3.5 ${i % 3 === 0 ? "w-3/4" : i % 3 === 1 ? "w-1/2" : "w-2/3"}`}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function GoalsSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i}>
-          <div className="flex items-center justify-between mb-1.5">
-            <Skeleton className={`h-3.5 ${i % 2 === 0 ? "w-2/5" : "w-1/2"}`} />
-            <Skeleton className="h-3 w-16 shrink-0" />
-          </div>
-          <Skeleton className="h-1.5 w-full rounded-full" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function HabitsSkeleton() {
-  return (
-    <>
-      <div className="mb-4">
-        <div className="flex justify-between mb-1.5">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-3 w-8" />
-        </div>
-        <Skeleton className="h-1.5 w-full rounded-full" />
-      </div>
-      <div className="space-y-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-2.5">
-            <Skeleton className="w-4 h-4 rounded-full shrink-0" />
-            <Skeleton className={`h-3.5 ${i % 2 === 0 ? "w-3/4" : "w-1/2"}`} />
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-function OverallProgressSkeleton() {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i}>
-          <div className="flex justify-between mb-1">
-            <Skeleton className="h-3 w-10" />
-            <Skeleton className="h-3 w-8" />
-          </div>
-          <Skeleton className="h-1.5 w-full rounded-full" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
+  CATEGORY_ICONS,
+  getMomentumLabel,
+  getTimeOfDayGreeting,
+  PRIORITY_DOT,
+} from "../../../../lib/utils";
+import {
+  GoalsSkeleton,
+  HabitsSkeleton,
+  OverallProgressSkeleton,
+  Skeleton,
+  StatCardSkeleton,
+  TasksSkeleton,
+} from "../../Skeletons";
 
 interface StatCardProps {
   title: string;
@@ -200,7 +93,6 @@ function SectionCard({ title, children }: SectionCardProps) {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  // ── Data ──────────────────────────────────────────────────────────────────
   const {
     tasks,
     countCompleted,
@@ -230,21 +122,6 @@ export default function Dashboard() {
 
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || sessionLoading;
-
-  const PRIORITY_DOT: Record<string, string> = {
-    high: "bg-red-500",
-    medium: "bg-amber-400",
-    low: "bg-secondary",
-  };
-
-  const CATEGORY_ICON: Record<string, string> = {
-    work: "💼",
-    health: "🏃",
-    personal: "🏠",
-    learning: "📚",
-    finance: "💰",
-    other: "📌",
-  };
 
   function formatShortDate(d: string | null) {
     if (!d) return null;
@@ -460,7 +337,8 @@ export default function Dashboard() {
                             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                               {task.category && (
                                 <span className="text-[10px] text-muted-foreground">
-                                  {CATEGORY_ICON[task.category]} {task.category}
+                                  {CATEGORY_ICONS[task.category]}{" "}
+                                  {task.category}
                                 </span>
                               )}
                               {task.dueDate && (

@@ -143,7 +143,7 @@ export default function SignUp() {
                 justifyContent: "center",
               }}
             >
-              <Brain style={{ color: "#fff", width: "18px", height: "18px" }} />
+              <Brain style={{ color: "#fff", width: "25px", height: "25px" }} />
             </div>
             <span
               style={{ fontSize: "20px", fontWeight: 600, color: "#0f172a" }}

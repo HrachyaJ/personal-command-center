@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Habit } from "../../types/habit.types";
+import type { Habit } from "../../../../types/habit.types";
 
 const CATEGORY_LABELS: Record<string, string> = {
   health: "🩺 Health",

@@ -147,11 +147,11 @@ const insights: Insight[] = [
 
 const patternData: PatternData = {
   bestTimeOfDay: [
-    { label: "6–9 AM", completionRate: 91 },
-    { label: "9–12 PM", completionRate: 84 },
-    { label: "12–3 PM", completionRate: 61 },
-    { label: "3–6 PM", completionRate: 44 },
-    { label: "6–9 PM", completionRate: 38 },
+    { label: "6-9 AM", completionRate: 91 },
+    { label: "9-12 PM", completionRate: 84 },
+    { label: "12-3 PM", completionRate: 61 },
+    { label: "3-6 PM", completionRate: 44 },
+    { label: "6-9 PM", completionRate: 38 },
     { label: "9 PM+", completionRate: 22 },
   ],
   weakDays: [
@@ -328,11 +328,11 @@ export default function AICoach() {
       </div>
 
       {/* Productivity Score Banner */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden relative">
+      <Card className="border-primary/20 bg-linear-to-br from-primary/5 to-primary/10 overflow-hidden relative">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-6">
             {/* Score circle */}
-            <div className="flex-shrink-0 flex items-center gap-5">
+            <div className="shrink-0 flex items-center gap-5">
               <div className="relative w-20 h-20">
                 <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
                   <circle
@@ -443,7 +443,7 @@ export default function AICoach() {
             label: "Avg Tasks / Day",
             value: patternData.avgTasksPerDay,
             sub: "last 30 days",
-            icon: <BarChart3 className="w-4 h-4 bg-primary/100" />,
+            icon: <BarChart3 className="w-4 h-4 bg-primary" />,
             color: "text-blue-600",
           },
           {
@@ -516,7 +516,7 @@ export default function AICoach() {
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
                       <div
-                        className={`mt-0.5 p-2 rounded-lg flex-shrink-0 ${colors.icon}`}
+                        className={`mt-0.5 p-2 rounded-lg shrink-0 ${colors.icon}`}
                       >
                         <InsightIcon type={insight.type} />
                       </div>
@@ -738,7 +738,7 @@ export default function AICoach() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="cursor-pointer flex-shrink-0 gap-1 text-xs"
+                    className="cursor-pointer shrink-0 gap-1 text-xs"
                   >
                     Try this
                     <ChevronRight className="w-3 h-3" />

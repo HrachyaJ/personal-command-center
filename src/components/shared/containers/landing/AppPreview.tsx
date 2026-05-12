@@ -1,16 +1,6 @@
-export function AppPreview() {
-  const tasks = [
-    "Design system audit",
-    "Write Q2 OKRs",
-    "Review PRs",
-    "Team sync",
-  ];
-  const habits = [
-    { name: "Morning run", done: true, streak: 14 },
-    { name: "Read 30 min", done: true, streak: 7 },
-    { name: "Meditate", done: false, streak: 3 },
-  ];
+import { habits, tasks } from "../../../../lib/constants";
 
+export function AppPreview() {
   return (
     <div
       style={{

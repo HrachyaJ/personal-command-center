@@ -1,31 +1,26 @@
 import { useState } from "react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Input } from "../../../ui/input";
+import { Button } from "../../../ui/button";
+import { Label } from "../../../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
+} from "../../../ui/select";
+import { Collapsible, CollapsibleContent } from "../../../ui/collapsible";
 import {
   PlusIcon,
   ChevronDown,
   ChevronUp,
   SlidersHorizontal,
 } from "lucide-react";
-import { toast } from "sonner";
 import type {
-  TaskFormData,
   TaskCategory,
+  TaskFormData,
   TaskPriority,
-} from "../../types/task.types";
+} from "../../../../types/task.types";
 
 interface TaskInputProps {
   onAdd: (data: TaskFormData) => void;

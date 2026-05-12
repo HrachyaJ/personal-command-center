@@ -1,4 +1,4 @@
-import type { Task, TaskFormData } from "../../types/task.types";
+import type { Task, TaskFormData } from "../../../../types/task.types";
 import TaskItem from "./TaskItem";
 
 export default function TaskList({

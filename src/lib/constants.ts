@@ -59,3 +59,16 @@ export const STATS: Stat[] = [
   { value: "3.2×", label: "Avg productivity lift" },
   { value: "4.9★", label: "User rating" },
 ];
+
+export const tasks = [
+  "Design system audit",
+  "Write Q2 OKRs",
+  "Review PRs",
+  "Team sync",
+];
+
+export const habits = [
+  { name: "Morning run", done: true, streak: 14 },
+  { name: "Read 30 min", done: true, streak: 7 },
+  { name: "Meditate", done: false, streak: 3 },
+];

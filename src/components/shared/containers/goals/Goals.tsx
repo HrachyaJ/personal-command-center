@@ -1,75 +1,32 @@
 import { useState } from "react";
-import { Card, CardContent } from "../../ui/card";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
-import { Textarea } from "../../ui/textarea";
+import { Card, CardContent } from "../../../ui/card";
+import { Button } from "../../../ui/button";
+import { Input } from "../../../ui/input";
+import { Label } from "../../../ui/label";
+import { Textarea } from "../../../ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select";
+} from "../../../ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../ui/dialog";
-import { Progress } from "../../ui/progress";
-import { Badge } from "../../ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
+} from "../../../ui/dialog";
+import { Progress } from "../../../ui/progress";
+import { Badge } from "../../../ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
 import { Plus, Target, Calendar, Trash2, CheckCircle2 } from "lucide-react";
-import type { Goal } from "../../../types/goal.types";
-import { useGoals } from "../../../hooks/goal.hooks";
-
-// ─── Skeleton ────────────────────────────────────────────────────────────────
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
-}
-
-function StatCardSkeleton() {
-  return (
-    <Card>
-      <CardContent className="p-4 sm:p-6 text-center">
-        <Skeleton className="h-8 sm:h-9 w-12 mx-auto mb-2" />
-        <Skeleton className="h-3.5 w-24 mx-auto" />
-      </CardContent>
-    </Card>
-  );
-}
-
-function GoalCardSkeleton() {
-  return (
-    <Card>
-      <CardContent className="p-4 sm:p-6 space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-5 w-2/5" />
-            <Skeleton className="h-3.5 w-3/5" />
-          </div>
-          <Skeleton className="h-6 w-16 rounded-full ml-4 shrink-0" />
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <Skeleton className="h-3.5 w-28" />
-            <Skeleton className="h-3.5 w-8" />
-          </div>
-          <Skeleton className="h-2 w-full rounded-full" />
-        </div>
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-4 rounded" />
-          <Skeleton className="h-3.5 w-32" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ─── Goals ───────────────────────────────────────────────────────────────────
+import type { Goal } from "../../../../types/goal.types";
+import { useGoals } from "../../../../hooks/goal.hooks";
+import { GoalCardSkeleton, GoalStatCardSkeleton } from "../../Skeletons";
+import { GoalCard } from "./GoalCard";
+import { StatCard } from "../../StatCard";
 
 export default function Goals() {
   const {
@@ -340,49 +297,31 @@ export default function Goals() {
       {/* Stat Cards — 2 cols on mobile, 4 on lg */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+          Array.from({ length: 4 }).map((_, i) => (
+            <GoalStatCardSkeleton key={i} />
+          ))
         ) : (
           <>
-            <Card>
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">
-                  {stats.total}
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Total Goals
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                  {stats.active}
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Active Goals
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-green-600">
-                  {stats.completed}
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Completed
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-purple-600">
-                  {stats.completionRate}%
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Completion Rate
-                </p>
-              </CardContent>
-            </Card>
+            <StatCard
+              value={stats.total}
+              label="Total Goals"
+              color="text-primary"
+            />
+            <StatCard
+              value={stats.active}
+              label="Active Goals"
+              color="text-blue-600"
+            />
+            <StatCard
+              value={stats.completed}
+              label="Completed"
+              color="text-green-600"
+            />
+            <StatCard
+              value={`${stats.completionRate}%`}
+              label="Completion Rate"
+              color="text-purple-600"
+            />
           </>
         )}
       </div>

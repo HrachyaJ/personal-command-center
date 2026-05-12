@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { Skeleton } from "./Skeletons";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -32,10 +33,6 @@ const navigation = [
   { name: "Habits", href: "/habits", icon: BarChart3 },
   { name: "AI Coach", href: "/ai-coach", icon: Brain },
 ];
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
-}
 
 function Sidebar() {
   const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();

@@ -1,7 +1,12 @@
 import { Router, Request } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../db.js";
-import { user as userTable } from "../db/auth-schema.js"; // adjust to your actual users table name
+import {
+  user as userTable,
+  session as sessionTable,
+  account as accountTable,
+} from "../db/auth-schema.js";
+import { tasks } from "../db/schema.js";
 import { auth } from "../auth.js";
 
 const router = Router();
@@ -63,6 +68,43 @@ router.post("/password", async (req, res) => {
   } catch {
     res.status(400).json({ error: "Current password is incorrect" });
   }
+});
+
+// DELETE /api/user/account — permanently delete account and all data
+router.delete("/account", async (req, res) => {
+  const session = await getSession(req);
+  if (!session) return res.status(401).json({ error: "Unauthorized" });
+
+  const { password } = req.body as { password?: string };
+  if (!password) return res.status(400).json({ error: "Password is required" });
+
+  // Verify password by attempting a sign-in with the same credentials
+  const [currentUser] = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, session.user.id));
+
+  try {
+    await auth.api.signInEmail({
+      body: { email: currentUser.email, password },
+    });
+  } catch {
+    return res.status(400).json({ error: "Invalid password" });
+  }
+
+  const userId = session.user.id;
+
+  // Delete user data — adjust table names to match your schema
+  await db.delete(tasks).where(eq(tasks.userId, userId));
+  // await db.delete(goals).where(eq(goals.userId, userId));
+  // await db.delete(habits).where(eq(habits.userId, userId));
+
+  // Delete auth records (sessions, accounts, then user)
+  await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
+  await db.delete(accountTable).where(eq(accountTable.userId, userId));
+  await db.delete(userTable).where(eq(userTable.id, userId));
+
+  res.json({ ok: true });
 });
 
 export default router;

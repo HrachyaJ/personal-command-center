@@ -3,7 +3,7 @@ import type {
   TaskFormData,
   TaskCategory,
   TaskPriority,
-} from "../../types/task.types";
+} from "../../../../types/task.types";
 import {
   Edit,
   Trash2,
@@ -14,11 +14,11 @@ import {
   Save,
   X,
 } from "lucide-react";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Badge } from "../ui/badge";
+import { Button } from "../../../ui/button";
+import { Checkbox } from "../../../ui/checkbox";
+import { Input } from "../../../ui/input";
+import { Label } from "../../../ui/label";
+import { Badge } from "../../../ui/badge";
 
 import {
   Select,
@@ -26,56 +26,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Switch } from "../ui/switch";
-import { Collapsible, CollapsibleContent } from "../ui/collapsible";
+} from "../../../ui/select";
+import { Switch } from "../../../ui/switch";
+import { Collapsible, CollapsibleContent } from "../../../ui/collapsible";
 import { useState } from "react";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const PRIORITY_STYLES: Record<TaskPriority, { badge: string; dot: string }> = {
-  low: {
-    badge: "bg-muted text-muted-foreground border-border",
-    dot: "bg-secondary",
-  },
-  medium: {
-    badge: "bg-amber-100 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
-  },
-  high: { badge: "bg-red-100 text-red-700 border-red-200", dot: "bg-red-500" },
-};
-
-const CATEGORY_ICONS: Record<TaskCategory, string> = {
-  work: "💼",
-  health: "🏃",
-  personal: "🏠",
-  learning: "📚",
-  finance: "💰",
-  other: "📌",
-};
-
-function parseDate(dateStr: string): Date {
-  // Date-only strings like "2025-04-29" are parsed as UTC by default,
-  // which shifts the day in local timezones. Append local midnight instead.
-  // Full ISO strings (contain "T") are left untouched.
-  return new Date(dateStr.includes("T") ? dateStr : dateStr + "T00:00");
-}
-
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return null;
-  const d = parseDate(dateStr);
-  if (isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function isOverdue(dateStr: string | null, completed: boolean) {
-  if (!dateStr || completed) return false;
-  const d = parseDate(dateStr);
-  if (isNaN(d.getTime())) return false;
-  return d < new Date();
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
+import {
+  CATEGORY_ICONS,
+  formatDate,
+  isOverdue,
+  PRIORITY_STYLES,
+} from "../../../../lib/utils";
 
 export default function TaskItem({
   task,
@@ -202,7 +162,7 @@ export default function TaskItem({
                 </span>
               )}
               {task.isRecurring && (
-                <span className="flex items-center gap-0.5 text-[10px] bg-primary/100">
+                <span className="flex items-center gap-0.5 text-[10px] bg-primary">
                   <RefreshCw size={10} />
                   {task.recurrenceRule ?? "recurring"}
                 </span>
@@ -416,7 +376,7 @@ export default function TaskItem({
                   value={editData.recurrenceRule ?? ""}
                   onValueChange={(v) => set("recurrenceRule", v || null)}
                 >
-                  <SelectTrigger className="w-[130px] h-7 text-xs bg-card border-border cursor-pointer">
+                  <SelectTrigger className="w-32.5 h-7 text-xs bg-card border-border cursor-pointer">
                     <SelectValue placeholder="Frequency" />
                   </SelectTrigger>
                   <SelectContent>

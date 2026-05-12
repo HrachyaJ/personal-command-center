@@ -1,5 +1,4 @@
 // Centralized theme configuration for colors and styles
-
 export const COLORS = {
   green: "#16a34a",
   blue: "#2563eb",

@@ -1,44 +1,11 @@
-import TaskInput from "../TaskInput";
-import TaskList from "../TaskList";
-import { Button } from "../../ui/button";
-import { useTasks } from "../../../hooks/task.hooks";
+import TaskInput from "./TaskInput";
+import TaskList from "./TaskList";
+import { Button } from "../../../ui/button";
+import { useTasks } from "../../../../hooks/task.hooks";
 import { ListTodo } from "lucide-react";
-import type { TaskFormData } from "../../../types/task.types";
-
-// ─── Skeleton ────────────────────────────────────────────────────────────────
-
-function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />;
-}
-
-function StatCardSkeleton() {
-  return (
-    <div className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-sm text-center">
-      <Skeleton className="h-8 sm:h-9 w-12 mx-auto mb-2" />
-      <Skeleton className="h-3.5 w-20 mx-auto" />
-    </div>
-  );
-}
-
-function TaskListSkeleton() {
-  return (
-    <div className="py-4 space-y-2">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-lg border border-border px-3 py-3 flex items-center gap-3"
-        >
-          <Skeleton className="w-4 h-4 rounded shrink-0" />
-          <Skeleton
-            className={`h-4 ${i % 3 === 0 ? "w-3/4" : i % 3 === 1 ? "w-1/2" : "w-2/3"}`}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Tasks ───────────────────────────────────────────────────────────────────
+import type { TaskFormData } from "../../../../types/task.types";
+import { TaskListSkeleton, TasksStatCardSkeleton } from "../../Skeletons";
+import { StatCard } from "../../StatCard";
 
 const Tasks = () => {
   const {
@@ -103,22 +70,15 @@ const Tasks = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <StatCardSkeleton key={i} />
+              <TasksStatCardSkeleton key={i} />
             ))
           : stats.map((stat) => (
-              <div
+              <StatCard
                 key={stat.label}
-                className="bg-card p-4 sm:p-5 rounded-xl border border-border shadow-sm text-center hover:shadow-md transition-shadow"
-              >
-                <span
-                  className={`block text-2xl sm:text-3xl font-bold ${stat.color} mb-1`}
-                >
-                  {stat.value}
-                </span>
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  {stat.label}
-                </span>
-              </div>
+                value={stat.value}
+                label={stat.label}
+                color={stat.color}
+              />
             ))}
       </div>
 

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { signOut } from "../lib/auth-client";
 
 export function useScrollY() {
   const [scrollY, setScrollY] = useState(0);
