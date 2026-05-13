@@ -14,11 +14,6 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
     (goal.currentValue / goal.targetValue) * 100,
   );
 
-  const handleUpdateProgress = (goalId: string, addValue: number) =>
-    updateProgress(goalId, addValue);
-  const handleCompleteGoal = (goalId: string) => completeGoal(goalId);
-  const handleDeleteGoal = (goalId: string) => deleteGoal(goalId);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -57,7 +52,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleDeleteGoal(goal.id)}
+                onClick={() => deleteGoal(goal.id)}
                 className="cursor-pointer hover:bg-red-600 h-7 w-7 p-0"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -99,7 +94,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
                       (e.target as HTMLInputElement).value,
                     );
                     if (value > 0) {
-                      handleUpdateProgress(goal.id, value);
+                      updateProgress(goal.id, value);
                       (e.target as HTMLInputElement).value = "";
                     }
                   }
@@ -108,7 +103,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
               {progressPercentage >= 100 && (
                 <Button
                   size="sm"
-                  onClick={() => handleCompleteGoal(goal.id)}
+                  onClick={() => completeGoal(goal.id)}
                   className="cursor-pointer h-8 text-xs whitespace-nowrap"
                 >
                   Mark Complete

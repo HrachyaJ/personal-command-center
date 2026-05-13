@@ -100,3 +100,16 @@ export const PRIORITY_DOT: Record<string, string> = {
   medium: "bg-amber-400",
   low: "bg-secondary",
 };
+
+export function formatShortDate(d: string | null) {
+  if (!d) return null;
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export function isTaskOverdue(dateStr: string | null, completed: boolean) {
+  if (!dateStr || completed) return false;
+  return new Date(dateStr) < new Date();
+}

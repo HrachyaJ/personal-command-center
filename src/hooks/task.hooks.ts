@@ -95,6 +95,24 @@ export function useTasks() {
     return tasks.filter((t) => !t.completed).length;
   }
 
+  function getStats() {
+    const completed = tasks.filter((t) => t.completed).length;
+    const total = tasks.length;
+    const active = total - completed;
+    const completionRate =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
+    return [
+      { label: "Total Tasks", value: total, color: "text-blue-600" },
+      { label: "Active Tasks", value: active, color: "text-amber-600" },
+      { label: "Completed", value: completed, color: "text-emerald-600" },
+      {
+        label: "Completion",
+        value: `${completionRate}%`,
+        color: "text-purple-600",
+      },
+    ];
+  }
+
   return {
     tasks,
     loading,
@@ -105,6 +123,7 @@ export function useTasks() {
     countCompleted,
     getCompletedTasks,
     getTasksLeft,
+    getStats,
     editTask,
   };
 }

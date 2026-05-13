@@ -16,25 +16,11 @@ const Tasks = () => {
     clearCompleted,
     countCompleted,
     editTask,
+    getStats,
     loading,
   } = useTasks();
 
-  const totalTasks = tasks.length;
-  const completedCount = countCompleted();
-  const activeCount = totalTasks - completedCount;
-  const completionRate =
-    totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
-
-  const stats = [
-    { label: "Total Tasks", value: totalTasks, color: "text-blue-600" },
-    { label: "Active Tasks", value: activeCount, color: "text-amber-600" },
-    { label: "Completed", value: completedCount, color: "text-emerald-600" },
-    {
-      label: "Completion",
-      value: `${completionRate}%`,
-      color: "text-purple-600",
-    },
-  ];
+  const stats = getStats();
 
   function handleAdd(data: TaskFormData) {
     addTask(data);
@@ -51,17 +37,17 @@ const Tasks = () => {
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold">Tasks</h1>
           <p className="text-muted-foreground text-sm">
-            Set and track your productivity goals
+            Manage and complete your tasks
           </p>
         </div>
-        {!loading && completedCount > 0 && (
+        {!loading && countCompleted() > 0 && (
           <Button
             onClick={clearCompleted}
             variant="destructive"
             size="sm"
             className="cursor-pointer shrink-0 text-xs sm:text-sm"
           >
-            Clear ({completedCount})
+            Clear ({countCompleted()})
           </Button>
         )}
       </div>

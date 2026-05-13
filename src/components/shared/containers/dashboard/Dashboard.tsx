@@ -22,8 +22,10 @@ import { useState } from "react";
 import { SettingsDialog } from "../settings/SettingsDialog";
 import {
   CATEGORY_ICONS,
+  formatShortDate,
   getMomentumLabel,
   getTimeOfDayGreeting,
+  isTaskOverdue,
   PRIORITY_DOT,
 } from "../../../../lib/utils";
 import {
@@ -34,63 +36,8 @@ import {
   StatCardSkeleton,
   TasksSkeleton,
 } from "../../Skeletons";
-
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  subtext: string;
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  testId?: string;
-}
-
-function StatCard({
-  title,
-  value,
-  subtext,
-  icon: Icon,
-  iconColor,
-  iconBg,
-  testId,
-}: StatCardProps) {
-  return (
-    <Card data-testid={testId}>
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-semibold mt-1">{value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
-          </div>
-          <div
-            className={`w-10 h-10 sm:w-12 sm:h-12 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
-          >
-            <Icon className={`w-5 h-5 ${iconColor}`} />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface SectionCardProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-function SectionCard({ title, children }: SectionCardProps) {
-  return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <h3 className="text-sm font-semibold text-foreground mb-4">{title}</h3>
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
-// ─── Dashboard ───────────────────────────────────────────────────────────────
+import { DashboardSectionCard } from "./DashboardSectionCard";
+import { DashboardStatCard, type StatCardProps } from "./DashboardStatCard";
 
 export default function Dashboard() {
   const {
@@ -123,19 +70,6 @@ export default function Dashboard() {
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || sessionLoading;
 
-  function formatShortDate(d: string | null) {
-    if (!d) return null;
-    return new Date(d).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  }
-
-  function isTaskOverdue(dateStr: string | null, completed: boolean) {
-    if (!dateStr || completed) return false;
-    return new Date(dateStr) < new Date();
-  }
-
   const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
   const sortedDashboardTasks = [...tasks].sort((a, b) => {
@@ -166,9 +100,9 @@ export default function Dashboard() {
       : 0;
 
   // ── Derived: Habits ───────────────────────────────────────────────────────
+
   const todaysHabits = habits.slice(0, 5);
 
-  // ── Stat cards config ─────────────────────────────────────────────────────
   const statCards: StatCardProps[] = [
     {
       title: "Tasks Completed",
@@ -275,7 +209,9 @@ export default function Dashboard() {
             ? Array.from({ length: 4 }).map((_, i) => (
                 <StatCardSkeleton key={i} />
               ))
-            : statCards.map((card) => <StatCard key={card.title} {...card} />)}
+            : statCards.map((card) => (
+                <DashboardStatCard key={card.title} {...card} />
+              ))}
         </div>
 
         {/* ── Main Grid ────────────────────────────────────────────────────── */}
@@ -283,7 +219,7 @@ export default function Dashboard() {
           {/* Left: Tasks + Goals ───────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Today's Tasks */}
-            <SectionCard title="Today's Tasks">
+            <DashboardSectionCard title="Today's Tasks">
               {isLoading ? (
                 <TasksSkeleton />
               ) : tasks.length === 0 ? (
@@ -368,10 +304,10 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
-            </SectionCard>
+            </DashboardSectionCard>
 
             {/* Active Goals */}
-            <SectionCard title="Active Goals">
+            <DashboardSectionCard title="Active Goals">
               {isLoading ? (
                 <GoalsSkeleton />
               ) : activeGoals.length === 0 ? (
@@ -406,13 +342,13 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
-            </SectionCard>
+            </DashboardSectionCard>
           </div>
 
           {/* Right: Habits + Overview ──────────────────────────────────────── */}
           <div className="space-y-4 sm:space-y-6">
             {/* Today's Habits */}
-            <SectionCard title="Today's Habits">
+            <DashboardSectionCard title="Today's Habits">
               {isLoading ? (
                 <HabitsSkeleton />
               ) : totalHabits === 0 ? (
@@ -481,9 +417,9 @@ export default function Dashboard() {
                   </div>
                 </>
               )}
-            </SectionCard>
+            </DashboardSectionCard>
 
-            <SectionCard title="AI Insights">
+            <DashboardSectionCard title="AI Insights">
               {isLoading ? (
                 <OverallProgressSkeleton />
               ) : (
@@ -491,10 +427,10 @@ export default function Dashboard() {
                   <Insights />
                 </div>
               )}
-            </SectionCard>
+            </DashboardSectionCard>
 
             {/* Overall Progress */}
-            <SectionCard title="Overall Progress">
+            <DashboardSectionCard title="Overall Progress">
               {isLoading ? (
                 <OverallProgressSkeleton />
               ) : (
@@ -531,7 +467,7 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
-            </SectionCard>
+            </DashboardSectionCard>
           </div>
         </div>
       </div>
