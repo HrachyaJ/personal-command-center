@@ -78,9 +78,13 @@ router.delete("/account", async (req, res) => {
   const { password } = req.body as { password?: string };
   if (!password) return res.status(400).json({ error: "Password is required" });
 
-  // Verify password by attempting a sign-in with the same credentials
   const [currentUser] = await db
-    .select()
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      email: userTable.email,
+      image: userTable.image,
+    })
     .from(userTable)
     .where(eq(userTable.id, session.user.id));
 
@@ -94,12 +98,10 @@ router.delete("/account", async (req, res) => {
 
   const userId = session.user.id;
 
-  // Delete user data — adjust table names to match your schema
   await db.delete(tasks).where(eq(tasks.userId, userId));
   // await db.delete(goals).where(eq(goals.userId, userId));
   // await db.delete(habits).where(eq(habits.userId, userId));
 
-  // Delete auth records (sessions, accounts, then user)
   await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
   await db.delete(accountTable).where(eq(accountTable.userId, userId));
   await db.delete(userTable).where(eq(userTable.id, userId));

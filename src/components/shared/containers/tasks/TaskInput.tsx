@@ -26,7 +26,6 @@ interface TaskInputProps {
   onAdd: (data: TaskFormData) => void;
 }
 
-// Inline toggle — avoids shadcn Switch className conflicts
 function Toggle({
   id,
   checked,
@@ -65,12 +64,6 @@ const EMPTY_FORM: TaskFormData = {
   estimatedMinutes: null,
   isRecurring: false,
   recurrenceRule: null,
-};
-
-const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  low: "text-muted-foreground",
-  medium: "text-amber-600",
-  high: "text-red-600",
 };
 
 export default function TaskInput({ onAdd }: TaskInputProps) {

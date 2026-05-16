@@ -1,5 +1,3 @@
-import { useGoals } from "../../../../hooks/goal.hooks";
-import { useTasks } from "../../../../hooks/task.hooks";
 import { Card, CardContent } from "../../../ui/card";
 
 export interface StatCardProps {
@@ -21,19 +19,6 @@ export function DashboardStatCard({
   iconBg,
   testId,
 }: StatCardProps) {
-  const { tasks, countCompleted, getTasksLeft } = useTasks();
-  const { goals, countCompletedGoals, getGoalsByStatus } = useGoals();
-
-  // ── Derived: Goals ────────────────────────────────────────────────────────
-  const completedGoalsCount = countCompletedGoals();
-  const activeGoals = getGoalsByStatus("active");
-  const goalsCompletionRate =
-    goals.length > 0
-      ? Math.round((completedGoalsCount / goals.length) * 100)
-      : 0;
-
-  // ── Derived: Habits ───────────────────────────────────────────────────────
-
   return (
     <Card data-testid={testId}>
       <CardContent className="p-4 sm:p-6">

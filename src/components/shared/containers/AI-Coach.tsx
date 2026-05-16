@@ -22,8 +22,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type InsightType = "tip" | "warning" | "achievement" | "pattern";
 type Priority = "high" | "medium" | "low";
 
