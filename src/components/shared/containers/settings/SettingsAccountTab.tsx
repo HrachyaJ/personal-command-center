@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useUserStore } from "../../../../stores/useUserStore";
 import { API_BASE } from "../../../../lib/utils";
 import { toast } from "sonner";
@@ -8,24 +8,8 @@ import { Input } from "../../../ui/input";
 import { Check, Lock, Upload, X } from "lucide-react";
 import { Button } from "../../../ui/button";
 import { Separator } from "../../../ui/separator";
-
-function getInitials(name?: string, email?: string): string {
-  if (name?.trim()) {
-    const parts = name.trim().split(/\s+/);
-    return parts.length >= 2
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-      : name.slice(0, 2).toUpperCase();
-  }
-  if (email) return email.slice(0, 2).toUpperCase();
-  return "??";
-}
-
-/** Stored paths like "/avatars/id.jpg" need the API origin prepended. */
-function resolveAvatarUrl(image?: string | null): string | null {
-  if (!image) return null;
-  if (image.startsWith("http://") || image.startsWith("https://")) return image;
-  return `${API_BASE}${image}`;
-}
+import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
+import { getInitials, resolveAvatarUrl } from "../../../../lib/avatar";
 
 export function AccountTab() {
   const { user, update: updateUser } = useUserStore();
@@ -43,8 +27,15 @@ export function AccountTab() {
   );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setEmail(user.email ?? "");
+      setAvatarPreview(resolveAvatarUrl(user.image));
+    }
+  }, [user]);
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -65,16 +56,8 @@ export function AccountTab() {
     e.target.value = "";
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
-  };
-
   const handleRemoveAvatar = async () => {
     if (avatarFile) {
-      // Just a local preview — revert to the saved avatar (or nothing)
       setAvatarPreview(resolveAvatarUrl(user?.image));
       setAvatarFile(null);
       return;
@@ -208,30 +191,15 @@ export function AccountTab() {
           {/* Avatar */}
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
-              <div
-                className={`w-16 h-16 rounded-full overflow-hidden border-2 transition-colors ${
-                  isDragging ? "border-blue-500 border-dashed" : "border-border"
-                }`}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-              >
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt="Avatar preview"
-                    className="w-full h-full object-cover"
-                    onError={() => setAvatarPreview(null)}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-700 dark:text-blue-300 font-semibold text-sm select-none">
-                    {initials}
-                  </div>
-                )}
-              </div>
+              <Avatar className="w-16 h-16 border-2 border-border">
+                <AvatarImage
+                  src={avatarPreview ?? undefined}
+                  alt="Avatar preview"
+                />
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-semibold text-sm">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
 
               {avatarPreview && (
                 <button

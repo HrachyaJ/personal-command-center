@@ -50,9 +50,11 @@ router.post("/", async (req, res) => {
       id: crypto.randomUUID(),
       userId: session.user.id,
       title: title.trim(),
-      ...(dueDate !== undefined && { dueDate: new Date(dueDate) }),
+      ...(dueDate !== undefined && {
+        dueDate: dueDate ? new Date(dueDate) : null,
+      }),
       ...(scheduledFor !== undefined && {
-        scheduledFor: new Date(scheduledFor),
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
       }),
       ...(priority !== undefined && { priority }),
       ...(category !== undefined && { category }),

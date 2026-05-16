@@ -131,7 +131,7 @@ export function AuthLayout({
         {/* Heading */}
         <div
           className="auth-heading"
-          style={{ textAlign: "center", marginBottom: "32px" }}
+          style={{ textAlign: "center", marginBottom: "20px" }}
         >
           <h1
             style={{

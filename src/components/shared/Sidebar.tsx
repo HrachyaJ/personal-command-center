@@ -26,64 +26,9 @@ import {
 } from "../ui/alert-dialog";
 import { Skeleton } from "./Skeletons";
 import { API_BASE } from "../../lib/utils";
-
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Tasks", href: "/tasks", icon: CheckSquare },
-  { name: "Goals", href: "/goals", icon: Target },
-  { name: "Habits", href: "/habits", icon: BarChart3 },
-  { name: "AI Coach", href: "/ai-coach", icon: Brain },
-];
-
-function getInitials(name?: string | null, email?: string | null): string {
-  if (name?.trim()) {
-    const parts = name.trim().split(/\s+/);
-    return parts.length >= 2
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-      : name.slice(0, 2).toUpperCase();
-  }
-  if (email) return email.slice(0, 2).toUpperCase();
-  return "?";
-}
-
-/** Resolves a stored image path to a full URL the browser can actually fetch. */
-function resolveAvatarUrl(image?: string | null): string | null {
-  if (!image) return null;
-  if (image.startsWith("http://") || image.startsWith("https://")) return image;
-  // Relative path like "/avatars/userId.jpg" — prefix with the API origin
-  return `${API_BASE}${image}`;
-}
-
-function UserAvatar({
-  image,
-  name,
-  email,
-}: {
-  image?: string | null;
-  name?: string | null;
-  email?: string | null;
-}) {
-  const initials = getInitials(name, email);
-  const src = resolveAvatarUrl(image);
-  const [imgFailed, setImgFailed] = useState(false);
-
-  return (
-    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-border bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-      {src && !imgFailed ? (
-        <img
-          src={src}
-          alt={name ?? "Avatar"}
-          className="w-full h-full object-cover"
-          onError={() => setImgFailed(true)}
-        />
-      ) : (
-        <span className="text-blue-700 dark:text-blue-300 font-semibold text-xs select-none">
-          {initials}
-        </span>
-      )}
-    </div>
-  );
-}
+import { navigation } from "../../lib/constants";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getInitials, resolveAvatarUrl } from "../../lib/avatar";
 
 function Sidebar() {
   const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();
@@ -181,7 +126,7 @@ function Sidebar() {
         {/* Footer */}
         <div className="p-4 border-t border-border sticky bottom-0 bg-card space-y-2">
           {/* User info row — avatar always visible, text slides away when collapsed */}
-          {isPending ? (
+          {isPending || !user ? (
             <div className="flex items-center gap-2 pb-2">
               <Skeleton className="w-8 h-8 rounded-full shrink-0" />
               {!collapsed && (
@@ -197,11 +142,15 @@ function Sidebar() {
               title={collapsed ? (user?.name ?? "") : undefined}
             >
               {/* Avatar — always visible */}
-              <UserAvatar
-                image={user?.image}
-                name={user?.name}
-                email={user?.email}
-              />
+              <Avatar className="w-8 h-8 shrink-0">
+                <AvatarImage
+                  src={resolveAvatarUrl(user?.image) ?? undefined}
+                  alt={user?.name ?? "Avatar"}
+                />
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                  {getInitials(user?.name, user?.email)}
+                </AvatarFallback>
+              </Avatar>
 
               {/* Name + plan — slide out when collapsed */}
               <div

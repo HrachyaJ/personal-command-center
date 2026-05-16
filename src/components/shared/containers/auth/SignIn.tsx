@@ -9,6 +9,7 @@ import {
 } from "./AuthLayout";
 import { GoogleButton } from "./GoogleButton";
 import { API_BASE } from "../../../../lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
 
@@ -34,7 +35,6 @@ export default function SignIn() {
   const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
   const [fastSignInMode, setFastSignInMode] = useState(false);
   const [storedUser, setStoredUser] = useState<StoredUser | null>(null);
-  const [avatarError, setAvatarError] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,57 +124,27 @@ export default function SignIn() {
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            marginTop: "12px",
+            marginTop: "10px",
             background: "#eff6ff",
-            border: "1px solid rgba(37,99,235,0.18)",
+            border: "1px solid rgba(37,99,235,0.15)",
             borderRadius: "999px",
-            padding: "5px 10px 5px 5px",
-            maxWidth: "100%",
+            padding: "5px 12px 5px 8px",
+            fontFamily: "'DM Sans', sans-serif",
           }}
         >
           {/* Avatar — real image if available, initials fallback */}
-          <div
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "50%",
-              flexShrink: 0,
-              overflow: "hidden",
-              background: "#2563eb",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "#fff",
-              letterSpacing: "0.02em",
-            }}
-          >
-            {storedUser?.image && !avatarError ? (
-              <img
-                src={storedUser.image}
-                alt={displayName ?? ""}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              chipInitials
-            )}
-          </div>
+          <Avatar className="w-7 h-7 shrink-0 text-[10px]">
+            <AvatarImage
+              src={storedUser?.image ?? undefined}
+              alt={displayName ?? ""}
+            />
+            <AvatarFallback className="bg-blue-600 text-white text-[11px] font-bold">
+              {chipInitials}
+            </AvatarFallback>
+          </Avatar>
 
           {/* Email — nicer typography */}
-          <span
-            style={{
-              fontSize: "13px",
-              color: "#1e40af",
-              fontWeight: 500,
-              letterSpacing: "-0.01em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: "220px",
-            }}
-          >
+          <span style={{ fontSize: "13px", color: "#374151", fontWeight: 500 }}>
             {rememberedEmail}
           </span>
 

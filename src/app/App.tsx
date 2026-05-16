@@ -19,6 +19,7 @@ import AICoach from "../components/shared/containers/AI-Coach";
 import { useThemeStore } from "../stores/useThemeStore";
 import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";
+import { useDensityStore } from "../stores/useDensityStore";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -71,8 +72,12 @@ function AppLayout() {
     (r) => location.pathname.replace(/\/$/, "") === r,
   );
 
+  const { density } = useDensityStore();
+
   return (
-    <div className="flex min-h-screen">
+    <div
+      className={`flex min-h-screen ${density === "compact" ? "density-compact" : ""}`}
+    >
       {showSidebar && <Sidebar />}
       <main className={`flex-1 bg-background ${!showSidebar ? "w-full" : ""}`}>
         <Routes>

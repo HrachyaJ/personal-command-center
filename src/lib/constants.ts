@@ -1,3 +1,4 @@
+import { BarChart3, Brain, CheckSquare, Home, Target } from "lucide-react";
 import type { Feature, Stat } from "../types/dashboard";
 import { COLORS } from "./theme";
 
@@ -71,4 +72,12 @@ export const habits = [
   { name: "Morning run", done: true, streak: 14 },
   { name: "Read 30 min", done: true, streak: 7 },
   { name: "Meditate", done: false, streak: 3 },
+];
+
+export const navigation = [
+  { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Tasks", href: "/tasks", icon: CheckSquare },
+  { name: "Goals", href: "/goals", icon: Target },
+  { name: "Habits", href: "/habits", icon: BarChart3 },
+  { name: "AI Coach", href: "/ai-coach", icon: Brain },
 ];

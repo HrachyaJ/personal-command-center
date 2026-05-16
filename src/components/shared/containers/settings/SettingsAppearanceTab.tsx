@@ -1,18 +1,16 @@
-import { useState } from "react";
 import { useThemeStore } from "../../../../stores/useThemeStore";
 import { ThemePicker, type Theme } from "./SettingsThemePicker";
 import { Section } from "./SettingsSection";
 import { Separator } from "../../../ui/separator";
 import { Row } from "./SettingsRow";
 import { Switch } from "../../../ui/switch";
+import { useDensityStore } from "../../../../stores/useDensityStore";
 
 export type Tab = "appearance" | "account" | "notifications" | "privacy";
 
 export function AppearanceTab() {
   const { theme, setTheme } = useThemeStore();
-  const [density, setDensity] = useState<"comfortable" | "compact">(
-    "comfortable",
-  );
+  const { density, setDensity } = useDensityStore();
 
   function handleThemeChange(v: Theme) {
     console.log("setting theme to:", v);
