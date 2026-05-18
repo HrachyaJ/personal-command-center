@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { API_BASE } from "../../lib/utils";
 
 export default function Insights() {
   const [insights, setInsights] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/ml-insights")
+    fetch(`${API_BASE}/api/ml-insights`)
       .then((r) => r.json())
       .then(setInsights)
       .catch(console.error);

@@ -207,7 +207,7 @@ export default function Goals() {
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as any)}
       >
-        <TabsList className="w-full sm:w-auto">
+        <TabsList>
           <TabsTrigger
             value="active"
             className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"

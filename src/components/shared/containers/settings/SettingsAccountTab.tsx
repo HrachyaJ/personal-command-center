@@ -292,7 +292,22 @@ export function AccountTab() {
       <Separator />
 
       <Section title="Password">
-        <div className="space-y-3">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handlePasswordChange();
+          }}
+          className="space-y-3"
+        >
+          {/* Hidden username field so browsers associate these as credential inputs */}
+          <input
+            type="text"
+            autoComplete="username"
+            value={email}
+            readOnly
+            className="sr-only"
+            tabIndex={-1}
+          />
           <div>
             <Label htmlFor="current-pw" className="text-xs mb-1.5 block">
               Current password
@@ -303,6 +318,7 @@ export function AccountTab() {
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
               placeholder="••••••••"
+              autoComplete="current-password"
             />
           </div>
           <div>
@@ -315,19 +331,20 @@ export function AccountTab() {
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               placeholder="••••••••"
+              autoComplete="new-password"
             />
           </div>
           <Button
+            type="submit"
             className="cursor-pointer"
             size="sm"
             variant="outline"
-            onClick={handlePasswordChange}
             disabled={savingPassword}
           >
             <Lock size={14} className="mr-1.5" />
             {savingPassword ? "Updating..." : "Update password"}
           </Button>
-        </div>
+        </form>
       </Section>
     </div>
   );

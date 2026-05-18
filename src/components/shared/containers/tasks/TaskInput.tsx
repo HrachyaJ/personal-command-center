@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
 import { Label } from "../../../ui/label";
@@ -81,48 +82,47 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
     if (!form.priority) return;
     if (!form.category) return;
 
-    // ML prediction call — passes new fields so the model has richer context
-    // setIsPredicting(true);
-    // try {
-    //   const params = new URLSearchParams({
-    //     hour: String(new Date().getHours()),
-    //     day: String(new Date().getDay()),
-    //     priority: form.priority ?? "none",
-    //     category: form.category ?? "none",
-    //     estimatedMinutes: String(form.estimatedMinutes ?? 0),
-    //     has_dueDate: form.dueDate ? "1" : "0",
-    //     isRecurring: form.isRecurring ? "1" : "0",
-    //   });
+    setIsPredicting(true);
+    try {
+      const params = new URLSearchParams({
+        hour: String(new Date().getHours()),
+        day: String(new Date().getDay()),
+        priority: form.priority ?? "low",
+        category: form.category ?? "other",
+        estimatedMinutes: String(form.estimatedMinutes ?? 0),
+        has_dueDate: form.dueDate ? "1" : "0",
+        isRecurring: form.isRecurring ? "1" : "0",
+      });
 
-    //   const response = await fetch(
-    //     `http://localhost:3001/api/predict?${params.toString()}`,
-    //   );
-    //   const completionProbability = parseFloat(await response.text());
+      const response = await fetch(
+        `http://localhost:3001/api/predict?${params.toString()}`,
+      );
+      const completionProbability = parseFloat(await response.text());
 
-    //   if (completionProbability > 0.75) {
-    //     toast.success(
-    //       `High completion probability: ${(completionProbability * 100).toFixed(1)}%`,
-    //       { description: "Great time to add this task!" },
-    //     );
-    //   } else if (completionProbability >= 0.3) {
-    //     toast.info(
-    //       `Moderate completion probability: ${(completionProbability * 100).toFixed(1)}%`,
-    //       { description: "Consider scheduling it in the morning." },
-    //     );
-    //   } else {
-    //     toast.warning(
-    //       `Low completion probability: ${(completionProbability * 100).toFixed(1)}%`,
-    //       {
-    //         description:
-    //           "Try setting a deadline or breaking it into smaller tasks.",
-    //       },
-    //     );
-    //   }
-    // } catch {
-    //   // Silently skip if the ML server is down — don't block task creation
-    // } finally {
-    //   setIsPredicting(false);
-    // }
+      if (completionProbability > 0.75) {
+        toast.success(
+          `High completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          { description: "Great time to add this task!" },
+        );
+      } else if (completionProbability >= 0.3) {
+        toast.info(
+          `Moderate completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          { description: "Consider scheduling it in the morning." },
+        );
+      } else {
+        toast.warning(
+          `Low completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          {
+            description:
+              "Try setting a deadline or breaking it into smaller tasks.",
+          },
+        );
+      }
+    } catch {
+      // Silently skip if the ML server is down — don't block task creation
+    } finally {
+      setIsPredicting(false);
+    }
 
     onAdd({ ...form, title: form.title.trim() });
     setForm(EMPTY_FORM);

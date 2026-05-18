@@ -176,7 +176,22 @@ export function PrivacyTab() {
               <strong>cannot</strong> be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="px-1 py-2">
+          <form
+            id="delete-account-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (deletePassword) handleDeleteAccount();
+            }}
+            className="px-1 py-2"
+          >
+            {/* Hidden username so browsers correctly associate this as a credential field */}
+            <input
+              type="text"
+              autoComplete="username"
+              className="sr-only"
+              readOnly
+              tabIndex={-1}
+            />
             <Label htmlFor="delete-confirm-pw" className="text-xs mb-1.5 block">
               Confirm your password to continue
             </Label>
@@ -186,11 +201,9 @@ export function PrivacyTab() {
               value={deletePassword}
               onChange={(e) => setDeletePassword(e.target.value)}
               placeholder="••••••••"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && deletePassword) handleDeleteAccount();
-              }}
+              autoComplete="current-password"
             />
-          </div>
+          </form>
           <AlertDialogFooter>
             <AlertDialogCancel
               className="cursor-pointer"
@@ -200,7 +213,8 @@ export function PrivacyTab() {
             </AlertDialogCancel>
             <AlertDialogAction
               className="cursor-pointer bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={handleDeleteAccount}
+              type="submit"
+              form="delete-account-form"
               disabled={!deletePassword || deletingAccount}
             >
               {deletingAccount ? "Deleting…" : "Delete account"}

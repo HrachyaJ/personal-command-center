@@ -187,25 +187,35 @@ export default function SignIn() {
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "20px" }}
       >
-        {!fastSignInMode && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label
-              style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setFocusedField("email")}
-              onBlur={() => setFocusedField(null)}
-              placeholder="you@example.com"
-              required
-              style={authInputStyle("email", focusedField)}
-            />
-          </div>
-        )}
+        {/* Email is always rendered so browsers/password-managers see a
+            username field alongside the password field. In fastSignInMode it
+            is visually hidden but still present in the DOM. */}
+        <div
+          style={{
+            display: fastSignInMode ? "none" : "flex",
+            flexDirection: "column",
+            gap: "6px",
+          }}
+          aria-hidden={fastSignInMode || undefined}
+        >
+          <label
+            style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setFocusedField("email")}
+            onBlur={() => setFocusedField(null)}
+            placeholder="you@example.com"
+            required={!fastSignInMode}
+            autoComplete="username"
+            tabIndex={fastSignInMode ? -1 : undefined}
+            style={authInputStyle("email", focusedField)}
+          />
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <label
@@ -221,6 +231,7 @@ export default function SignIn() {
             onBlur={() => setFocusedField(null)}
             placeholder="••••••••"
             required
+            autoComplete="current-password"
             autoFocus={fastSignInMode}
             style={authInputStyle("password", focusedField)}
           />
