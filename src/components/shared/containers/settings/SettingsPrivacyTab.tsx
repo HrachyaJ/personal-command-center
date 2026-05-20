@@ -68,7 +68,17 @@ export function PrivacyTab() {
           label="Two-factor authentication"
           description="Add an extra layer of security to your account"
         >
-          <Switch checked={twoFa} onCheckedChange={setTwoFa} />
+          <Switch
+            checked={twoFa}
+            onCheckedChange={(val) => {
+              setTwoFa(val);
+              toast.info(
+                val
+                  ? "2FA coming soon — this feature is under development."
+                  : "2FA disabled.",
+              );
+            }}
+          />
         </Row>
         <Row
           label="Active sessions"
@@ -78,6 +88,7 @@ export function PrivacyTab() {
             size="sm"
             variant="outline"
             className="cursor-pointer text-xs h-8 gap-1.5"
+            onClick={() => toast.info("Session management coming soon.")}
           >
             Manage
             <ChevronRight size={12} />
@@ -96,6 +107,7 @@ export function PrivacyTab() {
             size="sm"
             variant="outline"
             className="cursor-pointer text-xs h-8"
+            onClick={() => toast.info("Data export coming soon.")}
           >
             <Globe size={13} className="mr-1.5" />
             Export

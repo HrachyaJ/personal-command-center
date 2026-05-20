@@ -19,6 +19,7 @@ import { Skeleton } from "./Skeletons";
 import { navigation } from "../../lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getInitials, resolveAvatarUrl } from "../../lib/avatar";
+import { toast } from "sonner";
 
 function Sidebar() {
   const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();
@@ -175,6 +176,7 @@ function Sidebar() {
             }}
             data-testid="button-upgrade"
             title={collapsed ? "Upgrade to Pro" : undefined}
+            onClick={() => toast.info("Pro plan coming soon — stay tuned!")}
           >
             <CreditCard className="w-4 h-4 shrink-0" />
             {!collapsed && (

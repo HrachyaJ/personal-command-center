@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,14 +16,20 @@ interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user?: { name?: string; email?: string };
+  initialTab?: Tab;
 }
 
 export function SettingsDialog({
   open,
   onOpenChange,
-  user,
+  initialTab = "appearance",
 }: SettingsDialogProps) {
-  const [tab, setTab] = useState<Tab>("appearance");
+  const [tab, setTab] = useState<Tab>(initialTab);
+
+  // reset tab when dialog opens so re-opening from bell always lands on notifications
+  useEffect(() => {
+    if (open) setTab(initialTab);
+  }, [open, initialTab]);
 
   const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
     { id: "appearance", icon: Sun, label: "Appearance" },

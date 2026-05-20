@@ -38,6 +38,7 @@ import {
 } from "../../Skeletons";
 import { DashboardSectionCard } from "./DashboardSectionCard";
 import { DashboardStatCard, type StatCardProps } from "./DashboardStatCard";
+import { ErrorBoundary } from "../../ErrorBoundary";
 
 export default function Dashboard() {
   const {
@@ -57,6 +58,8 @@ export default function Dashboard() {
     isCompletedToday,
     completedToday,
     totalHabits,
+    todaysHabits,
+
     completionRate: habitCompletionRate,
     longestCurrentStreak,
     loading: habitsLoading,
@@ -65,12 +68,20 @@ export default function Dashboard() {
   const { data: session, isPending: sessionLoading } = useSession();
   const user = session?.user;
 
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || sessionLoading;
 
   const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<
+    "appearance" | "account" | "notifications" | "privacy"
+  >("appearance");
+
+  const openSettings = (tab: typeof settingsTab = "appearance") => {
+    setSettingsTab(tab);
+    setSettingsOpen(true);
+  };
 
   const sortedDashboardTasks = [...tasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -100,8 +111,6 @@ export default function Dashboard() {
       : 0;
 
   // ── Derived: Habits ───────────────────────────────────────────────────────
-
-  const todaysHabits = habits.slice(0, 5);
 
   const statCards: StatCardProps[] = [
     {
@@ -177,15 +186,16 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             {/* Hide badge on very small screens */}
-            <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+            {/* <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
               <Shield className="w-3 h-3 mr-1" />
               AI Coach Active
-            </Badge>
+            </Badge> */}
             <Button
               variant="ghost"
               size="icon"
               className="cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
               data-testid="button-notifications"
+              onClick={() => openSettings("notifications")}
             >
               <Bell className="h-5 w-5" />
             </Button>
@@ -194,7 +204,7 @@ export default function Dashboard() {
               size="icon"
               className="cursor-pointer h-9 w-9 sm:h-10 sm:w-10"
               data-testid="button-settings"
-              onClick={() => setSettingsOpen(true)}
+              onClick={() => openSettings("appearance")}
             >
               <Settings className="h-5 w-5" />
             </Button>
@@ -370,7 +380,7 @@ export default function Dashboard() {
 
                   {/* Habit list */}
                   <div className="space-y-2">
-                    {todaysHabits.map((habit) => {
+                    {todaysHabits.slice(0, 5).map((habit) => {
                       const done = isCompletedToday(habit);
                       return (
                         <div
@@ -409,9 +419,9 @@ export default function Dashboard() {
                         </div>
                       );
                     })}
-                    {habits.length > 5 && (
+                    {todaysHabits.length > 5 && (
                       <p className="text-xs text-muted-foreground pt-1">
-                        +{habits.length - 5} more habits
+                        +{todaysHabits.length - 5} more habits
                       </p>
                     )}
                   </div>
@@ -420,13 +430,15 @@ export default function Dashboard() {
             </DashboardSectionCard>
 
             <DashboardSectionCard title="AI Insights">
-              {isLoading ? (
-                <OverallProgressSkeleton />
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  <Insights />
-                </div>
-              )}
+              <ErrorBoundary
+                fallback={
+                  <p className="text-sm text-destructive">
+                    AI Insights unavailable right now.
+                  </p>
+                }
+              >
+                <Insights />
+              </ErrorBoundary>
             </DashboardSectionCard>
 
             {/* Overall Progress */}
@@ -473,7 +485,11 @@ export default function Dashboard() {
       </div>
 
       {/* Settings Modal */}
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        initialTab={settingsTab}
+      />
     </div>
   );
 }

@@ -130,20 +130,35 @@ export function useHabits() {
   function isCompletedToday(habit: Habit): boolean {
     return habit.completedDates?.includes(getTodayISO()) ?? false;
   }
-
-  const totalHabits = habits.length;
-  const completedToday = habits.filter(isCompletedToday).length;
-  const completionRate =
-    totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
   const longestCurrentStreak = habits.reduce(
     (max, h) => Math.max(max, h.streak ?? 0),
     0,
   );
 
+  function getTodayDayOfWeek(): number {
+    return new Date().getDay(); // 0 = Sunday, 6 = Saturday
+  }
+
+  function isDueToday(habit: Habit): boolean {
+    if (habit.frequency === "daily") return true;
+    if (habit.frequency === "weekly") {
+      const createdDay = new Date(habit.createdAt).getDay();
+      return createdDay === getTodayDayOfWeek();
+    }
+    return false;
+  }
+
+  const todaysHabits = habits.filter(isDueToday);
+  const totalHabits = todaysHabits.length; // ← scope to today's habits, not all
+  const completedToday = todaysHabits.filter(isCompletedToday).length;
+  const completionRate =
+    totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
+
   return {
     habits,
     loading,
     error,
+    todaysHabits,
     addHabit,
     removeHabit,
     toggleHabitToday,

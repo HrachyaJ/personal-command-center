@@ -3,6 +3,7 @@ import { Section } from "./SettingsSection";
 import { Row } from "./SettingsRow";
 import { Switch } from "../../../ui/switch";
 import { Separator } from "../../../ui/separator";
+import { toast } from "sonner";
 
 export function NotificationsTab() {
   const [prefs, setPrefs] = useState({
@@ -25,7 +26,14 @@ export function NotificationsTab() {
         >
           <Switch
             checked={prefs.taskReminders}
-            onCheckedChange={() => toggle("taskReminders")}
+            onCheckedChange={() => {
+              setPrefs((p) => ({ ...p, taskReminders: !p.taskReminders }));
+              toast.info(
+                !prefs.taskReminders
+                  ? "Task reminders — this feature is under development."
+                  : "Task reminders disabled.",
+              );
+            }}
           />
         </Row>
         <Row
@@ -34,7 +42,14 @@ export function NotificationsTab() {
         >
           <Switch
             checked={prefs.habitReminders}
-            onCheckedChange={() => toggle("habitReminders")}
+            onCheckedChange={() => {
+              setPrefs((p) => ({ ...p, habitReminders: !p.habitReminders }));
+              toast.info(
+                !prefs.habitReminders
+                  ? "Habit reminders — this feature is under development."
+                  : "Habit reminders disabled.",
+              );
+            }}
           />
         </Row>
         <Row
@@ -43,7 +58,14 @@ export function NotificationsTab() {
         >
           <Switch
             checked={prefs.goalMilestones}
-            onCheckedChange={() => toggle("goalMilestones")}
+            onCheckedChange={() => {
+              setPrefs((p) => ({ ...p, goalMilestones: !p.goalMilestones }));
+              toast.info(
+                !prefs.goalMilestones
+                  ? "Goal reminders — this feature is under development."
+                  : "Goal reminders disabled.",
+              );
+            }}
           />
         </Row>
       </Section>
@@ -57,7 +79,14 @@ export function NotificationsTab() {
         >
           <Switch
             checked={prefs.weeklyDigest}
-            onCheckedChange={() => toggle("weeklyDigest")}
+            onCheckedChange={() => {
+              setPrefs((p) => ({ ...p, weeklyDigest: !p.weeklyDigest }));
+              toast.info(
+                !prefs.weeklyDigest
+                  ? "Weekly digest — this feature is under development."
+                  : "Weekly digest disabled.",
+              );
+            }}
           />
         </Row>
         <Row
@@ -66,7 +95,14 @@ export function NotificationsTab() {
         >
           <Switch
             checked={prefs.aiInsights}
-            onCheckedChange={() => toggle("aiInsights")}
+            onCheckedChange={() => {
+              setPrefs((p) => ({ ...p, aiInsights: !p.aiInsights }));
+              toast.info(
+                !prefs.aiInsights
+                  ? "AI Coach insights — this feature is under development."
+                  : "AI Coach insights disabled.",
+              );
+            }}
           />
         </Row>
       </Section>

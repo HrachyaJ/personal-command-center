@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { signIn } from "../../../../lib/auth-client";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 import {
   AuthLayout,
   AuthDivider,
