@@ -22,6 +22,7 @@ import type {
   TaskFormData,
   TaskPriority,
 } from "../../../../types/task.types";
+import { API_BASE } from "../../../../lib/utils";
 
 interface TaskInputProps {
   onAdd: (data: TaskFormData) => void;
@@ -95,7 +96,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
       });
 
       const response = await fetch(
-        `http://localhost:3001/api/predict?${params.toString()}`,
+        `${API_BASE}/api/predict?${params.toString()}`,
       );
       const completionProbability = parseFloat(await response.text());
 
@@ -144,7 +145,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           value={form.priority ?? ""}
           onValueChange={(v) => set("priority", v as TaskPriority)}
         >
-          <SelectTrigger className="w-[110px] bg-card border-border text-xs cursor-pointer">
+          <SelectTrigger className="w-27.5 bg-card border-border text-xs cursor-pointer">
             <SelectValue placeholder="Priority" />
           </SelectTrigger>
           <SelectContent>
@@ -294,7 +295,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 value={form.recurrenceRule ?? ""}
                 onValueChange={(v) => set("recurrenceRule", v || null)}
               >
-                <SelectTrigger className="w-[130px] bg-card border-border text-xs h-8 cursor-pointer">
+                <SelectTrigger className="w-32.5 bg-card border-border text-xs h-8 cursor-pointer">
                   <SelectValue placeholder="Frequency" />
                 </SelectTrigger>
                 <SelectContent>
