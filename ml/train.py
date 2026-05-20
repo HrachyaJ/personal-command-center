@@ -16,7 +16,8 @@ import os
 
 print("Fetching training data...")
 
-with urllib.request.urlopen("http://localhost:3001/api/ml-data") as response:
+base_url = os.environ.get("BASE_URL", "http://localhost:3001")
+with urllib.request.urlopen(f"{base_url}/api/ml-data") as response:
     data = json.load(response)
 
 df = pd.DataFrame(data)

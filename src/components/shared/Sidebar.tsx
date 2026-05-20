@@ -1,18 +1,9 @@
-import {
-  Brain,
-  Home,
-  CheckSquare,
-  BarChart3,
-  Target,
-  CreditCard,
-  LogOut,
-  ChevronLeft,
-} from "lucide-react";
+import { Brain, CreditCard, LogOut, ChevronLeft } from "lucide-react";
 import { Button } from "../ui/button";
 import { useUserStore } from "../../stores/useUserStore";
 import { useUIStore } from "../../stores/useUIStore";
 import { signOut } from "../../lib/auth-client";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -25,7 +16,6 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Skeleton } from "./Skeletons";
-import { API_BASE } from "../../lib/utils";
 import { navigation } from "../../lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getInitials, resolveAvatarUrl } from "../../lib/avatar";
@@ -41,7 +31,8 @@ function Sidebar() {
     navigate("/sign-in");
   };
 
-  const currentPath = window.location.pathname;
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <>
@@ -109,7 +100,7 @@ function Sidebar() {
                     data-testid={`nav-${item.name.toLowerCase()}`}
                     variant={currentPath === item.href ? "default" : "ghost"}
                     size="default"
-                    onClick={() => (window.location.href = item.href)}
+                    onClick={() => navigate(item.href)}
                     title={collapsed ? item.name : undefined}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
@@ -221,7 +212,7 @@ function Sidebar() {
             return (
               <li key={item.name} className="flex-1">
                 <button
-                  onClick={() => (window.location.href = item.href)}
+                  onClick={() => navigate(item.href)}
                   className={`w-full h-full flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors ${
                     isActive
                       ? "text-primary"
