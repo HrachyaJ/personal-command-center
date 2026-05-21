@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle2, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle2, Trash2, Plus } from "lucide-react";
 import type { Goal } from "../../../../types/goal.types";
 import { Badge } from "../../../ui/badge";
 import { Card, CardContent } from "../../../ui/card";
@@ -6,26 +6,25 @@ import { Button } from "../../../ui/button";
 import { Progress } from "../../../ui/progress";
 import { Input } from "../../../ui/input";
 import { useGoals } from "../../../../hooks/goal.hooks";
+import { useState } from "react";
+import { getStatusColor } from "../../../../lib/utils";
 
 export const GoalCard = ({ goal }: { goal: Goal }) => {
   const { updateProgress, completeGoal, deleteGoal } = useGoals();
+  const [progressInput, setProgressInput] = useState("");
 
   const progressPercentage = Math.round(
     (goal.currentValue / goal.targetValue) * 100,
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default:
-        return "bg-muted text-foreground border-border";
+  function submitProgress() {
+    const value = parseInt(progressInput);
+    if (value > 0) {
+      updateProgress(goal.id, value);
+      setProgressInput("");
     }
-  };
+  }
+
   return (
     <Card>
       <CardContent className="p-4 sm:p-6">
@@ -88,18 +87,22 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
                 type="number"
                 placeholder="Add progress"
                 className="flex-1 h-8 text-sm"
+                value={progressInput}
+                onChange={(e) => setProgressInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const value = parseInt(
-                      (e.target as HTMLInputElement).value,
-                    );
-                    if (value > 0) {
-                      updateProgress(goal.id, value);
-                      (e.target as HTMLInputElement).value = "";
-                    }
-                  }
+                  if (e.key === "Enter") submitProgress();
                 }}
               />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={submitProgress}
+                disabled={!progressInput || parseInt(progressInput) <= 0}
+                className="cursor-pointer h-8 px-2"
+                aria-label="Add progress"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
               {progressPercentage >= 100 && (
                 <Button
                   size="sm"

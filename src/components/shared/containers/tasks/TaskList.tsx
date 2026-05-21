@@ -15,12 +15,12 @@ export default function TaskList({
   onEdit: (id: Task["id"], data: Partial<TaskFormData>) => void;
 }) {
   // Sort: incomplete first, then by priority (high → medium → low → none), then by due date
-  const priorityOrder = { high: 0, medium: 1, low: 2, null: 3 };
+  const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
   const sorted = [...tasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    const pa = priorityOrder[a.priority ?? "null"];
-    const pb = priorityOrder[b.priority ?? "null"];
+    const pa = a.priority != null ? (priorityOrder[a.priority] ?? 3) : 3;
+    const pb = b.priority != null ? (priorityOrder[b.priority] ?? 3) : 3;
     if (pa !== pb) return pa - pb;
     if (a.dueDate && b.dueDate)
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();

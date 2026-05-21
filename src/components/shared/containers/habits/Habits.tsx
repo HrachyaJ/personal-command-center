@@ -14,6 +14,7 @@ import {
   WeeklyChartSkeleton,
 } from "../../Skeletons";
 import { CATEGORIES, getDayLabel, getLast7Days } from "../../../../lib/utils";
+import { StatCard } from "../../StatCard";
 
 export default function Habits() {
   const {
@@ -338,27 +339,6 @@ export default function Habits() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-// ─── Shared stat card ─────────────────────────────────────────────────────────
-
-function StatCard({
-  value,
-  label,
-  color,
-}: {
-  value: string | number;
-  label: string;
-  color: string;
-}) {
-  return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-5 flex flex-col items-center justify-center">
-      <span className={`text-2xl sm:text-3xl font-bold ${color}`}>{value}</span>
-      <span className="text-xs sm:text-sm text-muted-foreground mt-1 text-center">
-        {label}
-      </span>
     </div>
   );
 }

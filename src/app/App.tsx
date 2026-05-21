@@ -26,15 +26,16 @@ const SIDEBAR_ROUTES = [
   "/tasks",
   "/habits",
   "/goals",
-  "/pomodoro",
-  "/focus-mode",
   "/ai-coach",
 ];
 
 function AppLayout() {
   const location = useLocation();
   const { theme } = useThemeStore();
-  const fetchUser = useUserStore((s) => s.fetch);
+
+  useEffect(() => {
+    useUserStore.getState().fetch();
+  }, []);
 
   document.title = "FocusFlow";
 
@@ -62,11 +63,6 @@ function AppLayout() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, [theme]);
-
-  // Fetch user once on mount
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
 
   const showSidebar = SIDEBAR_ROUTES.some(
     (r) => location.pathname.replace(/\/$/, "") === r,
@@ -103,14 +99,6 @@ function AppLayout() {
             }
           />
           <Route
-            path="/pomodoro"
-            element={
-              <ProtectedRoute>
-                <Tasks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/habits"
             element={
               <ProtectedRoute>
@@ -123,14 +111,6 @@ function AppLayout() {
             element={
               <ProtectedRoute>
                 <Goals />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/focus-mode"
-            element={
-              <ProtectedRoute>
-                <Tasks />
               </ProtectedRoute>
             }
           />

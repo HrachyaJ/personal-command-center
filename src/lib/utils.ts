@@ -113,3 +113,16 @@ export function isTaskOverdue(dateStr: string | null, completed: boolean) {
   if (!dateStr || completed) return false;
   return new Date(dateStr) < new Date();
 }
+
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case "active":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "completed":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "paused":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    default:
+      return "bg-muted text-foreground border-border";
+  }
+};

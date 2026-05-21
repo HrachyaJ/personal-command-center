@@ -10,7 +10,6 @@ import {
   Calendar,
   Clock,
   RefreshCw,
-  Tag,
   Save,
   X,
 } from "lucide-react";
@@ -162,7 +161,7 @@ export default function TaskItem({
                 </span>
               )}
               {task.isRecurring && (
-                <span className="flex items-center gap-0.5 text-[10px] bg-primary">
+                <span className="flex items-center gap-0.5 text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0">
                   <RefreshCw size={10} />
                   {task.recurrenceRule ?? "recurring"}
                 </span>
