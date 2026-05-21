@@ -6,12 +6,23 @@ const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/goal
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(API, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => setGoals(data))
-      .finally(() => setLoading(false));
+    async function fetchGoals() {
+      try {
+        setError(null);
+        const res = await fetch(API, { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to fetch goals");
+        const data = await res.json();
+        setGoals(data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGoals();
   }, []);
 
   async function addGoal(goalData: {
@@ -21,40 +32,65 @@ export function useGoals() {
     unit: string;
     deadline?: string;
   }) {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(goalData),
-    });
-    const newGoal = await res.json();
-    setGoals((prev) => [...prev, newGoal]);
-    return newGoal;
+    try {
+      setError(null);
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(goalData),
+      });
+      if (!res.ok) throw new Error("Failed to add goal");
+      const newGoal = await res.json();
+      setGoals((prev) => [...prev, newGoal]);
+      return newGoal;
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function updateGoal(goalId: string, updates: Partial<Goal>) {
-    const res = await fetch(`${API}/${goalId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(updates),
-    });
-    const updated = await res.json();
-    setGoals((prev) => prev.map((g) => (g.id === goalId ? updated : g)));
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${goalId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error("Failed to update goal");
+      const updated = await res.json();
+      setGoals((prev) => prev.map((g) => (g.id === goalId ? updated : g)));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function deleteGoal(goalId: string) {
-    await fetch(`${API}/${goalId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    setGoals((prev) => prev.filter((g) => g.id !== goalId));
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${goalId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete goal");
+      setGoals((prev) => prev.filter((g) => g.id !== goalId));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function updateProgress(goalId: string, addValue: number) {
-    const goal = goals.find((g) => g.id === goalId);
-    if (!goal) return;
-    await updateGoal(goalId, { currentValue: goal.currentValue + addValue });
+    // Read currentValue from state functionally to avoid stale closure race
+    // when two rapid increments fire before either resolves.
+    let currentValue: number | undefined;
+    setGoals((prev) => {
+      const goal = prev.find((g) => g.id === goalId);
+      currentValue = goal?.currentValue;
+      return prev;
+    });
+    if (currentValue === undefined) return;
+    await updateGoal(goalId, { currentValue: currentValue + addValue });
   }
 
   async function setProgress(goalId: string, value: number) {
@@ -98,6 +134,7 @@ export function useGoals() {
   return {
     goals,
     loading,
+    error,
     addGoal,
     updateGoal,
     deleteGoal,

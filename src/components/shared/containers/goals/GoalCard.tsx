@@ -5,12 +5,22 @@ import { Card, CardContent } from "../../../ui/card";
 import { Button } from "../../../ui/button";
 import { Progress } from "../../../ui/progress";
 import { Input } from "../../../ui/input";
-import { useGoals } from "../../../../hooks/goal.hooks";
 import { useState } from "react";
 import { getStatusColor } from "../../../../lib/utils";
 
-export const GoalCard = ({ goal }: { goal: Goal }) => {
-  const { updateProgress, completeGoal, deleteGoal } = useGoals();
+interface GoalCardProps {
+  goal: Goal;
+  onUpdateProgress: (id: string, value: number) => void;
+  onCompleteGoal: (id: string) => void;
+  onDeleteGoal: (id: string) => void;
+}
+
+export const GoalCard = ({
+  goal,
+  onUpdateProgress,
+  onCompleteGoal,
+  onDeleteGoal,
+}: GoalCardProps) => {
   const [progressInput, setProgressInput] = useState("");
 
   const progressPercentage = Math.round(
@@ -20,7 +30,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
   function submitProgress() {
     const value = parseInt(progressInput);
     if (value > 0) {
-      updateProgress(goal.id, value);
+      onUpdateProgress(goal.id, value);
       setProgressInput("");
     }
   }
@@ -51,7 +61,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => deleteGoal(goal.id)}
+                onClick={() => onDeleteGoal(goal.id)}
                 className="cursor-pointer hover:bg-red-600 h-7 w-7 p-0"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -106,7 +116,7 @@ export const GoalCard = ({ goal }: { goal: Goal }) => {
               {progressPercentage >= 100 && (
                 <Button
                   size="sm"
-                  onClick={() => completeGoal(goal.id)}
+                  onClick={() => onCompleteGoal(goal.id)}
                   className="cursor-pointer h-8 text-xs whitespace-nowrap"
                 >
                   Mark Complete

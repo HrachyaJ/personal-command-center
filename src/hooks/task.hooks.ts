@@ -6,39 +6,65 @@ const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/task
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // ── Fetch all tasks for the logged-in user ──────────────────────────────
   useEffect(() => {
-    fetch(API, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => setTasks(data))
-      .finally(() => setLoading(false));
+    async function fetchTasks() {
+      try {
+        setError(null);
+        const res = await fetch(API, { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to fetch tasks");
+        const data = await res.json();
+        setTasks(data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTasks();
   }, []);
 
   // ── CRUD ────────────────────────────────────────────────────────────────
   async function addTask(data: TaskFormData) {
-    const res = await fetch(API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        title: data.title,
-        dueDate: data.dueDate,
-        scheduledFor: data.scheduledFor,
-        priority: data.priority,
-        category: data.category,
-        estimatedMinutes: data.estimatedMinutes,
-        isRecurring: data.isRecurring,
-        recurrenceRule: data.recurrenceRule,
-      }),
-    });
-    const newTask = await res.json();
-    setTasks((prev) => [...prev, newTask]);
+    try {
+      setError(null);
+      const res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: data.title,
+          dueDate: data.dueDate,
+          scheduledFor: data.scheduledFor,
+          priority: data.priority,
+          category: data.category,
+          estimatedMinutes: data.estimatedMinutes,
+          isRecurring: data.isRecurring,
+          recurrenceRule: data.recurrenceRule,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to add task");
+      const newTask = await res.json();
+      setTasks((prev) => [...prev, newTask]);
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function removeTask(id: Task["id"]) {
-    await fetch(`${API}/${id}`, { method: "DELETE", credentials: "include" });
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to remove task");
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function toggleTask(id: Task["id"]) {
@@ -51,35 +77,58 @@ export function useTasks() {
       completedAt: !task.completed ? new Date().toISOString() : null,
     };
 
-    const res = await fetch(`${API}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(patch),
-    });
-    const updated = await res.json();
-    setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error("Failed to update task");
+      const updated = await res.json();
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function editTask(id: Task["id"], data: Partial<TaskFormData>) {
-    const res = await fetch(`${API}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    const updated = await res.json();
-    setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    try {
+      setError(null);
+      const res = await fetch(`${API}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to edit task");
+      const updated = await res.json();
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   async function clearCompleted() {
     const completed = tasks.filter((t) => t.completed);
-    await Promise.all(
-      completed.map((t) =>
-        fetch(`${API}/${t.id}`, { method: "DELETE", credentials: "include" }),
-      ),
-    );
-    setTasks((prev) => prev.filter((t) => !t.completed));
+    try {
+      setError(null);
+      const results = await Promise.allSettled(
+        completed.map((t) =>
+          fetch(`${API}/${t.id}`, { method: "DELETE", credentials: "include" }),
+        ),
+      );
+      // Only remove tasks whose delete succeeded
+      const deletedIds = new Set(
+        completed
+          .filter((_, i) => results[i].status === "fulfilled")
+          .map((t) => t.id),
+      );
+      setTasks((prev) => prev.filter((t) => !deletedIds.has(t.id)));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   }
 
   // ── Helpers (synchronous — no DB call needed) ───────────────────────────
@@ -116,6 +165,7 @@ export function useTasks() {
   return {
     tasks,
     loading,
+    error,
     addTask,
     removeTask,
     toggleTask,

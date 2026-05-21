@@ -26,7 +26,15 @@ import { GoalCard } from "./GoalCard";
 import { StatCard } from "../../StatCard";
 
 export default function Goals() {
-  const { addGoal, getGoalsByStatus, getStats, loading } = useGoals();
+  const {
+    addGoal,
+    updateProgress,
+    completeGoal,
+    deleteGoal,
+    getGoalsByStatus,
+    getStats,
+    loading,
+  } = useGoals();
 
   const stats = getStats();
 
@@ -205,7 +213,9 @@ export default function Goals() {
       {/* Tabs + Goal List */}
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as any)}
+        onValueChange={(value) =>
+          setActiveTab(value as "active" | "completed" | "paused")
+        }
       >
         <TabsList>
           <TabsTrigger
@@ -249,7 +259,15 @@ export default function Goals() {
               </CardContent>
             </Card>
           ) : (
-            filteredGoals.map((goal) => <GoalCard key={goal.id} goal={goal} />)
+            filteredGoals.map((goal) => (
+              <GoalCard
+                key={goal.id}
+                goal={goal}
+                onUpdateProgress={updateProgress}
+                onCompleteGoal={completeGoal}
+                onDeleteGoal={deleteGoal}
+              />
+            ))
           )}
         </TabsContent>
       </Tabs>

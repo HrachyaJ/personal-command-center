@@ -13,7 +13,6 @@ export function AppearanceTab() {
   const { density, setDensity } = useDensityStore();
 
   function handleThemeChange(v: Theme) {
-    console.log("setting theme to:", v);
     setTheme(v);
   }
 

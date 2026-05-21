@@ -15,7 +15,6 @@ import { PrivacyTab } from "./SettingsPrivacyTab";
 interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user?: { name?: string; email?: string };
   initialTab?: Tab;
 }
 
