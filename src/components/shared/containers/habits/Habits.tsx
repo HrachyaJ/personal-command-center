@@ -8,6 +8,7 @@ import HabitList from "./HabitList";
 import { CATEGORY_COLORS } from "../../../../lib/theme";
 import {
   HabitListSkeleton,
+  HabitStatCardSkeleton,
   ProgressSidebarSkeleton,
   StatCardSkeleton,
   TopStreaksSkeleton,
@@ -34,7 +35,6 @@ export default function Habits() {
   const [category, setCategory] = useState<HabitCategory>("productivity");
   const [frequency, setFrequency] = useState<HabitFrequency>("daily");
   const [showForm, setShowForm] = useState(false);
-
   const last7Days = getLast7Days();
 
   function handleAdd() {
@@ -77,7 +77,9 @@ export default function Habits() {
       {/* Stats row — 2 cols on mobile, 4 on sm+ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+          Array.from({ length: 4 }).map((_, i) => (
+            <HabitStatCardSkeleton key={i} />
+          ))
         ) : (
           <>
             <StatCard

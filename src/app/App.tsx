@@ -20,6 +20,7 @@ import { useThemeStore } from "../stores/useThemeStore";
 import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";
 import { useDensityStore } from "../stores/useDensityStore";
+import { Toaster } from "../components/ui/sonner";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -71,62 +72,67 @@ function AppLayout() {
   const { density } = useDensityStore();
 
   return (
-    <div
-      className={`flex min-h-screen ${density === "compact" ? "density-compact" : ""}`}
-    >
-      {showSidebar && <Sidebar />}
-      <main className={`flex-1 bg-background ${!showSidebar ? "w-full" : ""}`}>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tasks"
-            element={
-              <ProtectedRoute>
-                <Tasks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/habits"
-            element={
-              <ProtectedRoute>
-                <Habits />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/goals"
-            element={
-              <ProtectedRoute>
-                <Goals />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ai-coach"
-            element={
-              <ProtectedRoute>
-                <AICoach />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </div>
+    <>
+      <div
+        className={`flex min-h-screen ${density === "compact" ? "density-compact" : ""}`}
+      >
+        {showSidebar && <Sidebar />}
+        <main
+          className={`flex-1 bg-background ${!showSidebar ? "w-full" : ""}`}
+        >
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tasks"
+              element={
+                <ProtectedRoute>
+                  <Tasks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/habits"
+              element={
+                <ProtectedRoute>
+                  <Habits />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/goals"
+              element={
+                <ProtectedRoute>
+                  <Goals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-coach"
+              element={
+                <ProtectedRoute>
+                  <AICoach />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
+      <Toaster richColors position="bottom-right" />
+    </>
   );
 }
 

@@ -168,9 +168,9 @@ app.get("/api/predict", (req, res) => {
   const hasDueDate = req.query.has_dueDate ?? "0";
   const isRecurring = req.query.isRecurring ?? "0";
 
-  const cmd = `py ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate} ${isRecurring}`;
+  const cmd = `python3 ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate} ${isRecurring}`;
 
-  exec(cmd, (err, stdout) => {
+  exec(cmd, { env: process.env }, (err, stdout) => {
     if (err) return res.status(500).send(err.message);
     const output = stdout.trim();
     if (output === "MODEL_NOT_TRAINED") {
@@ -183,16 +183,20 @@ app.get("/api/predict", (req, res) => {
 
 // Trigger model retraining manually (run this after you've collected enough data)
 app.post("/api/ml-train", (_req, res) => {
-  exec("py ml/train.py", (err, stdout, stderr) => {
+  exec("python3 ml/train.py", { env: process.env }, (err, stdout, stderr) => {
     if (err) return res.status(500).json({ error: stderr || err.message });
     res.json({ ok: true, output: stdout });
   });
 });
 
 app.get("/api/ml-insights", (_req, res) => {
-  exec("py ml/insights.py", (err, stdout) => {
+  exec("python3 ml/insights.py", { env: process.env }, (err, stdout) => {
     if (err) return res.status(500).send(err.message);
-    res.json(JSON.parse(stdout));
+    try {
+      res.json(JSON.parse(stdout));
+    } catch {
+      res.status(500).send("Failed to parse insights output");
+    }
   });
 });
 
