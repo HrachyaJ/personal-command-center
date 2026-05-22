@@ -190,14 +190,22 @@ app.post("/api/ml-train", (_req, res) => {
 });
 
 app.get("/api/ml-insights", (_req, res) => {
-  exec("python3 ml/insights.py", { env: process.env }, (err, stdout) => {
-    if (err) return res.status(500).send(err.message);
-    try {
-      res.json(JSON.parse(stdout));
-    } catch {
-      res.status(500).send("Failed to parse insights output");
-    }
-  });
+  exec(
+    "python3 ml/insights.py",
+    { env: process.env },
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error("insights error:", stderr || err.message);
+        return res.status(500).send(err.message);
+      }
+      try {
+        res.json(JSON.parse(stdout));
+      } catch {
+        console.error("insights parse error:", stdout);
+        res.status(500).send("Failed to parse insights output");
+      }
+    },
+  );
 });
 
 app.get("/api/user/export", async (req: any, res) => {
