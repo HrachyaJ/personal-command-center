@@ -59,5 +59,5 @@ input_df = pd.DataFrame([[
     "is_recurring",
 ])
 
-prob = model.predict_proba(input_df)[0][1]
+prob = model.predict_proba(input_df)[0][1] # Get probability of completion (class 1)
 print(prob)

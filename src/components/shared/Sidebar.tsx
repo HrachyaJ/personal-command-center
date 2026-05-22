@@ -23,12 +23,13 @@ import { toast } from "sonner";
 
 function Sidebar() {
   const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();
-  const { user, loading: isPending } = useUserStore();
+  const { user, loading: isPending, clearUser } = useUserStore();
   const [logoutOpen, setLogoutOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
+    clearUser();
     navigate("/sign-in");
   };
 

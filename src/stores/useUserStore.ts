@@ -13,25 +13,25 @@ interface UserStore {
   loading: boolean;
   fetch: () => Promise<void>;
   update: (data: Partial<User>) => void;
+  clearUser: () => void;
 }
 
-export const useUserStore = create<UserStore>()((set, get) => ({
+export const useUserStore = create<UserStore>()((set) => ({
   user: null,
   loading: true,
   fetch: async () => {
-    // Don't refetch if we already have a user
-    if (get().user) return;
     set({ loading: true });
     try {
       const res = await fetch(`${API_BASE}/api/user`, {
         credentials: "include",
       });
       if (res.ok) set({ user: await res.json() });
-      else set({ loading: false }); // explicit fallback
+      else set({ user: null });
     } finally {
       set({ loading: false });
     }
   },
   update: (data) =>
     set((s) => ({ user: s.user ? { ...s.user, ...data } : null })),
+  clearUser: () => set({ user: null, loading: false }),
 }));

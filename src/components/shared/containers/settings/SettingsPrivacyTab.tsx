@@ -21,6 +21,8 @@ import {
 } from "../../../ui/alert-dialog";
 import { Label } from "../../../ui/label";
 import { Input } from "../../../ui/input";
+import { useUserStore } from "../../../../stores/useUserStore";
+import { SessionsSheet } from "./SettingsActiveSessions";
 
 export function PrivacyTab() {
   const [twoFa, setTwoFa] = useState(false);
@@ -28,10 +30,14 @@ export function PrivacyTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
   const navigate = useNavigate();
+  const clearUser = useUserStore((s) => s.clearUser);
 
   const handleLogout = async () => {
     await signOut();
+    clearUser();
     navigate("/sign-in");
   };
 
@@ -54,10 +60,37 @@ export function PrivacyTab() {
       }
       toast.success("Account deleted");
       await signOut();
+      clearUser();
       navigate("/sign-in");
     } finally {
       setDeletingAccount(false);
       setDeletePassword("");
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/user/export`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        toast.error("Failed to export data");
+        return;
+      }
+      const blob = new Blob([await res.arrayBuffer()], {
+        type: "application/pdf",
+      });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "focusflow-export.pdf";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success("Export downloaded!");
+    } catch {
+      toast.error("Failed to export data");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -88,10 +121,9 @@ export function PrivacyTab() {
             size="sm"
             variant="outline"
             className="cursor-pointer text-xs h-8 gap-1.5"
-            onClick={() => toast.info("Session management coming soon.")}
+            onClick={() => setSessionsOpen(true)}
           >
-            Manage
-            <ChevronRight size={12} />
+            Manage <ChevronRight size={12} />
           </Button>
         </Row>
       </Section>
@@ -107,10 +139,11 @@ export function PrivacyTab() {
             size="sm"
             variant="outline"
             className="cursor-pointer text-xs h-8"
-            onClick={() => toast.info("Data export coming soon.")}
+            onClick={handleExport}
+            disabled={exporting}
           >
             <Globe size={13} className="mr-1.5" />
-            Export
+            {exporting ? "Exporting..." : "Export"}
           </Button>
         </Row>
       </Section>
@@ -234,6 +267,7 @@ export function PrivacyTab() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <SessionsSheet open={sessionsOpen} onOpenChange={setSessionsOpen} />
     </div>
   );
 }
