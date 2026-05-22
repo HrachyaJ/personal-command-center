@@ -29,6 +29,8 @@ cloudinary.config({
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://focus-flow-site.vercel.app"],
