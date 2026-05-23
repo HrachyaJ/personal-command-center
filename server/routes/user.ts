@@ -12,7 +12,9 @@ import { auth } from "../auth.js";
 const router = Router();
 
 async function getSession(req: Request) {
-  return auth.api.getSession({ headers: req.headers as any });
+  return auth.api.getSession({
+    headers: new Headers(req.headers as Record<string, string>),
+  });
 }
 
 router.get("/", async (req, res) => {
