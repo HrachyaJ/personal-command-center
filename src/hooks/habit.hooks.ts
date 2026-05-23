@@ -4,6 +4,7 @@ import type {
   HabitCategory,
   HabitFrequency,
 } from "../types/habit.types";
+import { authFetch } from "../lib/utils";
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/habits`;
 
@@ -21,10 +22,8 @@ export function useHabits() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(API, { credentials: "include" });
-        if (!response.ok) {
-          throw new Error("Failed to fetch habits");
-        }
+        const response = await authFetch(API);
+        if (!response.ok) throw new Error("Failed to fetch habits");
         const data = await response.json();
         setHabits(data);
       } catch (err) {
@@ -33,7 +32,6 @@ export function useHabits() {
         setLoading(false);
       }
     }
-
     fetchHabits();
   }, []);
 
@@ -46,15 +44,12 @@ export function useHabits() {
   }) {
     try {
       setError(null);
-      const res = await fetch(API, {
+      const res = await authFetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(params),
       });
-      if (!res.ok) {
-        throw new Error("Failed to add habit");
-      }
+      if (!res.ok) throw new Error("Failed to add habit");
       const newHabit = await res.json();
       setHabits((prev) => [...prev, newHabit]);
     } catch (err) {
@@ -65,13 +60,8 @@ export function useHabits() {
   async function removeHabit(id: string) {
     try {
       setError(null);
-      const res = await fetch(`${API}/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to remove habit");
-      }
+      const res = await authFetch(`${API}/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to remove habit");
       setHabits((prev) => prev.filter((h) => h.id !== id));
     } catch (err) {
       setError((err as Error).message);
@@ -88,16 +78,12 @@ export function useHabits() {
       const alreadyDone = habit.completedDates?.includes(today);
 
       if (alreadyDone) {
-        // undo
-        const res = await fetch(`${API}/${id}/complete`, {
+        const res = await authFetch(`${API}/${id}/complete`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify({ date: today }),
         });
-        if (!res.ok) {
-          throw new Error("Failed to undo habit completion");
-        }
+        if (!res.ok) throw new Error("Failed to undo habit completion");
         setHabits((prev) =>
           prev.map((h) =>
             h.id === id
@@ -109,16 +95,12 @@ export function useHabits() {
           ),
         );
       } else {
-        // complete
-        const res = await fetch(`${API}/${id}/complete`, {
+        const res = await authFetch(`${API}/${id}/complete`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify({ date: today }),
         });
-        if (!res.ok) {
-          throw new Error("Failed to complete habit");
-        }
+        if (!res.ok) throw new Error("Failed to complete habit");
         const updated = await res.json();
         setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
       }
@@ -130,13 +112,14 @@ export function useHabits() {
   function isCompletedToday(habit: Habit): boolean {
     return habit.completedDates?.includes(getTodayISO()) ?? false;
   }
+
   const longestCurrentStreak = habits.reduce(
     (max, h) => Math.max(max, h.streak ?? 0),
     0,
   );
 
   function getTodayDayOfWeek(): number {
-    return new Date().getDay(); // 0 = Sunday, 6 = Saturday
+    return new Date().getDay();
   }
 
   function isDueToday(habit: Habit): boolean {
@@ -149,7 +132,7 @@ export function useHabits() {
   }
 
   const todaysHabits = habits.filter(isDueToday);
-  const totalHabits = todaysHabits.length; // ← scope to today's habits, not all
+  const totalHabits = todaysHabits.length;
   const completedToday = todaysHabits.filter(isCompletedToday).length;
   const completionRate =
     totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;

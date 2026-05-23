@@ -8,7 +8,7 @@ import {
   authInputStyle,
 } from "./AuthLayout";
 import { GoogleButton } from "./GoogleButton";
-import { API_BASE } from "../../../../lib/utils";
+import { API_BASE, authFetch } from "../../../../lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
@@ -60,17 +60,21 @@ export default function SignIn() {
     setLoading(true);
     setError(null);
 
-    const { error } = await signIn.email({ email, password });
+    const result = await signIn.email({ email, password });
 
-    if (error) {
-      setError(error.message ?? "Something went wrong. Please try again.");
+    if (result.error) {
+      setError(
+        result.error.message ?? "Something went wrong. Please try again.",
+      );
       setLoading(false);
     } else {
+      // Store the token for all subsequent API calls
+      const token = (result.data as any)?.token;
+      if (token) localStorage.setItem("focusflow:token", token);
+
       // Fetch profile while authenticated and cache for next visit
       try {
-        const res = await fetch(`${API_BASE}/api/user`, {
-          credentials: "include",
-        });
+        const res = await authFetch(`${API_BASE}/api/user`);
         if (res.ok) {
           const user = await res.json();
           const toStore: StoredUser = {
@@ -132,7 +136,6 @@ export default function SignIn() {
             fontFamily: "'DM Sans', sans-serif",
           }}
         >
-          {/* Avatar — real image if available, initials fallback */}
           <Avatar className="w-7 h-7 shrink-0 text-[10px]">
             <AvatarImage
               src={storedUser?.image ?? undefined}
@@ -143,7 +146,6 @@ export default function SignIn() {
             </AvatarFallback>
           </Avatar>
 
-          {/* Email — nicer typography */}
           <span style={{ fontSize: "13px", color: "#374151", fontWeight: 500 }}>
             {rememberedEmail}
           </span>
@@ -187,9 +189,6 @@ export default function SignIn() {
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "20px" }}
       >
-        {/* Email is always rendered so browsers/password-managers see a
-            username field alongside the password field. In fastSignInMode it
-            is visually hidden but still present in the DOM. */}
         <div
           style={{
             display: fastSignInMode ? "none" : "flex",

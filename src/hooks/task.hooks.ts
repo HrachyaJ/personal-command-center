@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Task, TaskFormData } from "../types/task.types";
+import { authFetch } from "../lib/utils";
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/tasks`;
 
@@ -8,12 +9,11 @@ export function useTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Fetch all tasks for the logged-in user ──────────────────────────────
   useEffect(() => {
     async function fetchTasks() {
       try {
         setError(null);
-        const res = await fetch(API, { credentials: "include" });
+        const res = await authFetch(API);
         if (!res.ok) throw new Error("Failed to fetch tasks");
         const data = await res.json();
         setTasks(data);
@@ -26,14 +26,12 @@ export function useTasks() {
     fetchTasks();
   }, []);
 
-  // ── CRUD ────────────────────────────────────────────────────────────────
   async function addTask(data: TaskFormData) {
     try {
       setError(null);
-      const res = await fetch(API, {
+      const res = await authFetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           title: data.title,
           dueDate: data.dueDate,
@@ -56,10 +54,7 @@ export function useTasks() {
   async function removeTask(id: Task["id"]) {
     try {
       setError(null);
-      const res = await fetch(`${API}/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await authFetch(`${API}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove task");
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
@@ -71,7 +66,6 @@ export function useTasks() {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
 
-    // Also stamp completedAt when completing, clear it when un-completing
     const patch = {
       completed: !task.completed,
       completedAt: !task.completed ? new Date().toISOString() : null,
@@ -79,10 +73,9 @@ export function useTasks() {
 
     try {
       setError(null);
-      const res = await fetch(`${API}/${id}`, {
+      const res = await authFetch(`${API}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(patch),
       });
       if (!res.ok) throw new Error("Failed to update task");
@@ -96,10 +89,9 @@ export function useTasks() {
   async function editTask(id: Task["id"], data: Partial<TaskFormData>) {
     try {
       setError(null);
-      const res = await fetch(`${API}/${id}`, {
+      const res = await authFetch(`${API}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("Failed to edit task");
@@ -115,11 +107,8 @@ export function useTasks() {
     try {
       setError(null);
       const results = await Promise.allSettled(
-        completed.map((t) =>
-          fetch(`${API}/${t.id}`, { method: "DELETE", credentials: "include" }),
-        ),
+        completed.map((t) => authFetch(`${API}/${t.id}`, { method: "DELETE" })),
       );
-      // Only remove tasks whose delete succeeded
       const deletedIds = new Set(
         completed
           .filter((_, i) => results[i].status === "fulfilled")
@@ -131,7 +120,6 @@ export function useTasks() {
     }
   }
 
-  // ── Helpers (synchronous — no DB call needed) ───────────────────────────
   function countCompleted() {
     return tasks.filter((t) => t.completed).length;
   }

@@ -29,6 +29,7 @@ function Sidebar() {
 
   const handleLogout = async () => {
     await signOut();
+    localStorage.removeItem("focusflow:token");
     clearUser();
     navigate("/sign-in");
   };

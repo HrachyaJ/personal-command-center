@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Goal } from "../types/goal.types";
+import { authFetch } from "../lib/utils";
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/goals`;
 
@@ -12,7 +13,7 @@ export function useGoals() {
     async function fetchGoals() {
       try {
         setError(null);
-        const res = await fetch(API, { credentials: "include" });
+        const res = await authFetch(API);
         if (!res.ok) throw new Error("Failed to fetch goals");
         const data = await res.json();
         setGoals(data);
@@ -34,10 +35,9 @@ export function useGoals() {
   }) {
     try {
       setError(null);
-      const res = await fetch(API, {
+      const res = await authFetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(goalData),
       });
       if (!res.ok) throw new Error("Failed to add goal");
@@ -52,10 +52,9 @@ export function useGoals() {
   async function updateGoal(goalId: string, updates: Partial<Goal>) {
     try {
       setError(null);
-      const res = await fetch(`${API}/${goalId}`, {
+      const res = await authFetch(`${API}/${goalId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(updates),
       });
       if (!res.ok) throw new Error("Failed to update goal");
@@ -69,10 +68,7 @@ export function useGoals() {
   async function deleteGoal(goalId: string) {
     try {
       setError(null);
-      const res = await fetch(`${API}/${goalId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await authFetch(`${API}/${goalId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete goal");
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
     } catch (err) {
@@ -81,8 +77,6 @@ export function useGoals() {
   }
 
   async function updateProgress(goalId: string, addValue: number) {
-    // Read currentValue from state functionally to avoid stale closure race
-    // when two rapid increments fire before either resolves.
     let currentValue: number | undefined;
     setGoals((prev) => {
       const goal = prev.find((g) => g.id === goalId);

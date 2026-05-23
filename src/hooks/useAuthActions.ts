@@ -8,6 +8,7 @@ export function useAuthActions() {
   const handleLogout = async () => {
     try {
       await signOut();
+      localStorage.removeItem("focusflow:token");
       navigate("/sign-in");
     } catch (error) {
       toast.error("Failed to sign out. Please try again.");
