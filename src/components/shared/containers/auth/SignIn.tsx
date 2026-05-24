@@ -61,6 +61,10 @@ export default function SignIn() {
     setError(null);
 
     const result = await signIn.email({ email, password });
+    console.log("SIGNIN RESULT:", JSON.stringify(result));
+    const token = (result.data as any)?.token;
+    console.log("TOKEN:", token);
+    localStorage.setItem("focusflow:token", token ?? "");
 
     if (result.error) {
       setError(

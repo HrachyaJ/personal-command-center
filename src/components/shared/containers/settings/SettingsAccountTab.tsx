@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useUserStore } from "../../../../stores/useUserStore";
-import { API_BASE } from "../../../../lib/utils";
+import { API_BASE, authFetch } from "../../../../lib/utils";
 import { toast } from "sonner";
 import { Section } from "./SettingsSection";
 import { Label } from "../../../ui/label";
@@ -21,7 +21,6 @@ export function AccountTab() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  // avatarPreview holds a blob URL (local pick) or a resolved http URL (persisted)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     resolveAvatarUrl(user?.image),
   );
@@ -63,9 +62,8 @@ export function AccountTab() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/user/avatar`, {
+      const res = await authFetch(`${API_BASE}/api/user/avatar`, {
         method: "DELETE",
-        credentials: "include",
       });
       if (!res.ok) {
         toast.error("Failed to remove avatar");
@@ -82,9 +80,9 @@ export function AccountTab() {
   async function uploadAvatar(file: File): Promise<string> {
     const formData = new FormData();
     formData.append("avatar", file);
-    const res = await fetch(`${API_BASE}/api/user/avatar`, {
+    // Note: don't set Content-Type header for FormData — browser sets it with boundary
+    const res = await authFetch(`${API_BASE}/api/user/avatar`, {
       method: "POST",
-      credentials: "include",
       body: formData,
     });
     if (!res.ok) {
@@ -105,7 +103,6 @@ export function AccountTab() {
         setUploadingAvatar(true);
         try {
           newImagePath = await uploadAvatar(avatarFile);
-          // Show the resolved URL immediately so the preview updates
           setAvatarPreview(resolveAvatarUrl(newImagePath));
           setAvatarFile(null);
         } catch (err: unknown) {
@@ -118,10 +115,9 @@ export function AccountTab() {
         }
       }
 
-      const res = await fetch(`${API_BASE}/api/user/profile`, {
+      const res = await authFetch(`${API_BASE}/api/user/profile`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ name, email }),
       });
       if (!res.ok) {
@@ -154,10 +150,9 @@ export function AccountTab() {
 
     setSavingPassword(true);
     try {
-      const res = await fetch(`${API_BASE}/api/user/password`, {
+      const res = await authFetch(`${API_BASE}/api/user/password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           currentPassword: currentPw,
           newPassword: newPw,
@@ -188,7 +183,6 @@ export function AccountTab() {
     <div className="space-y-6">
       <Section title="Profile">
         <div className="space-y-4">
-          {/* Avatar */}
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <Avatar className="w-16 h-16 border-2 border-border">
@@ -299,7 +293,6 @@ export function AccountTab() {
           }}
           className="space-y-3"
         >
-          {/* Hidden username field so browsers associate these as credential inputs */}
           <input
             type="text"
             autoComplete="username"

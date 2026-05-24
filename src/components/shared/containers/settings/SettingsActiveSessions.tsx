@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "../../../../lib/utils";
+import { API_BASE, authFetch } from "../../../../lib/utils";
 import { toast } from "sonner";
 import { Monitor, Smartphone, Trash2, Loader2 } from "lucide-react";
 import {
@@ -47,14 +47,13 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
   useEffect(() => {
     if (!open) return;
     setLoading(true);
-    fetch(`${API_BASE}/api/user/sessions`, { credentials: "include" })
+    authFetch(`${API_BASE}/api/user/sessions`)
       .then((r) => r.json())
       .then((data: Session[]) =>
         setSessions(
           data.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0)),
         ),
       )
-
       .catch(() => toast.error("Failed to load sessions"))
       .finally(() => setLoading(false));
   }, [open]);
@@ -62,9 +61,8 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
   const handleRevoke = async (id: string) => {
     setRevoking(id);
     try {
-      const res = await fetch(`${API_BASE}/api/user/sessions/${id}`, {
+      const res = await authFetch(`${API_BASE}/api/user/sessions/${id}`, {
         method: "DELETE",
-        credentials: "include",
       });
       if (!res.ok) {
         toast.error("Failed to revoke session");

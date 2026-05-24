@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "../../lib/utils";
+import { API_BASE, authFetch } from "../../lib/utils";
 
 type Status = "loading" | "error" | "empty" | "ready";
 
@@ -9,7 +9,7 @@ export default function Insights() {
 
   useEffect(() => {
     setStatus("loading");
-    fetch(`${API_BASE}/api/ml-insights`, { credentials: "include" })
+    authFetch(`${API_BASE}/api/ml-insights`)
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch insights");
         return r.json();

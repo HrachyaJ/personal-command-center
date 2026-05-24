@@ -1,4 +1,4 @@
-import { API_BASE } from "../lib/utils";
+import { API_BASE, authFetch } from "../lib/utils";
 import { create } from "zustand";
 
 interface User {
@@ -22,9 +22,7 @@ export const useUserStore = create<UserStore>()((set) => ({
   fetch: async () => {
     set({ loading: true });
     try {
-      const res = await fetch(`${API_BASE}/api/user`, {
-        credentials: "include",
-      });
+      const res = await authFetch(`${API_BASE}/api/user`);
       if (res.ok) set({ user: await res.json() });
       else set({ user: null });
     } finally {
