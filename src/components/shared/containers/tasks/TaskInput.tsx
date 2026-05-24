@@ -68,66 +68,70 @@ const EMPTY_FORM: TaskFormData = {
   recurrenceRule: null,
 };
 
-export default function TaskInput({ onAdd }: TaskInputProps) {
-  const [form, setForm] = useState<TaskFormData>(EMPTY_FORM);
-  const [showOptions, setShowOptions] = useState(false);
-  const [isPredicting, setIsPredicting] = useState(false);
+function runPrediction(form: TaskFormData) {
+  const params = new URLSearchParams({
+    hour: String(new Date().getHours()),
+    day: String(new Date().getDay()),
+    priority: form.priority ?? "low",
+    category: form.category ?? "other",
+    estimatedMinutes: String(form.estimatedMinutes ?? 0),
+    has_dueDate: form.dueDate ? "1" : "0",
+    isRecurring: form.isRecurring ? "1" : "0",
+  });
 
-  function set<K extends keyof TaskFormData>(key: K, value: TaskFormData[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!form.title.trim()) return;
-    if (!form.priority) return;
-    if (!form.category) return;
-
-    setIsPredicting(true);
-    try {
-      const params = new URLSearchParams({
-        hour: String(new Date().getHours()),
-        day: String(new Date().getDay()),
-        priority: form.priority ?? "low",
-        category: form.category ?? "other",
-        estimatedMinutes: String(form.estimatedMinutes ?? 0),
-        has_dueDate: form.dueDate ? "1" : "0",
-        isRecurring: form.isRecurring ? "1" : "0",
-      });
-
-      const response = await fetch(
-        `${API_BASE}/api/predict?${params.toString()}`,
-      );
-      const completionProbability = parseFloat(await response.text());
-
-      if (completionProbability > 0.75) {
+  fetch(`${API_BASE}/api/predict?${params.toString()}`)
+    .then((r) => r.text())
+    .then((text) => {
+      const prob = parseFloat(text);
+      if (isNaN(prob)) return;
+      if (prob > 0.75) {
         toast.success(
-          `High completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          `High completion probability: ${(prob * 100).toFixed(1)}%`,
           { description: "Great time to add this task!" },
         );
-      } else if (completionProbability >= 0.3) {
+      } else if (prob >= 0.3) {
         toast.info(
-          `Moderate completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          `Moderate completion probability: ${(prob * 100).toFixed(1)}%`,
           { description: "Consider scheduling it in the morning." },
         );
       } else {
         toast.warning(
-          `Low completion probability: ${(completionProbability * 100).toFixed(1)}%`,
+          `Low completion probability: ${(prob * 100).toFixed(1)}%`,
           {
             description:
               "Try setting a deadline or breaking it into smaller tasks.",
           },
         );
       }
-    } catch {
-      // Silently skip if the ML server is down — don't block task creation
-    } finally {
-      setIsPredicting(false);
-    }
+    })
+    .catch(() => {
+      // Silently skip if ML is unavailable
+    });
+}
 
-    onAdd({ ...form, title: form.title.trim() });
+export default function TaskInput({ onAdd }: TaskInputProps) {
+  const [form, setForm] = useState<TaskFormData>(EMPTY_FORM);
+  const [showOptions, setShowOptions] = useState(false);
+
+  function set<K extends keyof TaskFormData>(key: K, value: TaskFormData[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!form.title.trim()) return;
+    if (!form.priority) return;
+    if (!form.category) return;
+
+    const taskData = { ...form, title: form.title.trim() };
+
+    // Add task immediately — don't wait for ML
+    onAdd(taskData);
     setForm(EMPTY_FORM);
     setShowOptions(false);
+
+    // Fire prediction in background — result shows as a toast when ready
+    runPrediction(taskData);
   }
 
   return (
@@ -140,7 +144,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           placeholder="New task..."
           className="flex-1 bg-card border-border"
         />
-        {/* Priority quick-select inline */}
         <Select
           value={form.priority ?? ""}
           onValueChange={(v) => set("priority", v as TaskPriority)}
@@ -181,11 +184,11 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
 
         <Button
           type="submit"
-          disabled={!form.title.trim() || isPredicting}
+          disabled={!form.title.trim()}
           className="cursor-pointer shrink-0"
         >
           <PlusIcon size={16} />
-          {isPredicting ? "Analyzing..." : "Add"}
+          Add
         </Button>
       </div>
 
@@ -193,7 +196,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
       <Collapsible open={showOptions}>
         <CollapsibleContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 pb-1 px-0.5">
-            {/* Category */}
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Category</Label>
               <Select
@@ -226,7 +228,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
               </Select>
             </div>
 
-            {/* Estimated time */}
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">
                 Est. minutes
@@ -246,7 +247,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
               />
             </div>
 
-            {/* Due date */}
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Due date</Label>
               <Input
@@ -257,7 +257,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
               />
             </div>
 
-            {/* Scheduled for */}
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">
                 Schedule for
@@ -271,7 +270,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
             </div>
           </div>
 
-          {/* Recurring row */}
           <div className="flex items-center gap-6 pt-2 px-0.5">
             <div className="flex items-center gap-2">
               <Toggle
