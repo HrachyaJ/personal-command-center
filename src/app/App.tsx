@@ -35,7 +35,14 @@ function AppLayout() {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    useUserStore.getState().fetch();
+    // Only attempt to fetch user if a token exists — prevents 401 on first load
+    const token = localStorage.getItem("focusflow:token");
+    if (token) {
+      useUserStore.getState().fetch();
+    } else {
+      // No token — mark loading as done so ProtectedRoute doesn't spin forever
+      useUserStore.setState({ loading: false });
+    }
   }, []);
 
   document.title = "FocusFlow";
@@ -54,7 +61,6 @@ function AppLayout() {
     }
   }, [theme]);
 
-  // Also listen for system preference changes when theme is "system"
   useEffect(() => {
     if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

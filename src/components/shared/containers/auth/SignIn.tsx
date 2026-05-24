@@ -10,6 +10,7 @@ import {
 import { GoogleButton } from "./GoogleButton";
 import { API_BASE, authFetch } from "../../../../lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
+import { useUserStore } from "../../../../stores/useUserStore";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
 
@@ -63,6 +64,7 @@ export default function SignIn() {
     const result = await signIn.email({ email, password });
     const token = (result.data as any)?.token;
     localStorage.setItem("focusflow:token", token ?? "");
+    await useUserStore.getState().fetch();
 
     if (result.error) {
       setError(
