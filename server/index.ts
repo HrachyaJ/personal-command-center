@@ -163,6 +163,13 @@ app.get("/api/ml-data", async (_req, res) => {
 });
 
 app.get("/api/predict", (req, res) => {
+  // Set CORS explicitly for this route since errors bypass middleware
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://focus-flow-site.vercel.app",
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+
   const hour = req.query.hour ?? new Date().getHours();
   const day = req.query.day ?? new Date().getDay();
   const priority = req.query.priority ?? "low";
@@ -174,7 +181,7 @@ app.get("/api/predict", (req, res) => {
   const cmd = `python3 ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate} ${isRecurring}`;
 
   exec(cmd, { env: process.env }, (err, stdout) => {
-    if (err) return res.status(500).send(err.message);
+    if (err) return res.send("0.5"); // fail silently — return neutral score
     const output = stdout.trim();
     if (output === "MODEL_NOT_TRAINED") return res.send("0.5");
     res.send(output);
