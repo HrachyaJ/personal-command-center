@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db.js";
 import { goals } from "../db/schema.js";
@@ -6,11 +6,22 @@ import { auth } from "../auth.js";
 
 const router = Router();
 
-async function getSession(req: any) {
-  return auth.api.getSession({ headers: req.headers as any });
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => headers.append(key, v));
+    } else if (value) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
 }
 
-// GET /api/goals
+async function getSession(req: Request) {
+  return auth.api.getSession({ headers: toHeaders(req) });
+}
+
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -24,7 +35,6 @@ router.get("/", async (req, res) => {
   res.json(userGoals);
 });
 
-// POST /api/goals
 router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -52,7 +62,6 @@ router.post("/", async (req, res) => {
   res.status(201).json(goal);
 });
 
-// PATCH /api/goals/:id
 router.patch("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -85,7 +94,6 @@ router.patch("/:id", async (req, res) => {
   res.json(goal);
 });
 
-// DELETE /api/goals/:id
 router.delete("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -93,7 +101,6 @@ router.delete("/:id", async (req, res) => {
   await db
     .delete(goals)
     .where(and(eq(goals.id, req.params.id), eq(goals.userId, session.user.id)));
-
   res.status(204).send();
 });
 

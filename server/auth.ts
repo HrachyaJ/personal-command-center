@@ -1,10 +1,17 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db.js";
+import { bearer } from "better-auth/plugins";
 import * as authSchema from "./db/auth-schema.js";
 
 export const auth = betterAuth({
   baseURL: process.env.BASE_URL ?? "http://localhost:3001",
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    },
+  },
   advanced: {
     crossSubdomainCookies: {
       enabled: false,
@@ -34,4 +41,5 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "https://focus-flow-site.vercel.app",
   ],
+  plugins: [bearer()],
 });

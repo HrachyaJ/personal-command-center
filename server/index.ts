@@ -16,11 +16,8 @@ import { v2 as cloudinary } from "cloudinary";
 import { session as sessionTable } from "./db/auth-schema.js";
 import streamifier from "streamifier";
 import PDFDocument from "pdfkit";
+import type { Request } from "express";
 
-// ── Cloudinary config (set these in your .env) ────────────────────────────────
-// CLOUDINARY_CLOUD_NAME=your_cloud_name
-// CLOUDINARY_API_KEY=your_api_key
-// CLOUDINARY_API_SECRET=your_api_secret
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -46,25 +43,35 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 
-// ── Avatar upload ──────────────────────────────────────────────────────────────
+// ── Shared helper: converts Express headers → Headers instance ────────────────
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => headers.append(key, v));
+    } else if (value) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
+}
 
-// Use memory storage — we're streaming straight to Cloudinary, no disk needed
+// ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith("image/")) cb(null, true);
     else cb(new Error("Only image files are allowed"));
   },
 });
 
-/** Upload a buffer to Cloudinary and return the secure URL. */
 function uploadToCloudinary(buffer: Buffer, publicId: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "avatars",
-        public_id: publicId, // e.g. "avatars/userId" — overwrites on re-upload
+        public_id: publicId,
         overwrite: true,
         transformation: [
           { width: 256, height: 256, crop: "fill", gravity: "face" },
@@ -74,7 +81,7 @@ function uploadToCloudinary(buffer: Buffer, publicId: string): Promise<string> {
       (error, result) => {
         if (error || !result)
           return reject(error ?? new Error("Upload failed"));
-        resolve(result.secure_url); // always https://res.cloudinary.com/...
+        resolve(result.secure_url);
       },
     );
     streamifier.createReadStream(buffer).pipe(stream);
@@ -86,9 +93,7 @@ app.post(
   avatarUpload.single("avatar"),
   async (req: any, res) => {
     try {
-      const session = await auth.api.getSession({
-        headers: req.headers as any,
-      });
+      const session = await auth.api.getSession({ headers: toHeaders(req) });
       if (!session?.user) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -98,13 +103,11 @@ app.post(
         return;
       }
 
-      // Upload buffer → Cloudinary → get back a permanent https URL
       const imageUrl = await uploadToCloudinary(
         req.file.buffer,
         session.user.id,
       );
 
-      // Persist the full URL in the DB
       await db
         .update(userTable)
         .set({ image: imageUrl, updatedAt: new Date() })
@@ -119,13 +122,12 @@ app.post(
 
 app.delete("/api/user/avatar", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: req.headers as any });
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    // Delete from Cloudinary too so you don't accumulate orphaned files
     await cloudinary.uploader.destroy(`avatars/${session.user.id}`);
 
     await db
@@ -146,7 +148,6 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.get("/api/ml-data", async (_req, res) => {
   const getTasks = await db.select().from(tasks);
   const formatted = getTasks
-    // Use createdAt as timestamp source (completedAt may be null for incomplete tasks)
     .filter((t) => t.createdAt !== null)
     .map((t) => ({
       hour: new Date(t.createdAt!).getHours(),
@@ -175,15 +176,11 @@ app.get("/api/predict", (req, res) => {
   exec(cmd, { env: process.env }, (err, stdout) => {
     if (err) return res.status(500).send(err.message);
     const output = stdout.trim();
-    if (output === "MODEL_NOT_TRAINED") {
-      // No model yet — return a neutral 0.5 so the UI doesn't break
-      return res.send("0.5");
-    }
+    if (output === "MODEL_NOT_TRAINED") return res.send("0.5");
     res.send(output);
   });
 });
 
-// Trigger model retraining manually (run this after you've collected enough data)
 app.post("/api/ml-train", (_req, res) => {
   exec("python3 ml/train.py", { env: process.env }, (err, stdout, stderr) => {
     if (err) return res.status(500).json({ error: stderr || err.message });
@@ -197,8 +194,9 @@ app.get("/api/ml-insights", (_req, res) => {
     { env: process.env },
     (err, stdout, stderr) => {
       if (err) {
-        console.error("insights error:", stderr || err.message);
-        return res.status(500).send(err.message);
+        console.error("insights stderr:", stderr);
+        console.error("insights err:", err.message);
+        return res.status(500).json({ error: err.message, stderr }); // return stderr to frontend temporarily
       }
       try {
         res.json(JSON.parse(stdout));
@@ -212,7 +210,7 @@ app.get("/api/ml-insights", (_req, res) => {
 
 app.get("/api/user/export", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: req.headers as any });
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -234,7 +232,6 @@ app.get("/api/user/export", async (req: any, res) => {
     const doc = new PDFDocument({ margin: 40 });
     doc.pipe(res);
 
-    // Header
     doc
       .fontSize(22)
       .font("Helvetica-Bold")
@@ -248,7 +245,6 @@ app.get("/api/user/export", async (req: any, res) => {
       });
     doc.moveDown(2);
 
-    // Tasks
     doc.fontSize(16).font("Helvetica-Bold").fillColor("black").text("Tasks");
     doc.moveTo(40, doc.y).lineTo(570, doc.y).stroke();
     doc.moveDown(0.5);
@@ -279,7 +275,6 @@ app.get("/api/user/export", async (req: any, res) => {
     }
     doc.moveDown(1);
 
-    // Goals
     doc.fontSize(16).font("Helvetica-Bold").fillColor("black").text("Goals");
     doc.moveTo(40, doc.y).lineTo(570, doc.y).stroke();
     doc.moveDown(0.5);
@@ -312,7 +307,6 @@ app.get("/api/user/export", async (req: any, res) => {
     }
     doc.moveDown(1);
 
-    // Habits
     doc.fontSize(16).font("Helvetica-Bold").fillColor("black").text("Habits");
     doc.moveTo(40, doc.y).lineTo(570, doc.y).stroke();
     doc.moveDown(0.5);
@@ -348,7 +342,7 @@ app.get("/api/user/export", async (req: any, res) => {
 
 app.get("/api/user/sessions", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: req.headers as any });
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
     const sessions = await db
@@ -371,13 +365,11 @@ app.get("/api/user/sessions", async (req: any, res) => {
   }
 });
 
-// Revoke a specific session
 app.delete("/api/user/sessions/:id", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: req.headers as any });
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
-    // Make sure the session belongs to this user before deleting
     const [target] = await db
       .select()
       .from(sessionTable)

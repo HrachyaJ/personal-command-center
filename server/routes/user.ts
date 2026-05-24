@@ -11,10 +11,20 @@ import { auth } from "../auth.js";
 
 const router = Router();
 
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => headers.append(key, v));
+    } else if (value) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
+}
+
 async function getSession(req: Request) {
-  return auth.api.getSession({
-    headers: new Headers(req.headers as Record<string, string>),
-  });
+  return auth.api.getSession({ headers: toHeaders(req) });
 }
 
 router.get("/", async (req, res) => {
@@ -29,7 +39,6 @@ router.get("/", async (req, res) => {
   res.json(currentUser);
 });
 
-// PATCH /api/user/profile — update name and/or email
 router.patch("/profile", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -51,7 +60,6 @@ router.patch("/profile", async (req, res) => {
   res.json(updated);
 });
 
-// POST /api/user/password — change password via Better Auth
 router.post("/password", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -64,7 +72,7 @@ router.post("/password", async (req, res) => {
   try {
     await auth.api.changePassword({
       body: { currentPassword, newPassword, revokeOtherSessions: false },
-      headers: req.headers as any,
+      headers: toHeaders(req),
     });
     res.json({ success: true });
   } catch {
@@ -72,7 +80,6 @@ router.post("/password", async (req, res) => {
   }
 });
 
-// DELETE /api/user/account — permanently delete account and all data
 router.delete("/account", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -101,9 +108,6 @@ router.delete("/account", async (req, res) => {
   const userId = session.user.id;
 
   await db.delete(tasks).where(eq(tasks.userId, userId));
-  // await db.delete(goals).where(eq(goals.userId, userId));
-  // await db.delete(habits).where(eq(habits.userId, userId));
-
   await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
   await db.delete(accountTable).where(eq(accountTable.userId, userId));
   await db.delete(userTable).where(eq(userTable.id, userId));

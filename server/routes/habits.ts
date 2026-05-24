@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db.js";
 import { auth } from "../auth.js";
@@ -6,11 +6,22 @@ import { habitCompletions, habits } from "../db/schema.js";
 
 const router = Router();
 
-async function getSession(req: any) {
-  return auth.api.getSession({ headers: req.headers as any });
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => headers.append(key, v));
+    } else if (value) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
 }
 
-// GET /api/habits — get all habits with their completions
+async function getSession(req: Request) {
+  return auth.api.getSession({ headers: toHeaders(req) });
+}
+
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -21,7 +32,6 @@ router.get("/", async (req, res) => {
     .where(eq(habits.userId, session.user.id))
     .orderBy(habits.createdAt);
 
-  // Attach completedDates to each habit
   const completions = await db
     .select()
     .from(habitCompletions)
@@ -37,7 +47,6 @@ router.get("/", async (req, res) => {
   res.json(result);
 });
 
-// POST /api/habits — create a habit
 router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -60,7 +69,6 @@ router.post("/", async (req, res) => {
   res.status(201).json({ ...habit, completedDates: [] });
 });
 
-// PATCH /api/habits/:id — update habit fields
 router.patch("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -85,7 +93,6 @@ router.patch("/:id", async (req, res) => {
   res.json(habit);
 });
 
-// DELETE /api/habits/:id
 router.delete("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -95,19 +102,16 @@ router.delete("/:id", async (req, res) => {
     .where(
       and(eq(habits.id, req.params.id), eq(habits.userId, session.user.id)),
     );
-
   res.status(204).send();
 });
 
-// POST /api/habits/:id/complete — mark habit complete for a date
 router.post("/:id/complete", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-  const { date } = req.body; // ISO string e.g. "2026-03-14"
+  const { date } = req.body;
   if (!date) return res.status(400).json({ error: "Date is required" });
 
-  // Verify habit belongs to user
   const [habit] = await db
     .select()
     .from(habits)
@@ -117,7 +121,6 @@ router.post("/:id/complete", async (req, res) => {
 
   if (!habit) return res.status(404).json({ error: "Habit not found" });
 
-  // Upsert — ignore if already completed for this date
   const existing = await db
     .select()
     .from(habitCompletions)
@@ -128,9 +131,8 @@ router.post("/:id/complete", async (req, res) => {
       ),
     );
 
-  if (existing.length > 0) {
+  if (existing.length > 0)
     return res.status(409).json({ error: "Already completed for this date" });
-  }
 
   await db.insert(habitCompletions).values({
     habitId: req.params.id,
@@ -138,7 +140,6 @@ router.post("/:id/complete", async (req, res) => {
     completedDate: date,
   });
 
-  // Recalculate streak
   const allCompletions = await db
     .select()
     .from(habitCompletions)
@@ -176,7 +177,6 @@ router.post("/:id/complete", async (req, res) => {
   res.json({ ...updated, completedDates: dates });
 });
 
-// DELETE /api/habits/:id/complete — undo completion for a date
 router.delete("/:id/complete", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });

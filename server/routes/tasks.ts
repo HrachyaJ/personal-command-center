@@ -6,12 +6,22 @@ import { auth } from "../auth.js";
 
 const router = Router();
 
-// Helper — extract & verify session from request headers
-async function getSession(req: Request) {
-  return auth.api.getSession({ headers: req.headers as any });
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (Array.isArray(value)) {
+      value.forEach((v) => headers.append(key, v));
+    } else if (value) {
+      headers.set(key, value);
+    }
+  }
+  return headers;
 }
 
-// GET /api/tasks — get all tasks for current user
+async function getSession(req: Request) {
+  return auth.api.getSession({ headers: toHeaders(req) });
+}
+
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -25,7 +35,6 @@ router.get("/", async (req, res) => {
   res.json(userTasks);
 });
 
-// POST /api/tasks — create a task
 router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -58,18 +67,15 @@ router.post("/", async (req, res) => {
       }),
       ...(priority !== undefined && { priority }),
       ...(category !== undefined && { category }),
-      ...(estimatedMinutes !== undefined && {
-        estimatedMinutes: estimatedMinutes,
-      }),
-      ...(isRecurring !== undefined && { isRecurring: isRecurring }),
-      ...(recurrenceRule !== undefined && { recurrenceRule: recurrenceRule }),
+      ...(estimatedMinutes !== undefined && { estimatedMinutes }),
+      ...(isRecurring !== undefined && { isRecurring }),
+      ...(recurrenceRule !== undefined && { recurrenceRule }),
     })
     .returning();
 
   res.status(201).json(task);
 });
 
-// PATCH /api/tasks/:id — update a task
 router.patch("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -103,11 +109,9 @@ router.patch("/:id", async (req, res) => {
       }),
       ...(priority !== undefined && { priority }),
       ...(category !== undefined && { category }),
-      ...(estimatedMinutes !== undefined && {
-        estimatedMinutes: estimatedMinutes,
-      }),
-      ...(isRecurring !== undefined && { isRecurring: isRecurring }),
-      ...(recurrenceRule !== undefined && { recurrenceRule: recurrenceRule }),
+      ...(estimatedMinutes !== undefined && { estimatedMinutes }),
+      ...(isRecurring !== undefined && { isRecurring }),
+      ...(recurrenceRule !== undefined && { recurrenceRule }),
     })
     .where(and(eq(tasks.id, req.params.id), eq(tasks.userId, session.user.id)))
     .returning();
@@ -116,7 +120,6 @@ router.patch("/:id", async (req, res) => {
   res.json(task);
 });
 
-// DELETE /api/tasks/:id — delete a task
 router.delete("/:id", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -124,7 +127,6 @@ router.delete("/:id", async (req, res) => {
   await db
     .delete(tasks)
     .where(and(eq(tasks.id, req.params.id), eq(tasks.userId, session.user.id)));
-
   res.status(204).send();
 });
 
