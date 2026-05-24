@@ -8,16 +8,13 @@ import {
   Settings,
   Target,
   Repeat2,
-  Shield,
   Calendar,
   Clock,
 } from "lucide-react";
 import { useTasks } from "../../../../hooks/task.hooks";
 import { useGoals } from "../../../../hooks/goal.hooks";
 import { useHabits } from "../../../../hooks/habit.hooks";
-import { useSession } from "../../../../lib/auth-client";
 import Insights from "../../Insights";
-import { Badge } from "../../../ui/badge";
 import { useState } from "react";
 import { SettingsDialog } from "../settings/SettingsDialog";
 import {
@@ -39,6 +36,7 @@ import {
 import { DashboardSectionCard } from "./DashboardSectionCard";
 import { DashboardStatCard, type StatCardProps } from "./DashboardStatCard";
 import { ErrorBoundary } from "../../ErrorBoundary";
+import { useUserStore } from "../../../../stores/useUserStore";
 
 export default function Dashboard() {
   const {
@@ -54,7 +52,6 @@ export default function Dashboard() {
     loading: goalsLoading,
   } = useGoals();
   const {
-    habits,
     isCompletedToday,
     completedToday,
     totalHabits,
@@ -64,12 +61,10 @@ export default function Dashboard() {
     longestCurrentStreak,
     loading: habitsLoading,
   } = useHabits();
-
-  const { data: session, isPending: sessionLoading } = useSession();
-  const user = session?.user;
+  const { user, loading: userLoading } = useUserStore();
 
   const isLoading =
-    tasksLoading || goalsLoading || habitsLoading || sessionLoading;
+    tasksLoading || goalsLoading || habitsLoading || userLoading;
 
   const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 

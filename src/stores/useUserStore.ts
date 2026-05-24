@@ -24,7 +24,6 @@ export const useUserStore = create<UserStore>()((set) => ({
     try {
       const res = await authFetch(`${API_BASE}/api/user`);
       if (res.ok) set({ user: await res.json() });
-      else set({ user: null });
     } finally {
       set({ loading: false });
     }
