@@ -5,17 +5,17 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useEffect } from "react";
-import Dashboard from "../components/shared/containers/dashboard/Dashboard";
-import Tasks from "../components/shared/containers/tasks/Tasks";
-import Goals from "../components/shared/containers/goals/Goals";
-import Habits from "../components/shared/containers/habits/Habits";
-import LandingPage from "../components/shared/containers/landing/LandingPage";
-import SignIn from "../components/shared/containers/auth/SignIn";
-import SignUp from "../components/shared/containers/auth/SignUp";
+import Dashboard from "../components/containers/dashboard/Dashboard";
+import Tasks from "../components/containers/tasks/Tasks";
+import Goals from "../components/containers/goals/Goals";
+import Habits from "../components/containers/habits/Habits";
+import LandingPage from "../components/containers/landing/LandingPage";
+import SignIn from "../components/containers/auth/SignIn";
+import SignUp from "../components/containers/auth/SignUp";
 import ProtectedRoute from "../components/shared/ProtectedRoute";
-import AuthCallback from "../components/shared/containers/auth/AuthCallback";
+import AuthCallback from "../components/containers/auth/AuthCallback";
 import NotFound from "../components/shared/NotFound";
-import AICoach from "../components/shared/containers/AI-Coach";
+import AICoach from "../components/containers/ai-coach/AI-Coach";
 import { useThemeStore } from "../stores/useThemeStore";
 import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";

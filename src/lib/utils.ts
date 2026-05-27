@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TaskCategory, TaskPriority } from "../types/task.types";
 import type { HabitCategory } from "../types/habit.types";
+import type { InsightType, Priority } from "../types/ai-coach";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -137,4 +138,66 @@ export function authFetch(url: string, options: RequestInit = {}) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+}
+
+export function insightColors(type: InsightType) {
+  switch (type) {
+    case "tip":
+      return {
+        badge: "bg-blue-100 text-blue-800 border-blue-200",
+        icon: "text-blue-600 bg-blue-50",
+        border: "border-l-blue-400",
+      };
+    case "warning":
+      return {
+        badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        icon: "text-yellow-600 bg-yellow-50",
+        border: "border-l-yellow-400",
+      };
+    case "achievement":
+      return {
+        badge: "bg-green-100 text-green-800 border-green-200",
+        icon: "text-green-600 bg-green-50",
+        border: "border-l-green-400",
+      };
+    case "pattern":
+      return {
+        badge: "bg-purple-100 text-purple-800 border-purple-200",
+        icon: "text-purple-600 bg-purple-50",
+        border: "border-l-purple-400",
+      };
+  }
+}
+
+export function priorityColors(priority: Priority) {
+  switch (priority) {
+    case "high":
+      return "bg-red-100 text-red-700 border-red-200";
+    case "medium":
+      return "bg-orange-100 text-orange-700 border-orange-200";
+    case "low":
+      return "bg-muted text-muted-foreground border-border";
+  }
+}
+
+export function impactColors(impact: "high" | "medium" | "low") {
+  switch (impact) {
+    case "high":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "medium":
+      return "bg-blue-100 text-blue-700 border-blue-200";
+    case "low":
+      return "bg-muted text-muted-foreground border-border";
+  }
+}
+
+export function effortColors(effort: "easy" | "moderate" | "hard") {
+  switch (effort) {
+    case "easy":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "moderate":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    case "hard":
+      return "bg-red-100 text-red-700 border-red-200";
+  }
 }

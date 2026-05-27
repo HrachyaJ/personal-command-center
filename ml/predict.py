@@ -11,8 +11,10 @@ import joblib
 import pandas as pd
 import os
 
-# Check model exists — if not, tell the server to train first
-if not os.path.exists("ml/model.pkl"):
+user_id = os.environ.get("ML_USER_ID")
+model_path = f"ml/models/{user_id}/model.pkl" if user_id else "ml/model.pkl"
+
+if not os.path.exists(model_path):
     print("MODEL_NOT_TRAINED")
     sys.exit(0)
 
@@ -26,7 +28,7 @@ has_due_date    = int(sys.argv[6])
 is_recurring    = int(sys.argv[7])
 
 # Load saved model + encoders
-bundle = joblib.load("ml/model.pkl")
+bundle = joblib.load(model_path)
 model             = bundle["model"]
 priority_encoder  = bundle["priority_encoder"]
 category_encoder  = bundle["category_encoder"]

@@ -12,13 +12,20 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 import joblib
 import urllib.request
+import urllib.parse
 import os
 
-print("Fetching training data...") # print statement to indicate we're fetching data
+print("Fetching training data...")
 
-base_url = os.environ.get("BASE_URL", "http://localhost:3001") # Get the base URL for the API from environment variable, default to localhost if not set
+base_url = os.environ.get("BASE_URL", "http://localhost:3001")
+user_id = os.environ.get("ML_USER_ID")
 
-with urllib.request.urlopen(f"{base_url}/api/ml-data") as response: # Fetch the data from the API
+if not user_id:
+    print("ML_USER_ID not set — cannot train without a user context.")
+    exit(1)
+
+url = f"{base_url}/api/ml-data-internal?userId={urllib.parse.quote(user_id)}"
+with urllib.request.urlopen(url) as response:
     data = json.load(response)
 
 df = pd.DataFrame(data) # Convert the data to a DataFrame for training
@@ -51,13 +58,16 @@ y = df["completed"] # Target variable: whether the task was completed or not
 model = LogisticRegression(max_iter=1000) # Logistic Regression is a simple, interpretable model that works well for binary classification tasks like this. We set max_iter=1000 to ensure it converges even on small datasets.
 model.fit(X, y) # Train the model on our data
 
-# Save model + encoders so predict.py can load them
-os.makedirs("ml", exist_ok=True)
+# Save model per-user so multiple users don't overwrite each other
+model_dir = f"ml/models/{user_id}"
+os.makedirs(model_dir, exist_ok=True)
+model_path = f"{model_dir}/model.pkl"
+
 joblib.dump({
     "model": model,
     "priority_encoder": priority_encoder,
     "category_encoder": category_encoder,
-}, "ml/model.pkl")
+}, model_path)
 
-print("Model saved to ml/model.pkl") # Confirm that the model was saved successfully
-print(f"Features used: hour, day, priority, category, estimated_minutes, has_due_date, is_recurring") # Print the features used for training, which must match what predict.py expects
+print(f"Model saved to {model_path}")
+print(f"Features used: hour, day, priority, category, estimated_minutes, has_due_date, is_recurring")

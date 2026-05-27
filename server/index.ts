@@ -143,32 +143,87 @@ app.delete("/api/user/avatar", async (req: any, res) => {
 
 // ── Misc routes ────────────────────────────────────────────────────────────────
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+// ── Internal ML data endpoint — called by Python scripts only, not the browser
+// Bound to localhost in production so it's never exposed publicly
+app.get("/api/ml-data-internal", async (req, res) => {
+  const userId = req.query.userId as string | undefined;
+  if (!userId) {
+    res.status(400).json({ error: "userId required" });
+    return;
+  }
+  try {
+    const userTasks = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.userId, userId));
 
-app.get("/api/ml-data", async (_req, res) => {
-  const getTasks = await db.select().from(tasks);
-  const formatted = getTasks
-    .filter((t) => t.createdAt !== null)
-    .map((t) => ({
-      hour: new Date(t.createdAt!).getHours(),
-      day: new Date(t.createdAt!).getDay(),
-      priority: t.priority ?? "low",
-      category: t.category ?? "other",
-      estimated_minutes: t.estimatedMinutes ?? 0,
-      has_due_date: t.dueDate ? 1 : 0,
-      is_recurring: t.isRecurring ? 1 : 0,
-      completed: t.completed ? 1 : 0,
-    }));
-  res.json(formatted);
+    const formatted = userTasks
+      .filter((t) => t.completedAt !== null)
+      .map((t) => ({
+        hour: new Date(t.completedAt!).getHours(),
+        day: new Date(t.completedAt!).getDay(),
+        priority: t.priority ?? "low",
+        category: t.category ?? "other",
+        estimated_minutes: t.estimatedMinutes ?? 0,
+        has_due_date: t.dueDate ? 1 : 0,
+        is_recurring: t.isRecurring ? 1 : 0,
+        completed: t.completed ? 1 : 0,
+      }));
+
+    res.json(formatted);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/api/predict", (req, res) => {
-  // Set CORS explicitly for this route since errors bypass middleware
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+app.get("/api/ml-data", async (req: any, res) => {
+  try {
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    if (!session?.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const userId = session.user.id;
+    const userTasks = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.userId, userId));
+
+    const formatted = userTasks
+      // Only include completed tasks for pattern analysis — we want to know
+      // *when completions happen*, not when tasks were created
+      .filter((t) => t.completedAt !== null)
+      .map((t) => ({
+        hour: new Date(t.completedAt!).getHours(),
+        day: new Date(t.completedAt!).getDay(),
+        priority: t.priority ?? "low",
+        category: t.category ?? "other",
+        estimated_minutes: t.estimatedMinutes ?? 0,
+        has_due_date: t.dueDate ? 1 : 0,
+        is_recurring: t.isRecurring ? 1 : 0,
+        completed: t.completed ? 1 : 0,
+      }));
+
+    res.json(formatted);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message ?? "Failed to fetch ML data" });
+  }
+});
+
+app.get("/api/predict", async (req: any, res) => {
   res.header(
     "Access-Control-Allow-Origin",
     "https://focus-flow-site.vercel.app",
   );
   res.header("Access-Control-Allow-Credentials", "true");
+
+  const session = await auth.api.getSession({ headers: toHeaders(req) });
+  if (!session?.user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
 
   const hour = req.query.hour ?? new Date().getHours();
   const day = req.query.day ?? new Date().getDay();
@@ -180,39 +235,87 @@ app.get("/api/predict", (req, res) => {
 
   const cmd = `python3 ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate} ${isRecurring}`;
 
-  exec(cmd, { env: process.env }, (err, stdout) => {
-    if (err) return res.send("0.5"); // fail silently — return neutral score
+  const env = { ...process.env, ML_USER_ID: session.user.id };
+
+  exec(cmd, { env }, (err, stdout) => {
+    if (err) return res.send("0.5");
     const output = stdout.trim();
     if (output === "MODEL_NOT_TRAINED") return res.send("0.5");
     res.send(output);
   });
 });
 
-app.post("/api/ml-train", (_req, res) => {
-  exec("python3 ml/train.py", { env: process.env }, (err, stdout, stderr) => {
-    if (err) return res.status(500).json({ error: stderr || err.message });
-    res.json({ ok: true, output: stdout });
-  });
+app.post("/api/ml-train", async (req: any, res) => {
+  try {
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    if (!session?.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const env = {
+      ...process.env,
+      ML_USER_ID: session.user.id,
+    };
+
+    exec("python3 ml/train.py", { env }, (err, stdout, stderr) => {
+      if (err) return res.status(500).json({ error: stderr || err.message });
+      res.json({ ok: true, output: stdout });
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message ?? "Failed to train model" });
+  }
 });
 
-app.get("/api/ml-insights", (_req, res) => {
-  exec(
-    "python3 ml/insights.py",
-    { env: process.env },
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error("insights stderr:", stderr);
-        console.error("insights err:", err.message);
-        return res.status(500).json({ error: err.message, stderr }); // return stderr to frontend temporarily
-      }
-      try {
-        res.json(JSON.parse(stdout));
-      } catch {
-        console.error("insights parse error:", stdout);
-        res.status(500).send("Failed to parse insights output");
-      }
-    },
-  );
+app.get("/api/ml-insights", async (req: any, res) => {
+  try {
+    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    if (!session?.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const userId = session.user.id;
+    const userTasks = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.userId, userId));
+
+    const formatted = userTasks
+      .filter((t) => t.completedAt !== null)
+      .map((t) => ({
+        hour: new Date(t.completedAt!).getHours(),
+        day: new Date(t.completedAt!).getDay(),
+        priority: t.priority ?? "low",
+        category: t.category ?? "other",
+        estimated_minutes: t.estimatedMinutes ?? 0,
+        has_due_date: t.dueDate ? 1 : 0,
+        is_recurring: t.isRecurring ? 1 : 0,
+        completed: t.completed ? 1 : 0,
+      }));
+
+    const child = exec(
+      "python3 ml/insights.py",
+      { env: process.env },
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error("insights stderr:", stderr);
+          return res.status(500).json({ error: err.message });
+        }
+        try {
+          res.json(JSON.parse(stdout));
+        } catch {
+          res.status(500).send("Failed to parse insights output");
+        }
+      },
+    );
+
+    // Pass task data via stdin instead of HTTP
+    child.stdin?.write(JSON.stringify(formatted));
+    child.stdin?.end();
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/api/user/export", async (req: any, res) => {
