@@ -7,7 +7,7 @@ export function GoogleButton() {
       onClick={() =>
         authClient.signIn.social({
           provider: "google",
-          callbackURL: `${window.location.origin}/auth/callback`,
+          callbackURL: `${import.meta.env.BASE_URL ?? "http://localhost:5173"}/dashboard`,
         })
       }
       style={{
