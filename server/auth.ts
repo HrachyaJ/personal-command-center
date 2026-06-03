@@ -5,7 +5,7 @@ import { bearer } from "better-auth/plugins";
 import * as authSchema from "./db/auth-schema.js";
 
 export const auth = betterAuth({
-  baseURL: process.env.BASE_URL ?? "http://localhost:3001",
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
   session: {
     cookieCache: {
       enabled: true,
