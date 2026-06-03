@@ -10,9 +10,11 @@ export const auth = betterAuth({
   secondaryStorage: {
     get: async (key) => {
       const result = await db.execute(
-        sql`SELECT value FROM auth_state WHERE key = ${key} AND expires_at > NOW()`,
+        sql`SELECT value::text FROM auth_state WHERE key = ${key} AND expires_at > NOW()`,
       );
-      return result.rows[0]?.value ?? null;
+      const raw = result.rows[0]?.value;
+      if (!raw) return null;
+      return typeof raw === "string" ? raw : JSON.stringify(raw);
     },
     set: async (key, value, ttl) => {
       const expiresAt = new Date(Date.now() + (ttl ?? 600) * 1000);
