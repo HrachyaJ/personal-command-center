@@ -12,12 +12,13 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
     cookieOptions: {
-      sameSite: "none", // session cookie needs none for cross-origin fetches (Vercel → Render)
+      sameSite: "none",
       secure: true,
       httpOnly: true,
     },
   },
   advanced: {
+    cookiePrefix: "better-auth",
     crossSubdomainCookies: {
       enabled: false,
     },
@@ -25,7 +26,7 @@ export const auth = betterAuth({
     defaultCookieAttributes: {
       secure: true,
       httpOnly: true,
-      sameSite: "lax", // lax for OAuth state/PKCE cookies — survives Google's top-level redirect
+      sameSite: "none", // must be none — OAuth flow is initiated cross-origin (Vercel → Render)
     },
   },
   database: drizzleAdapter(db, {
