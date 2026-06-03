@@ -7,6 +7,9 @@ import { sql } from "drizzle-orm";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
+  account: {
+    skipStateCookieCheck: true,
+  },
   secondaryStorage: {
     get: async (key) => {
       const result = await db.execute(
@@ -63,7 +66,6 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      skipStateCookieCheck: true,
     },
   },
   trustedOrigins: [
