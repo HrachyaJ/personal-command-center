@@ -36,16 +36,11 @@ function AppLayout() {
 
   useEffect(() => {
     const token = localStorage.getItem("focusflow:token");
-    const isCallback = location.pathname === "/auth/callback";
+    const isCallback = location.pathname === "/auth/callback"; // 🛑 Bug here
 
     if (token) {
-      // Token exists — fetch the user (authFetch will attach the Bearer header)
       useUserStore.getState().fetch();
     } else if (!isCallback) {
-      // No token and not on the callback page — stop the loading spinner
-      // immediately so ProtectedRoute can redirect to /sign-in.
-      // On /auth/callback we leave loading:true so ProtectedRoute never
-      // renders while AuthCallback is doing its work.
       useUserStore.setState({ loading: false });
     }
   }, []);
@@ -97,7 +92,7 @@ function AppLayout() {
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             {/* Auth callback — must be outside ProtectedRoute */}
-            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/auth/callback/google" element={<AuthCallback />} />
             {/* Protected routes */}
             <Route
               path="/dashboard"
