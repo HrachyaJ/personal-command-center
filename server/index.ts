@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import { toNodeHandler } from "better-auth/node";
+import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
 import taskRoutes from "./routes/tasks.js";
 import goalRoutes from "./routes/goals.js";
@@ -45,17 +45,6 @@ app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 
 // ── Shared helper: converts Express headers → Headers instance ────────────────
-function toHeaders(req: Request): Headers {
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (Array.isArray(value)) {
-      value.forEach((v) => headers.append(key, v));
-    } else if (value) {
-      headers.set(key, value);
-    }
-  }
-  return headers;
-}
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
@@ -94,7 +83,9 @@ app.post(
   avatarUpload.single("avatar"),
   async (req: any, res) => {
     try {
-      const session = await auth.api.getSession({ headers: toHeaders(req) });
+      const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
       if (!session?.user) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -123,7 +114,9 @@ app.post(
 
 app.delete("/api/user/avatar", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -181,7 +174,9 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/api/ml-data", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -220,7 +215,9 @@ app.get("/api/predict", async (req: any, res) => {
   );
   res.header("Access-Control-Allow-Credentials", "true");
 
-  const session = await auth.api.getSession({ headers: toHeaders(req) });
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
   if (!session?.user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -248,7 +245,9 @@ app.get("/api/predict", async (req: any, res) => {
 
 app.post("/api/ml-train", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -270,7 +269,9 @@ app.post("/api/ml-train", async (req: any, res) => {
 
 app.get("/api/ml-insights", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -321,7 +322,9 @@ app.get("/api/ml-insights", async (req: any, res) => {
 
 app.get("/api/user/export", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -453,7 +456,9 @@ app.get("/api/user/export", async (req: any, res) => {
 
 app.get("/api/user/sessions", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
     const sessions = await db
@@ -478,7 +483,9 @@ app.get("/api/user/sessions", async (req: any, res) => {
 
 app.delete("/api/user/sessions/:id", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({ headers: toHeaders(req) });
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
     const [target] = await db
