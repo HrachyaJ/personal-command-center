@@ -32,6 +32,7 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "https://focus-flow-site.vercel.app"],
     credentials: true,
+    exposedHeaders: ["set-cookie", "Authorization"],
   }),
 );
 

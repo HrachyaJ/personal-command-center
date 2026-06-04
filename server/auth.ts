@@ -52,6 +52,7 @@ export const auth = betterAuth({
       secure: isProd,
       httpOnly: true,
       sameSite: isProd ? "none" : "lax",
+      partitioned: isProd,
     },
     redirectMetadata: true,
   },
