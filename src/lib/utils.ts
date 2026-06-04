@@ -134,6 +134,7 @@ export function authFetch(url: string, options: RequestInit = {}) {
     ...options,
     credentials: "include",
     headers: {
+      "Content-Type": "application/json",
       ...options.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
