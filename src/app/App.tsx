@@ -35,12 +35,13 @@ function AppLayout() {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    // Only attempt to fetch user if a token exists — prevents 401 on first load
     const token = localStorage.getItem("focusflow:token");
     if (token) {
+      // Token exists — fetch the user (authFetch will attach the Bearer header)
       useUserStore.getState().fetch();
     } else {
-      // No token — mark loading as done so ProtectedRoute doesn't spin forever
+      // No token at all — stop the loading spinner immediately so
+      // ProtectedRoute can redirect to /sign-in without waiting.
       useUserStore.setState({ loading: false });
     }
   }, []);
@@ -91,6 +92,8 @@ function AppLayout() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
+            {/* Auth callback — must be outside ProtectedRoute */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
             {/* Protected routes */}
             <Route
               path="/dashboard"
@@ -132,7 +135,6 @@ function AppLayout() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
