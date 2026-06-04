@@ -7,7 +7,6 @@ const TOKEN_KEY = "focusflow:token";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const fetchUser = useUserStore((s) => s.fetch);
   const didRun = useRef(false);
 
   useEffect(() => {
@@ -16,25 +15,41 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Some better-auth configs pass the token as ?token= in the URL
+        // Case 1: token passed as ?token= query param
         const urlToken = new URLSearchParams(window.location.search).get(
           "token",
         );
-        if (urlToken) localStorage.setItem(TOKEN_KEY, urlToken);
+        if (urlToken) {
+          localStorage.setItem(TOKEN_KEY, urlToken);
+          useUserStore.getState().fetch();
+          navigate("/dashboard", { replace: true });
+          return;
+        }
 
-        // This fetch triggers the onResponse hook in auth-client.ts,
-        // which reads the `set-auth-token` header and saves it to localStorage.
-        await authClient.getSession();
+        // Case 2: use the session returned by getSession() directly.
+        // The `set-auth-token` header only comes on session *creation*, not reads,
+        // so we populate the user store from the session payload instead.
+        const { data: session } = await authClient.getSession();
 
-        // Now fetch your own /api/user with the Bearer token attached.
-        await fetchUser();
-
-        navigate("/dashboard", { replace: true });
+        if (session?.user) {
+          useUserStore.setState({
+            user: {
+              id: session.user.id,
+              name: session.user.name,
+              email: session.user.email,
+              image: session.user.image ?? null,
+            },
+            loading: false,
+          });
+          navigate("/dashboard", { replace: true });
+        } else {
+          navigate("/sign-in", { replace: true });
+        }
       } catch {
         navigate("/sign-in", { replace: true });
       }
     })();
-  }, [fetchUser, navigate]);
+  }, [navigate]);
 
   return (
     <div
