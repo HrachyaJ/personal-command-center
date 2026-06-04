@@ -8,23 +8,12 @@ import {
 } from "../db/auth-schema.js";
 import { tasks } from "../db/schema.js";
 import { auth } from "../auth.js";
+import { fromNodeHeaders } from "better-auth/node"; // 👈 Native Better-Auth proxy helper
 
 const router = Router();
 
-function toHeaders(req: Request): Headers {
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (Array.isArray(value)) {
-      value.forEach((v) => headers.append(key, v));
-    } else if (value) {
-      headers.set(key, value);
-    }
-  }
-  return headers;
-}
-
 async function getSession(req: Request) {
-  return auth.api.getSession({ headers: toHeaders(req) });
+  return auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
 }
 
 router.get("/", async (req, res) => {
@@ -72,7 +61,7 @@ router.post("/password", async (req, res) => {
   try {
     await auth.api.changePassword({
       body: { currentPassword, newPassword, revokeOtherSessions: false },
-      headers: toHeaders(req),
+      headers: fromNodeHeaders(req.headers), // 👈 Updated here too
     });
     res.json({ success: true });
   } catch {
