@@ -19,6 +19,7 @@ export default function AuthCallback() {
         const urlToken = new URLSearchParams(window.location.search).get(
           "token",
         );
+        console.log("[AuthCallback] URL token:", urlToken);
         if (urlToken) {
           localStorage.setItem(TOKEN_KEY, urlToken);
           useUserStore.getState().fetch();
@@ -26,12 +27,18 @@ export default function AuthCallback() {
           return;
         }
 
-        // Case 2: use the session returned by getSession() directly.
-        // The `set-auth-token` header only comes on session *creation*, not reads,
-        // so we populate the user store from the session payload instead.
-        const { data: session } = await authClient.getSession();
+        // Case 2: call getSession and log everything
+        console.log("[AuthCallback] Calling getSession...");
+        const result = await authClient.getSession();
+        console.log(
+          "[AuthCallback] getSession result:",
+          JSON.stringify(result, null, 2),
+        );
+
+        const session = result?.data;
 
         if (session?.user) {
+          console.log("[AuthCallback] Got user:", session.user);
           useUserStore.setState({
             user: {
               id: session.user.id,
@@ -43,9 +50,14 @@ export default function AuthCallback() {
           });
           navigate("/dashboard", { replace: true });
         } else {
+          console.warn(
+            "[AuthCallback] No session/user — redirecting to sign-in. Full result:",
+            result,
+          );
           navigate("/sign-in", { replace: true });
         }
-      } catch {
+      } catch (err) {
+        console.error("[AuthCallback] Error:", err);
         navigate("/sign-in", { replace: true });
       }
     })();
@@ -59,6 +71,8 @@ export default function AuthCallback() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flexDirection: "column",
+        gap: "16px",
       }}
     >
       <div
@@ -71,6 +85,15 @@ export default function AuthCallback() {
           animation: "spin 0.7s linear infinite",
         }}
       />
+      <p
+        style={{
+          color: "#6b7280",
+          fontSize: "13px",
+          fontFamily: "DM Sans, sans-serif",
+        }}
+      >
+        Signing you in…
+      </p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
