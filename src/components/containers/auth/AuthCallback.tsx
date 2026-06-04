@@ -1,10 +1,18 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
-import { authClient } from "../../../lib/auth-client";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../../stores/useUserStore";
 
 const TOKEN_KEY = "focusflow:token";
+const REMEMBERED_USER_KEY = "focusflow:last_user";
 
+/**
+ * Landing page for Google OAuth redirect.
+ *
+ * better-auth appends ?token=<jwt> when redirectMetadata: true is set.
+ * In dev (http) the JWT plugin may not produce the token, but the session
+ * cookie is always set — so we save the token if present, then fetch the
+ * user via cookie auth regardless.
+ */
 export default function AuthCallback() {
   const navigate = useNavigate();
   const didRun = useRef(false);
@@ -15,8 +23,7 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // redirectMetadata:true puts the session token in ?token= after OAuth.
-        // The jwt plugin makes this a proper signed JWT.
+        // Read token from ?token= or #token= if present
         const queryToken = new URLSearchParams(window.location.search).get(
           "token",
         );
@@ -27,25 +34,27 @@ export default function AuthCallback() {
 
         if (urlToken) {
           localStorage.setItem(TOKEN_KEY, urlToken);
-          await useUserStore.getState().fetch();
-          if (useUserStore.getState().user) {
-            navigate("/dashboard", { replace: true });
-            return;
-          }
         }
 
-        // Fallback: try to get a fresh JWT via the jwt plugin endpoint
-        const { data: jwtData } = await authClient.token();
-        if (jwtData?.token) {
-          localStorage.setItem(TOKEN_KEY, jwtData.token);
-          await useUserStore.getState().fetch();
-          if (useUserStore.getState().user) {
-            navigate("/dashboard", { replace: true });
-            return;
-          }
-        }
+        // Fetch user — works via Bearer token if we got one above,
+        // or via the session cookie that OAuth always sets.
+        await useUserStore.getState().fetch();
+        const user = useUserStore.getState().user;
 
-        navigate("/sign-in", { replace: true });
+        if (user) {
+          // Cache for fast sign-in chip
+          localStorage.setItem(
+            REMEMBERED_USER_KEY,
+            JSON.stringify({
+              email: user.email,
+              name: user.name,
+              image: user.image ?? null,
+            }),
+          );
+          navigate("/dashboard", { replace: true });
+        } else {
+          navigate("/sign-in", { replace: true });
+        }
       } catch (err) {
         console.error("[AuthCallback]", err);
         navigate("/sign-in", { replace: true });

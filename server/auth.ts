@@ -5,6 +5,8 @@ import { bearer, jwt } from "better-auth/plugins";
 import * as authSchema from "./db/auth-schema.js";
 import { sql } from "drizzle-orm";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
   account: {
@@ -22,7 +24,7 @@ export const auth = betterAuth({
     set: async (key, value, ttl) => {
       const expiresAt = new Date(Date.now() + (ttl ?? 600) * 1000);
       await db.execute(
-        sql`INSERT INTO auth_state (key, value, expires_at) 
+        sql`INSERT INTO auth_state (key, value, expires_at)
             VALUES (${key}, ${value}, ${expiresAt})
             ON CONFLICT (key) DO UPDATE SET value = ${value}, expires_at = ${expiresAt}`,
       );
@@ -31,28 +33,27 @@ export const auth = betterAuth({
       await db.execute(sql`DELETE FROM auth_state WHERE key = ${key}`);
     },
   },
-  // Keep session config for email/password flows
   session: {
     cookieCache: {
       enabled: true,
       maxAge: 60 * 60 * 24 * 7,
     },
     cookieOptions: {
-      sameSite: "none",
-      secure: true,
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
       httpOnly: true,
     },
   },
   advanced: {
     cookiePrefix: "better-auth",
     crossSubdomainCookies: { enabled: false },
-    useSecureCookies: true,
+    useSecureCookies: isProd,
     defaultCookieAttributes: {
-      secure: true,
+      secure: isProd,
       httpOnly: true,
-      sameSite: "none",
+      sameSite: isProd ? "none" : "lax",
     },
-    redirectMetadata: true, // appends ?token= to the OAuth callbackURL
+    redirectMetadata: true,
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -72,8 +73,5 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "https://focus-flow-site.vercel.app",
   ],
-  plugins: [
-    bearer(), // validates Authorization: Bearer <token> on every request
-    jwt(), // issues a signed JWT after OAuth; works with redirectMetadata
-  ],
+  plugins: [bearer(), jwt()],
 });
