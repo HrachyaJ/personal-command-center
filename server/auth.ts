@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db.js";
-import { bearer } from "better-auth/plugins";
+import { bearer, jwt } from "better-auth/plugins";
 import * as authSchema from "./db/auth-schema.js";
 import { sql } from "drizzle-orm";
 
@@ -31,10 +31,11 @@ export const auth = betterAuth({
       await db.execute(sql`DELETE FROM auth_state WHERE key = ${key}`);
     },
   },
+  // Keep session config for email/password flows
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     },
     cookieOptions: {
       sameSite: "none",
@@ -44,15 +45,14 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: "better-auth",
-    crossSubdomainCookies: {
-      enabled: false,
-    },
+    crossSubdomainCookies: { enabled: false },
     useSecureCookies: true,
     defaultCookieAttributes: {
       secure: true,
       httpOnly: true,
-      sameSite: "none", // must be none — OAuth flow is initiated cross-origin (Vercel → Render)
+      sameSite: "none",
     },
+    redirectMetadata: true, // appends ?token= to the OAuth callbackURL
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -72,5 +72,8 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "https://focus-flow-site.vercel.app",
   ],
-  plugins: [bearer()],
+  plugins: [
+    bearer(), // validates Authorization: Bearer <token> on every request
+    jwt(), // issues a signed JWT after OAuth; works with redirectMetadata
+  ],
 });

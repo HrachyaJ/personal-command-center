@@ -15,49 +15,39 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Case 1: token passed as ?token= query param
-        const urlToken = new URLSearchParams(window.location.search).get(
+        // redirectMetadata:true puts the session token in ?token= after OAuth.
+        // The jwt plugin makes this a proper signed JWT.
+        const queryToken = new URLSearchParams(window.location.search).get(
           "token",
         );
-        console.log("[AuthCallback] URL token:", urlToken);
+        const hashToken = new URLSearchParams(
+          window.location.hash.slice(1),
+        ).get("token");
+        const urlToken = queryToken ?? hashToken;
+
         if (urlToken) {
           localStorage.setItem(TOKEN_KEY, urlToken);
-          useUserStore.getState().fetch();
-          navigate("/dashboard", { replace: true });
-          return;
+          await useUserStore.getState().fetch();
+          if (useUserStore.getState().user) {
+            navigate("/dashboard", { replace: true });
+            return;
+          }
         }
 
-        // Case 2: call getSession and log everything
-        console.log("[AuthCallback] Calling getSession...");
-        const result = await authClient.getSession();
-        console.log(
-          "[AuthCallback] getSession result:",
-          JSON.stringify(result, null, 2),
-        );
-
-        const session = result?.data;
-
-        if (session?.user) {
-          console.log("[AuthCallback] Got user:", session.user);
-          useUserStore.setState({
-            user: {
-              id: session.user.id,
-              name: session.user.name,
-              email: session.user.email,
-              image: session.user.image ?? null,
-            },
-            loading: false,
-          });
-          navigate("/dashboard", { replace: true });
-        } else {
-          console.warn(
-            "[AuthCallback] No session/user — redirecting to sign-in. Full result:",
-            result,
-          );
-          navigate("/sign-in", { replace: true });
+        // Fallback: try to get a fresh JWT via the jwt plugin endpoint
+        const { data: jwtData } = await authClient.token();
+        if (jwtData?.token) {
+          localStorage.setItem(TOKEN_KEY, jwtData.token);
+          await useUserStore.getState().fetch();
+          if (useUserStore.getState().user) {
+            navigate("/dashboard", { replace: true });
+            return;
+          }
         }
+
+        navigate("/sign-in", { replace: true });
       } catch (err) {
-        console.error("[AuthCallback] Error:", err);
+        console.error("[AuthCallback]", err);
         navigate("/sign-in", { replace: true });
       }
     })();

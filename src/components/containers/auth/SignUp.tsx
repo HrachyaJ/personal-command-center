@@ -8,6 +8,9 @@ import {
   authInputStyle,
 } from "./AuthLayout";
 import { GoogleButton } from "./GoogleButton";
+import { useUserStore } from "../../../stores/useUserStore";
+
+const TOKEN_KEY = "focusflow:token";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -23,14 +26,22 @@ export default function SignUp() {
     setLoading(true);
     setError(null);
 
-    const { error } = await signUp.email({ name, email, password });
+    const result = await signUp.email({ name, email, password });
 
-    if (error) {
-      setError(error.message ?? "Something went wrong. Please try again.");
+    if (result.error) {
+      setError(
+        result.error.message ?? "Something went wrong. Please try again.",
+      );
       setLoading(false);
-    } else {
-      navigate("/dashboard");
+      return;
     }
+
+    // Save token (onResponse hook also does this, but save explicitly as fallback)
+    const token = (result.data as any)?.token;
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+
+    await useUserStore.getState().fetch();
+    navigate("/dashboard");
   };
 
   const passwordStrength =
@@ -65,7 +76,6 @@ export default function SignUp() {
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "18px" }}
       >
-        {/* Name */}
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <label
             style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
@@ -85,7 +95,6 @@ export default function SignUp() {
           />
         </div>
 
-        {/* Email */}
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <label
             style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
@@ -105,7 +114,6 @@ export default function SignUp() {
           />
         </div>
 
-        {/* Password */}
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
           <label
             style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}
@@ -177,7 +185,6 @@ export default function SignUp() {
       <AuthDivider />
       <GoogleButton />
 
-      {/* Trust signals */}
       <div
         style={{
           display: "flex",

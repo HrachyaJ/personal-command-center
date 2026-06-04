@@ -5,7 +5,7 @@ import { Switch } from "../../ui/switch";
 import { Separator } from "../../ui/separator";
 import { useNavigate } from "react-router";
 import { signOut } from "../../../lib/auth-client";
-import { API_BASE } from "../../../lib/utils";
+import { API_BASE, authFetch } from "../../../lib/utils";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import { ChevronRight, Globe, LogOut, Trash2 } from "lucide-react";
@@ -37,18 +37,17 @@ export function PrivacyTab() {
 
   const handleLogout = async () => {
     await signOut();
-    localStorage.removeItem("focusflow:token");
-    clearUser();
+    clearUser(); // clears token + remembered user from localStorage
     navigate("/sign-in");
   };
 
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      const res = await fetch(`${API_BASE}/api/user/account`, {
+      // Use authFetch so the Bearer token is attached cross-origin
+      const res = await authFetch(`${API_BASE}/api/user/account`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ password: deletePassword }),
       });
       if (!res.ok) {
@@ -72,9 +71,8 @@ export function PrivacyTab() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/user/export`, {
-        credentials: "include",
-      });
+      // Use authFetch so the Bearer token is attached cross-origin
+      const res = await authFetch(`${API_BASE}/api/user/export`);
       if (!res.ok) {
         toast.error("Failed to export data");
         return;
@@ -230,7 +228,6 @@ export function PrivacyTab() {
             }}
             className="px-1 py-2"
           >
-            {/* Hidden username so browsers correctly associate this as a credential field */}
             <input
               type="text"
               autoComplete="username"

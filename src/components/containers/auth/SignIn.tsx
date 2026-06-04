@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { useUserStore } from "../../../stores/useUserStore";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
+const TOKEN_KEY = "focusflow:token";
 
 interface StoredUser {
   email: string;
@@ -62,41 +63,41 @@ export default function SignIn() {
     setError(null);
 
     const result = await signIn.email({ email, password });
-    const token = (result.data as any)?.token;
-    localStorage.setItem("focusflow:token", token ?? "");
-    await useUserStore.getState().fetch();
 
     if (result.error) {
       setError(
         result.error.message ?? "Something went wrong. Please try again.",
       );
       setLoading(false);
-    } else {
-      // Store the token for all subsequent API calls
-      const token = (result.data as any)?.token;
-      if (token) localStorage.setItem("focusflow:token", token);
+      return;
+    }
 
-      // Fetch profile while authenticated and cache for next visit
-      try {
-        const res = await authFetch(`${API_BASE}/api/user`);
-        if (res.ok) {
-          const user = await res.json();
-          const toStore: StoredUser = {
-            email,
-            name: user.name,
-            image: user.image ?? null,
-          };
-          localStorage.setItem(REMEMBERED_USER_KEY, JSON.stringify(toStore));
-        }
-      } catch {
-        // Non-fatal — store email only as fallback
+    // The onResponse hook in auth-client.ts saves the token automatically,
+    // but better-auth also returns it in the response data — save it here
+    // as a fallback in case the header wasn't present.
+    const token = (result.data as any)?.token;
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+
+    await useUserStore.getState().fetch();
+
+    // Cache user info for the fast sign-in chip on next visit
+    try {
+      const res = await authFetch(`${API_BASE}/api/user`);
+      if (res.ok) {
+        const user = await res.json();
         localStorage.setItem(
           REMEMBERED_USER_KEY,
-          JSON.stringify({ email, name: "", image: null }),
+          JSON.stringify({ email, name: user.name, image: user.image ?? null }),
         );
       }
-      navigate(from, { replace: true });
+    } catch {
+      localStorage.setItem(
+        REMEMBERED_USER_KEY,
+        JSON.stringify({ email, name: "", image: null }),
+      );
     }
+
+    navigate(from, { replace: true });
   };
 
   const handleNotMe = () => {
@@ -108,7 +109,6 @@ export default function SignIn() {
     localStorage.removeItem(REMEMBERED_USER_KEY);
   };
 
-  // Display name: prefer real name from DB, fall back to email prefix
   const displayName = storedUser?.name
     ? storedUser.name.split(" ")[0]
     : rememberedEmail
@@ -149,11 +149,9 @@ export default function SignIn() {
               {chipInitials}
             </AvatarFallback>
           </Avatar>
-
           <span style={{ fontSize: "13px", color: "#374151", fontWeight: 500 }}>
             {rememberedEmail}
           </span>
-
           <button
             className="not-me-btn"
             onClick={handleNotMe}
