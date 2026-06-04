@@ -73,6 +73,12 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const authState = pgTable("auth_state", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
 export const jwks = pgTable("jwks", {
   id: text("id").primaryKey(),
   publicKey: text("public_key").notNull(),
