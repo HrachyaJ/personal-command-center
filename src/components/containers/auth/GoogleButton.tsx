@@ -8,12 +8,12 @@ export function GoogleButton() {
         authClient.signIn.social({
           provider: "google",
           callbackURL: `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/jwt-redirect`,
-          fetchOptions: {
-            onSuccess: (ctx) => {
-              const token = ctx.response.headers.get("set-auth-token");
-              if (token) localStorage.setItem("focusflow:token", token);
-            },
-          },
+          // fetchOptions: {
+          //   onSuccess: (ctx) => {
+          //     const token = ctx.response.headers.get("set-auth-token");
+          //     if (token) localStorage.setItem("focusflow:token", token);
+          //   },
+          // },
         })
       }
       style={{

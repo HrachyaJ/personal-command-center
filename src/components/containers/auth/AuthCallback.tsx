@@ -24,19 +24,20 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Always clear the old token first
-        localStorage.removeItem(TOKEN_KEY);
-
         const queryToken = new URLSearchParams(window.location.search).get(
           "token",
         );
+
         if (queryToken) {
           localStorage.setItem(TOKEN_KEY, queryToken);
+        } else {
+          // Fallback if no token is passed in the URL string
+          console.warn("[AuthCallback] No token found in query params.");
         }
 
+        // Execute store fetch with the freshly set token
         await useUserStore.getState().fetch();
         const user = useUserStore.getState().user;
-        console.log("[AuthCallback] user:", user);
 
         if (user) {
           localStorage.setItem(
@@ -49,10 +50,13 @@ export default function AuthCallback() {
           );
           navigate("/dashboard", { replace: true });
         } else {
+          // If the fetch failed, clean up the bad token
+          localStorage.removeItem(TOKEN_KEY);
           navigate("/sign-in", { replace: true });
         }
       } catch (err) {
         console.error("[AuthCallback] error:", err);
+        localStorage.removeItem(TOKEN_KEY);
         navigate("/sign-in", { replace: true });
       }
     })();

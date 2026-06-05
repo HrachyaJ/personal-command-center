@@ -44,8 +44,9 @@ app.get("/api/auth/jwt-redirect", async (req: any, res) => {
     return res.redirect("https://focus-flow-site.vercel.app/sign-in");
   }
 
-  // Use the session token, not the JWT — bearer() plugin reads this
   const token = session.session.token;
+
+  // Make sure this path exactly matches your react-router route path for AuthCallback.tsx
   res.redirect(
     `https://focus-flow-site.vercel.app/auth/callback/google?token=${token}`,
   );
