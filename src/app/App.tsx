@@ -35,6 +35,8 @@ function AppLayout() {
   const location = useLocation();
   const { theme } = useThemeStore();
 
+  console.log("[App] current path:", location.pathname);
+
   useEffect(() => {
     const isCallback = location.pathname === "/auth/callback/google";
 
