@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../../stores/useUserStore";
+import { authClient } from "../../../lib/auth-client";
 
 const TOKEN_KEY = "focusflow:token";
 const REMEMBERED_USER_KEY = "focusflow:last_user";
@@ -23,28 +24,28 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Read token from ?token= or #token= if present
-        const queryToken = new URLSearchParams(window.location.search).get(
-          "token",
-        );
-        const hashToken = new URLSearchParams(
-          window.location.hash.slice(1),
-        ).get("token");
-        const urlToken = queryToken ?? hashToken;
+        // Exchange the session cookie for a JWT token explicitly
+        const { data } = await authClient.getSession();
 
-        if (urlToken) {
-          localStorage.setItem(TOKEN_KEY, urlToken);
+        if (data?.session) {
+          // Now request a JWT token
+          const tokenRes = await fetch(
+            `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
+            { credentials: "include" },
+          );
+
+          if (tokenRes.ok) {
+            const { token } = await tokenRes.json();
+            if (token) localStorage.setItem("focusflow:token", token);
+          }
         }
 
-        // Fetch user — works via Bearer token if we got one above,
-        // or via the session cookie that OAuth always sets.
         await useUserStore.getState().fetch();
         const user = useUserStore.getState().user;
 
         if (user) {
-          // Cache for fast sign-in chip
           localStorage.setItem(
-            REMEMBERED_USER_KEY,
+            "focusflow:last_user",
             JSON.stringify({
               email: user.email,
               name: user.name,
