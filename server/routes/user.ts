@@ -15,11 +15,11 @@ const router = Router();
 async function getSession(req: Request) {
   return auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
 }
-
 router.get("/", async (req, res) => {
+  console.log("Authorization header:", req.headers.authorization);
   const session = await getSession(req);
+  console.log("session:", session);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
-
   const [currentUser] = await db
     .select()
     .from(userTable)
