@@ -25,10 +25,16 @@ export default function AuthCallback() {
     (async () => {
       try {
         // Exchange the session cookie for a JWT token explicitly
+        console.log("[AuthCallback] step 1 - calling getSession");
+
         const { data } = await authClient.getSession();
+
+        console.log("[AuthCallback] step 2 - session data:", data);
 
         if (data?.session) {
           // Now request a JWT token
+          console.log("[AuthCallback] step 3 - fetching token");
+
           const tokenRes = await fetch(
             `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
             { credentials: "include" },
@@ -36,11 +42,17 @@ export default function AuthCallback() {
 
           if (tokenRes.ok) {
             const { token } = await tokenRes.json();
+            console.log("[AuthCallback] step 4 - received token:", token);
             if (token) localStorage.setItem("focusflow:token", token);
           }
         }
 
+        console.log("[AuthCallback] step 5 - fetching user");
         await useUserStore.getState().fetch();
+        console.log(
+          "[AuthCallback] step 6 - user:",
+          useUserStore.getState().user,
+        );
         const user = useUserStore.getState().user;
 
         if (user) {
@@ -57,7 +69,9 @@ export default function AuthCallback() {
           navigate("/sign-in", { replace: true });
         }
       } catch (err) {
-        console.error("[AuthCallback]", err);
+        console.error("[AuthCallback] error:", err);
+        console.error("[AuthCallback] error message:", (err as any)?.message);
+        console.error("[AuthCallback] error status:", (err as any)?.status);
         navigate("/sign-in", { replace: true });
       }
     })();
