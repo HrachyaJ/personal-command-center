@@ -35,14 +35,6 @@ app.use(
   }),
 );
 
-app.all("/api/auth/*path", toNodeHandler(auth));
-app.use(express.json());
-
-app.use("/api/tasks", taskRoutes);
-app.use("/api/goals", goalRoutes);
-app.use("/api/habits", habitRoutes);
-app.use("/api/user", userRouter);
-
 app.get("/api/auth/jwt-redirect", async (req: any, res) => {
   try {
     const session = await auth.api.getSession({
@@ -72,6 +64,14 @@ app.get("/api/auth/jwt-redirect", async (req: any, res) => {
     res.redirect("https://focus-flow-site.vercel.app/sign-in");
   }
 });
+
+app.all("/api/auth/*path", toNodeHandler(auth));
+app.use(express.json());
+
+app.use("/api/tasks", taskRoutes);
+app.use("/api/goals", goalRoutes);
+app.use("/api/habits", habitRoutes);
+app.use("/api/user", userRouter);
 
 // ── Shared helper: converts Express headers → Headers instance ────────────────
 
