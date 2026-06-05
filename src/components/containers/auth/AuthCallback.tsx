@@ -24,40 +24,27 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Exchange the session cookie for a JWT token explicitly
-        console.log("[AuthCallback] step 1 - calling getSession");
+        console.log("[AuthCallback] step 1 - fetching token");
+        const tokenRes = await fetch(
+          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
+          { credentials: "include" },
+        );
+        console.log("[AuthCallback] step 2 - token status:", tokenRes.status);
 
-        const { data } = await authClient.getSession();
-
-        console.log("[AuthCallback] step 2 - session data:", data);
-
-        if (data?.session) {
-          // Now request a JWT token
-          console.log("[AuthCallback] step 3 - fetching token");
-
-          const tokenRes = await fetch(
-            `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
-            { credentials: "include" },
-          );
-
-          if (tokenRes.ok) {
-            const { token } = await tokenRes.json();
-            console.log("[AuthCallback] step 4 - received token:", token);
-            if (token) localStorage.setItem("focusflow:token", token);
-          }
+        if (tokenRes.ok) {
+          const body = await tokenRes.json();
+          console.log("[AuthCallback] step 3 - token body:", body);
+          if (body.token) localStorage.setItem(TOKEN_KEY, body.token);
         }
 
-        console.log("[AuthCallback] step 5 - fetching user");
+        console.log("[AuthCallback] step 4 - fetching user");
         await useUserStore.getState().fetch();
-        console.log(
-          "[AuthCallback] step 6 - user:",
-          useUserStore.getState().user,
-        );
         const user = useUserStore.getState().user;
+        console.log("[AuthCallback] step 5 - user:", user);
 
         if (user) {
           localStorage.setItem(
-            "focusflow:last_user",
+            REMEMBERED_USER_KEY,
             JSON.stringify({
               email: user.email,
               name: user.name,
@@ -70,8 +57,6 @@ export default function AuthCallback() {
         }
       } catch (err) {
         console.error("[AuthCallback] error:", err);
-        console.error("[AuthCallback] error message:", (err as any)?.message);
-        console.error("[AuthCallback] error status:", (err as any)?.status);
         navigate("/sign-in", { replace: true });
       }
     })();
