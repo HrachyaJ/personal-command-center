@@ -35,13 +35,9 @@ function AppLayout() {
   const { theme } = useThemeStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("focusflow:token");
-    const isCallback = location.pathname === "/auth/callback"; // 🛑 Bug here
-
-    if (token) {
+    const isCallback = location.pathname === "/auth/callback/google";
+    if (!isCallback) {
       useUserStore.getState().fetch();
-    } else if (!isCallback) {
-      useUserStore.setState({ loading: false });
     }
   }, []);
 
