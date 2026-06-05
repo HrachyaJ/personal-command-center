@@ -7,7 +7,13 @@ export function GoogleButton() {
       onClick={() =>
         authClient.signIn.social({
           provider: "google",
-          callbackURL: `${import.meta.env.VITE_FRONTEND_URL ?? "http://localhost:5173"}/auth/callback/google`,
+          callbackURL: `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/jwt-redirect`,
+          fetchOptions: {
+            onSuccess: (ctx) => {
+              const token = ctx.response.headers.get("set-auth-token");
+              if (token) localStorage.setItem("focusflow:token", token);
+            },
+          },
         })
       }
       style={{

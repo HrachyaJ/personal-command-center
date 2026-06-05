@@ -43,6 +43,36 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 
+app.get("/api/auth/jwt-redirect", async (req: any, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session?.user) {
+      return res.redirect("https://focus-flow-site.vercel.app/sign-in");
+    }
+
+    // Get JWT token server-side where cookie works fine
+    const tokenResponse = await auth.api.getToken({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    const token = (tokenResponse as any)?.token;
+    const redirectBase =
+      "https://focus-flow-site.vercel.app/auth/callback/google";
+
+    if (token) {
+      res.redirect(`${redirectBase}?token=${token}`);
+    } else {
+      res.redirect("https://focus-flow-site.vercel.app/sign-in");
+    }
+  } catch (err) {
+    console.error("[jwt-redirect]", err);
+    res.redirect("https://focus-flow-site.vercel.app/sign-in");
+  }
+});
+
 // ── Shared helper: converts Express headers → Headers instance ────────────────
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────

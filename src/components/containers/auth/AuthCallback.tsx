@@ -24,23 +24,18 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        console.log("[AuthCallback] step 1 - fetching token");
-        const tokenRes = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
-          { credentials: "include" },
+        const queryToken = new URLSearchParams(window.location.search).get(
+          "token",
         );
-        console.log("[AuthCallback] step 2 - token status:", tokenRes.status);
+        console.log("[AuthCallback] token from URL:", queryToken);
 
-        if (tokenRes.ok) {
-          const body = await tokenRes.json();
-          console.log("[AuthCallback] step 3 - token body:", body);
-          if (body.token) localStorage.setItem(TOKEN_KEY, body.token);
+        if (queryToken) {
+          localStorage.setItem(TOKEN_KEY, queryToken);
         }
 
-        console.log("[AuthCallback] step 4 - fetching user");
         await useUserStore.getState().fetch();
         const user = useUserStore.getState().user;
-        console.log("[AuthCallback] step 5 - user:", user);
+        console.log("[AuthCallback] user:", user);
 
         if (user) {
           localStorage.setItem(

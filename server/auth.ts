@@ -74,5 +74,17 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "https://focus-flow-site.vercel.app",
   ],
-  plugins: [bearer(), jwt()],
+  plugins: [
+    bearer(),
+    jwt({
+      jwt: {
+        expirationTime: "7d",
+      },
+      schema: {
+        jwks: {
+          modelName: "jwks",
+        },
+      },
+    }),
+  ],
 });
