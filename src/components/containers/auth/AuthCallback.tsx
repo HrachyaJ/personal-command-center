@@ -24,11 +24,12 @@ export default function AuthCallback() {
 
     (async () => {
       try {
+        // Always clear the old token first
+        localStorage.removeItem(TOKEN_KEY);
+
         const queryToken = new URLSearchParams(window.location.search).get(
           "token",
         );
-        console.log("[AuthCallback] token from URL:", queryToken);
-
         if (queryToken) {
           localStorage.setItem(TOKEN_KEY, queryToken);
         }
