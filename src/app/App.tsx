@@ -21,6 +21,7 @@ import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";
 import { useDensityStore } from "../stores/useDensityStore";
 import { Toaster } from "../components/ui/sonner";
+import { API_BASE } from "../lib/utils";
 
 const SIDEBAR_ROUTES = [
   "/dashboard",
@@ -36,9 +37,15 @@ function AppLayout() {
 
   useEffect(() => {
     const isCallback = location.pathname === "/auth/callback/google";
-    if (!isCallback) {
-      useUserStore.getState().fetch();
-    }
+
+    // Wake the server first, then fetch user
+    fetch(`${API_BASE}/health`)
+      .catch(() => {})
+      .finally(() => {
+        if (!isCallback) {
+          useUserStore.getState().fetch();
+        }
+      });
   }, []);
 
   document.title = "FocusFlow";
