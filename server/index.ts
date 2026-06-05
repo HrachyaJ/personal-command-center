@@ -16,7 +16,6 @@ import { v2 as cloudinary } from "cloudinary";
 import { session as sessionTable } from "./db/auth-schema.js";
 import streamifier from "streamifier";
 import PDFDocument from "pdfkit";
-import type { Request } from "express";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -170,7 +169,7 @@ app.get("/api/ml-data-internal", async (req, res) => {
   }
 });
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/api/ml-data", async (req: any, res) => {
   try {
