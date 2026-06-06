@@ -105,6 +105,28 @@ router.delete("/:id", async (req, res) => {
   res.status(204).send();
 });
 
+/** Calculates current streak from a list of completion date strings (YYYY-MM-DD). */
+function calcStreak(completedDates: string[]): number {
+  const dates = [...completedDates].sort().reverse();
+  let streak = 0;
+  let current = new Date();
+  current.setHours(0, 0, 0, 0);
+
+  for (const d of dates) {
+    const day = new Date(d + "T00:00");
+    day.setHours(0, 0, 0, 0);
+    const diff = Math.round((current.getTime() - day.getTime()) / 86400000);
+    if (diff === 0 || diff === 1) {
+      streak++;
+      current = day;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
 router.post("/:id/complete", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -145,27 +167,8 @@ router.post("/:id/complete", async (req, res) => {
     .from(habitCompletions)
     .where(eq(habitCompletions.habitId, req.params.id));
 
-  const dates = allCompletions
-    .map((c) => c.completedDate)
-    .sort()
-    .reverse();
-
-  let streak = 0;
-  let current = new Date();
-  current.setHours(0, 0, 0, 0);
-
-  for (const d of dates) {
-    const day = new Date(d);
-    day.setHours(0, 0, 0, 0);
-    const diff = Math.round((current.getTime() - day.getTime()) / 86400000);
-    if (diff === 0 || diff === 1) {
-      streak++;
-      current = day;
-    } else {
-      break;
-    }
-  }
-
+  const dates = allCompletions.map((c) => c.completedDate);
+  const streak = calcStreak(dates);
   const newLongest = Math.max(streak, habit.longestStreak ?? 0);
 
   const [updated] = await db
@@ -174,7 +177,7 @@ router.post("/:id/complete", async (req, res) => {
     .where(eq(habits.id, req.params.id))
     .returning();
 
-  res.json({ ...updated, completedDates: dates });
+  res.json({ ...updated, completedDates: dates.sort().reverse() });
 });
 
 router.delete("/:id/complete", async (req, res) => {
@@ -183,6 +186,15 @@ router.delete("/:id/complete", async (req, res) => {
 
   const { date } = req.body;
   if (!date) return res.status(400).json({ error: "Date is required" });
+
+  const [habit] = await db
+    .select()
+    .from(habits)
+    .where(
+      and(eq(habits.id, req.params.id), eq(habits.userId, session.user.id)),
+    );
+
+  if (!habit) return res.status(404).json({ error: "Habit not found" });
 
   await db
     .delete(habitCompletions)
@@ -193,7 +205,21 @@ router.delete("/:id/complete", async (req, res) => {
       ),
     );
 
-  res.status(204).send();
+  const remaining = await db
+    .select()
+    .from(habitCompletions)
+    .where(eq(habitCompletions.habitId, req.params.id));
+
+  const dates = remaining.map((c) => c.completedDate);
+  const streak = calcStreak(dates);
+
+  const [updated] = await db
+    .update(habits)
+    .set({ streak })
+    .where(eq(habits.id, req.params.id))
+    .returning();
+
+  res.json({ ...updated, completedDates: dates.sort().reverse() });
 });
 
 export default router;

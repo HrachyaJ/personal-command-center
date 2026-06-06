@@ -76,12 +76,18 @@ export const formatDate = (dateStr: string | null) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
+// Alias kept for any callers using the old name — delegates to formatDate
+export const formatShortDate = formatDate;
+
 export const isOverdue = (dateStr: string | null, completed: boolean) => {
   if (!dateStr || completed) return false;
   const d = parseDate(dateStr);
   if (isNaN(d.getTime())) return false;
   return d < new Date();
 };
+
+// Alias kept for any callers using the old name — delegates to isOverdue
+export const isTaskOverdue = isOverdue;
 
 export const CATEGORIES: {
   value: HabitCategory;
@@ -101,19 +107,6 @@ export const PRIORITY_DOT: Record<string, string> = {
   medium: "bg-amber-400",
   low: "bg-secondary",
 };
-
-export function formatShortDate(d: string | null) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-export function isTaskOverdue(dateStr: string | null, completed: boolean) {
-  if (!dateStr || completed) return false;
-  return new Date(dateStr) < new Date();
-}
 
 export const getStatusColor = (status: string) => {
   switch (status) {
@@ -202,3 +195,12 @@ export function effortColors(effort: "easy" | "moderate" | "hard") {
       return "bg-red-100 text-red-700 border-red-200";
   }
 }
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  health: "🩺 Health",
+  fitness: "💪 Fitness",
+  mindfulness: "🧘 Mindfulness",
+  learning: "📚 Learning",
+  productivity: "⚡ Productivity",
+  other: "✨ Other",
+};

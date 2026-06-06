@@ -9,7 +9,8 @@ import { authFetch } from "../lib/utils";
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/habits`;
 
 function getTodayISO(): string {
-  return new Date().toISOString().split("T")[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function useHabits() {

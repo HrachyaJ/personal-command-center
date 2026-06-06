@@ -55,7 +55,7 @@ export default function Goals() {
     addGoal({
       title: newGoal.title,
       description: newGoal.description,
-      targetValue: parseInt(newGoal.targetValue),
+      targetValue: parseInt(newGoal.targetValue, 10),
       unit: newGoal.unit,
       deadline: newGoal.deadline || undefined,
     });

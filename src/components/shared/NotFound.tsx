@@ -1,13 +1,6 @@
 import { Brain } from "lucide-react";
-import { useEffect, useState } from "react";
 
 export default function NotFound() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <>
       <link

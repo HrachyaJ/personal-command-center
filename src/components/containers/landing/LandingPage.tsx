@@ -13,7 +13,6 @@ import { authClient } from "../../../lib/auth-client";
 
 export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [LoggedIn, setLoggedIn] = useState(false);
   const scrollY = useScrollY();
   const ctaSection = useInView();
   const statsSection = useInView();
@@ -26,13 +25,6 @@ export default function LandingPage() {
       4000,
     );
     return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setLoggedIn(true);
-    }
   }, []);
 
   return (
@@ -186,11 +178,7 @@ export default function LandingPage() {
                 justifyContent: "center",
               }}
             >
-              <span
-                style={{ color: "#fff", fontSize: "14px", fontWeight: 700 }}
-              >
-                <Brain className="text-primary-foreground text-sm" />
-              </span>
+              <Brain size={16} color="#fff" />
             </div>
             <span
               style={{

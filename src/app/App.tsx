@@ -48,9 +48,8 @@ function AppLayout() {
           useUserStore.getState().fetch();
         }
       });
+    document.title = "FocusFlow";
   }, []);
-
-  document.title = "FocusFlow";
 
   useEffect(() => {
     const root = document.documentElement;

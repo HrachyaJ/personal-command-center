@@ -84,7 +84,9 @@ router.patch("/:id", async (req, res) => {
       ...(targetValue !== undefined && { targetValue }),
       ...(currentValue !== undefined && { currentValue }),
       ...(unit !== undefined && { unit }),
-      ...(deadline !== undefined && { deadline: new Date(deadline) }),
+      ...(deadline !== undefined && {
+        deadline: deadline ? new Date(deadline) : null,
+      }),
       ...(status !== undefined && { status }),
     })
     .where(and(eq(goals.id, req.params.id), eq(goals.userId, session.user.id)))

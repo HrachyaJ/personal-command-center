@@ -25,14 +25,6 @@ const Tasks = () => {
 
   const stats = getStats();
 
-  function handleAdd(data: TaskFormData) {
-    addTask(data);
-  }
-
-  function handleEdit(id: string, data: Partial<TaskFormData>) {
-    editTask(id, data);
-  }
-
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
       {/* Header */}
@@ -74,7 +66,7 @@ const Tasks = () => {
       {/* Task Panel */}
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-muted">
-          <TaskInput onAdd={handleAdd} />
+          <TaskInput onAdd={addTask} />
         </div>
 
         <div className="px-3 sm:px-4 py-2">
@@ -95,7 +87,7 @@ const Tasks = () => {
               onToggle={toggleTask}
               onClearCompleted={clearCompleted}
               onCountCompleted={countCompleted}
-              onEdit={handleEdit}
+              onEdit={editTask}
             />
           )}
         </div>

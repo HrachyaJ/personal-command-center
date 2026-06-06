@@ -240,7 +240,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 onChange={(e) =>
                   set(
                     "estimatedMinutes",
-                    e.target.value === "" ? null : parseInt(e.target.value),
+                    e.target.value === "" ? null : parseInt(e.target.value, 10),
                   )
                 }
                 className="bg-card border-border text-xs h-8"

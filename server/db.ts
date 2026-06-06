@@ -1,7 +1,10 @@
 import * as authSchema from "./db/auth-schema.js";
 import * as appSchema from "./db/schema.js";
+import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-let db: any;
+type AppSchema = typeof authSchema & typeof appSchema;
+let db: NeonHttpDatabase<AppSchema> | NodePgDatabase<AppSchema>;
 
 if (process.env.NODE_ENV === "production") {
   const { neon } = await import("@neondatabase/serverless");

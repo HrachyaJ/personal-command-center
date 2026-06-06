@@ -28,7 +28,7 @@ export const GoalCard = ({
   );
 
   function submitProgress() {
-    const value = parseInt(progressInput);
+    const value = parseInt(progressInput, 10);
     if (value > 0) {
       onUpdateProgress(goal.id, value);
       setProgressInput("");
@@ -107,7 +107,7 @@ export const GoalCard = ({
                 size="sm"
                 variant="outline"
                 onClick={submitProgress}
-                disabled={!progressInput || parseInt(progressInput) <= 0}
+                disabled={!progressInput || parseInt(progressInput, 10) <= 0}
                 className="cursor-pointer h-8 px-2"
                 aria-label="Add progress"
               >

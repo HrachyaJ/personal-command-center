@@ -229,7 +229,7 @@ export default function TaskItem({
                   onValueChange={(v) => set("priority", v as TaskPriority)}
                 >
                   <SelectTrigger className="h-7 text-xs bg-card border-border cursor-pointer">
-                    <SelectValue placeholder="None" />
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
@@ -317,7 +317,9 @@ export default function TaskItem({
                   onChange={(e) =>
                     set(
                       "estimatedMinutes",
-                      e.target.value === "" ? null : parseInt(e.target.value),
+                      e.target.value === ""
+                        ? null
+                        : parseInt(e.target.value, 10),
                     )
                   }
                   className="h-7 text-xs bg-card border-border"

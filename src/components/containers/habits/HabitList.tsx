@@ -1,23 +1,7 @@
 import { useState } from "react";
 import type { Habit } from "../../../types/habit.types";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  health: "🩺 Health",
-  fitness: "💪 Fitness",
-  mindfulness: "🧘 Mindfulness",
-  learning: "📚 Learning",
-  productivity: "⚡ Productivity",
-  other: "✨ Other",
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  health: "#22c55e",
-  fitness: "#f97316",
-  mindfulness: "#a855f7",
-  learning: "#3b82f6",
-  productivity: "#eab308",
-  other: "#6b7280",
-};
+import { CATEGORY_LABELS } from "../../../lib/utils";
+import { CATEGORY_COLORS } from "../../../lib/theme";
 
 interface HabitListProps {
   habits: Habit[];

@@ -77,14 +77,9 @@ export function useGoals() {
   }
 
   async function updateProgress(goalId: string, addValue: number) {
-    let currentValue: number | undefined;
-    setGoals((prev) => {
-      const goal = prev.find((g) => g.id === goalId);
-      currentValue = goal?.currentValue;
-      return prev;
-    });
-    if (currentValue === undefined) return;
-    await updateGoal(goalId, { currentValue: currentValue + addValue });
+    const goal = goals.find((g) => g.id === goalId);
+    if (!goal) return;
+    await updateGoal(goalId, { currentValue: goal.currentValue + addValue });
   }
 
   async function setProgress(goalId: string, value: number) {

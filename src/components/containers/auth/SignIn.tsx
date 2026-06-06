@@ -81,19 +81,16 @@ export default function SignIn() {
     await useUserStore.getState().fetch();
 
     // Cache user info for the fast sign-in chip on next visit
-    try {
-      const res = await authFetch(`${API_BASE}/api/user`);
-      if (res.ok) {
-        const user = await res.json();
-        localStorage.setItem(
-          REMEMBERED_USER_KEY,
-          JSON.stringify({ email, name: user.name, image: user.image ?? null }),
-        );
-      }
-    } catch {
+    const user = useUserStore.getState().user;
+
+    if (user) {
       localStorage.setItem(
         REMEMBERED_USER_KEY,
-        JSON.stringify({ email, name: "", image: null }),
+        JSON.stringify({
+          email,
+          name: user.name,
+          image: user.image ?? null,
+        }),
       );
     }
 
@@ -197,7 +194,6 @@ export default function SignIn() {
             flexDirection: "column",
             gap: "6px",
           }}
-          aria-hidden={fastSignInMode || undefined}
         >
           <label
             style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}

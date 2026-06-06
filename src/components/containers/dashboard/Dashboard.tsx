@@ -37,6 +37,8 @@ import { useUserStore } from "../../../stores/useUserStore";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import Insights from "../../shared/Insights";
 
+const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
 export default function Dashboard() {
   const {
     tasks,
@@ -64,8 +66,6 @@ export default function Dashboard() {
 
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || userLoading;
-
-  const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<

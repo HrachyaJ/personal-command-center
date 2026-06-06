@@ -16,9 +16,7 @@ async function getSession(req: Request) {
   return auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
 }
 router.get("/", async (req, res) => {
-  console.log("Authorization header:", req.headers.authorization);
   const session = await getSession(req);
-  console.log("session:", session);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
   const [currentUser] = await db
     .select()
@@ -96,10 +94,12 @@ router.delete("/account", async (req, res) => {
 
   const userId = session.user.id;
 
-  await db.delete(tasks).where(eq(tasks.userId, userId));
-  await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
-  await db.delete(accountTable).where(eq(accountTable.userId, userId));
-  await db.delete(userTable).where(eq(userTable.id, userId));
+  await db.transaction(async (tx) => {
+    await tx.delete(tasks).where(eq(tasks.userId, userId));
+    await tx.delete(sessionTable).where(eq(sessionTable.userId, userId));
+    await tx.delete(accountTable).where(eq(accountTable.userId, userId));
+    await tx.delete(userTable).where(eq(userTable.id, userId));
+  });
 
   res.json({ ok: true });
 });
