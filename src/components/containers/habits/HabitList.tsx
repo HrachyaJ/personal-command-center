@@ -6,7 +6,7 @@ import { CATEGORY_COLORS } from "../../../lib/theme";
 interface HabitListProps {
   habits: Habit[];
   onToggle: (id: string) => void;
-  onRemove: (id: string) => void;
+  onRemove: (id: string) => Promise<void>;
   isCompletedToday: (habit: Habit) => boolean;
 }
 
@@ -17,6 +17,7 @@ export default function HabitList({
   isCompletedToday,
 }: HabitListProps) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null); // add this
 
   if (habits.length === 0) {
     return (
@@ -37,6 +38,19 @@ export default function HabitList({
   return (
     <div className="divide-y divide-border">
       {habits.map((habit) => {
+        // Add this block at the top:
+        if (deletingId === habit.id) {
+          return (
+            <div key={habit.id} className="flex items-center gap-4 py-4 px-1">
+              <div className="shrink-0 w-6 h-6 rounded-full bg-muted animate-pulse" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                <div className="h-2.5 w-20 bg-muted animate-pulse rounded" />
+              </div>
+            </div>
+          );
+        }
+
         const done = isCompletedToday(habit);
         const color =
           habit.color || CATEGORY_COLORS[habit.category] || "#3b82f6";
@@ -108,13 +122,15 @@ export default function HabitList({
             </div>
 
             {/* Delete button */}
-            <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               {confirmDelete === habit.id ? (
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => {
-                      onRemove(habit.id);
+                    onClick={async () => {
+                      setDeletingId(habit.id);
                       setConfirmDelete(null);
+                      await onRemove(habit.id);
+                      setDeletingId(null);
                     }}
                     className="text-xs text-red-500 hover:text-red-700 font-medium"
                   >

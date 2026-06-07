@@ -21,21 +21,11 @@ import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";
 import { useDensityStore } from "../stores/useDensityStore";
 import { Toaster } from "../components/ui/sonner";
-import { API_BASE } from "../lib/utils";
-
-const SIDEBAR_ROUTES = [
-  "/dashboard",
-  "/tasks",
-  "/habits",
-  "/goals",
-  "/ai-coach",
-];
+import { API_BASE, SIDEBAR_ROUTES } from "../lib/utils";
 
 function AppLayout() {
   const location = useLocation();
   const { theme } = useThemeStore();
-
-  console.log("[App] current path:", location.pathname);
 
   useEffect(() => {
     const isCallback = location.pathname === "/auth/callback/google";

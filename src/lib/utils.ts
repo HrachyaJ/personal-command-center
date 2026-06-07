@@ -10,6 +10,50 @@ export function cn(...inputs: ClassValue[]) {
 
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
+// For the future the dynamic subtitle could be enhanced to pull from a larger set of phrases or even use an AI service to generate personalized messages based on user data and time of day.
+export function getDynamicMotivationalSubtitle(): string {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 12) {
+    // 5:00 AM - 11:59 AM
+    const morningPhrases = [
+      "Ready to tackle your goals today?",
+      "The morning is yours. Let's make it count.",
+      "Win the morning, win the day. What's first?",
+      "Fresh start, clear focus. Let's build momentum.",
+    ];
+    return morningPhrases[hour % morningPhrases.length];
+  } else if (hour >= 12 && hour < 17) {
+    // 12:00 PM - 4:59 PM
+    const afternoonPhrases = [
+      "Keep the momentum going!",
+      "Stay focused, you're making solid progress.",
+      "One task at a time. You've got this handled.",
+      "Midday check-in: channel your energy effectively.",
+    ];
+    return afternoonPhrases[hour % afternoonPhrases.length];
+  } else if (hour >= 17 && hour < 22) {
+    // 5:00 PM - 9:59 PM
+    const eveningPhrases = [
+      "Let's finish the day strong.",
+      "Reviewing your wins? Excellent discipline.",
+      "Bringing order to the evening. Keep it up.",
+      "Time to tie up loose ends and wrap up gracefully.",
+    ];
+    return eveningPhrases[hour % eveningPhrases.length];
+  } else {
+    // 10:00 PM - 4:59 AM
+    const nightPhrases = [
+      "Preparing the ground for tomorrow?",
+      "Late-night focus hits differently. Stay steady.",
+      "Wrap up your thoughts and clear your mind.",
+      "Rest is part of the discipline. Don't overdo it.",
+    ];
+    return nightPhrases[hour % nightPhrases.length];
+  }
+}
+
+// For the fu
 export function getTimeOfDayGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Good Morning";
@@ -204,3 +248,11 @@ export const CATEGORY_LABELS: Record<string, string> = {
   productivity: "⚡ Productivity",
   other: "✨ Other",
 };
+
+export const SIDEBAR_ROUTES = [
+  "/dashboard",
+  "/tasks",
+  "/habits",
+  "/goals",
+  "/ai-coach",
+];

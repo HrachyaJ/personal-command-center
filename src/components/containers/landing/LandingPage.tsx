@@ -27,6 +27,17 @@ export default function LandingPage() {
     return () => clearInterval(id);
   }, []);
 
+  const skeletonStyle = (w: number, h: number): React.CSSProperties => ({
+    width: w,
+    height: h,
+    borderRadius: "8px",
+    background:
+      "linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%)",
+    backgroundSize: "400px 100%",
+    animation: "skeleton-shimmer 1.4s infinite linear",
+    flexShrink: 0,
+  });
+
   return (
     <>
       <link
@@ -44,6 +55,10 @@ export default function LandingPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        @keyframes skeleton-shimmer {
+          0%   { background-position: -400px 0; }
+          100% { background-position:  400px 0; }
+        }
         .hero-badge   { animation: fadeUp 0.6s ease 0.10s both; }
         .hero-h1      { animation: fadeUp 0.6s ease 0.25s both; }
         .hero-sub     { animation: fadeUp 0.6s ease 0.40s both; }
@@ -69,16 +84,12 @@ export default function LandingPage() {
         .feature-card-hover:hover { border-color: rgba(37,99,235,0.2) !important; box-shadow: 0 8px 32px rgba(37,99,235,0.1) !important; transform: translateY(-2px); transition: all 0.2s ease; }
 
         /* ── Responsive ── */
-
-        /* Nav: hide text links on mobile, shrink padding */
         @media (max-width: 640px) {
           .nav-links { display: none !important; }
           .nav-auth-full { display: none !important; }
           .nav-auth-compact { display: flex !important; }
           .nav-inner { padding: 0 20px !important; }
         }
-
-        /* Hero: single column on mobile */
         @media (max-width: 768px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
@@ -93,38 +104,15 @@ export default function LandingPage() {
           .hero-section { min-height: auto !important; padding: 100px 0 60px !important; }
           .hero-inner { padding: 0 20px !important; }
         }
-
-        /* Stats: 2 columns on mobile */
         @media (max-width: 640px) {
-          .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 24px !important;
-          }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; }
           .stats-section { padding: 48px 20px !important; }
-        }
-
-        /* Features: 1 column on mobile */
-        @media (max-width: 640px) {
-          .features-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .features-grid { grid-template-columns: 1fr !important; }
           .features-section { padding: 64px 20px !important; }
-        }
-
-        /* Testimonials */
-        @media (max-width: 640px) {
           .testimonials-section { padding: 64px 20px !important; }
-        }
-
-        /* CTA section */
-        @media (max-width: 640px) {
           .cta-section { padding: 64px 20px !important; }
           .cta-box { padding: 40px 24px !important; }
           .cta-btn { width: 100%; text-align: center; }
-        }
-
-        /* Footer */
-        @media (max-width: 640px) {
           .footer-inner {
             flex-direction: column !important;
             gap: 16px !important;
@@ -143,7 +131,7 @@ export default function LandingPage() {
           overflowX: "hidden",
         }}
       >
-        {/* NAV */}
+        {/* NAV — grid layout locks all 3 columns so nothing shifts */}
         <nav
           style={{
             position: "fixed",
@@ -152,9 +140,9 @@ export default function LandingPage() {
             right: 0,
             zIndex: 100,
             height: "64px",
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
             alignItems: "center",
-            justifyContent: "space-between",
             background: scrollY > 40 ? "rgba(248,250,255,0.92)" : "transparent",
             borderBottom:
               scrollY > 40
@@ -166,6 +154,7 @@ export default function LandingPage() {
           }}
           className="nav-inner"
         >
+          {/* Logo — left column */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div
               style={{
@@ -192,7 +181,7 @@ export default function LandingPage() {
             </span>
           </div>
 
-          {/* Desktop nav links */}
+          {/* Nav links — center column */}
           <div className="nav-links" style={{ display: "flex", gap: "32px" }}>
             <a href="#features" className="nav-link-light">
               Features
@@ -202,70 +191,142 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* Desktop auth buttons */}
-          {isPending ? null : isLoggedIn ? (
-            <div className="nav-auth-full">
-              <a
-                href="/dashboard"
-                className="btn-primary-light"
-                style={{ padding: "9px 20px", fontSize: "14px" }}
-              >
-                Dashboard →
-              </a>
-            </div>
-          ) : (
+          {/* Auth — right column. Always rendered, skeleton + buttons layered via opacity */}
+          <div
+            className="nav-auth-full"
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              position: "relative",
+              /* Reserve space for the widest state (sign-in + get started) */
+              minWidth: "220px",
+              height: "32px",
+            }}
+          >
+            {/* Skeleton layer — visible while pending */}
             <div
-              className="nav-auth-full"
-              style={{ display: "flex", gap: "12px" }}
+              style={{
+                position: "absolute",
+                right: 0,
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+                opacity: isPending ? 1 : 0,
+                transition: "opacity 0.15s ease",
+                pointerEvents: "none",
+              }}
             >
-              <a
-                href="/sign-in"
-                className="btn-ghost-light"
-                style={{ padding: "9px 20px", fontSize: "14px" }}
-              >
-                Sign in
-              </a>
-              <a
-                href="/sign-up"
-                className="btn-primary-light"
-                style={{ padding: "9px 20px", fontSize: "14px" }}
-              >
-                Get started free
-              </a>
+              <div style={skeletonStyle(72, 32)} />
+              <div style={skeletonStyle(120, 32)} />
             </div>
-          )}
 
-          {/* Mobile compact auth — shown only on small screens via CSS */}
+            {/* Real buttons — fade in once resolved */}
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+                opacity: isPending ? 0 : 1,
+                transition: "opacity 0.15s ease",
+              }}
+            >
+              {isLoggedIn ? (
+                <a
+                  href="/dashboard"
+                  className="btn-primary-light"
+                  style={{ padding: "9px 20px", fontSize: "14px" }}
+                >
+                  Dashboard →
+                </a>
+              ) : (
+                <>
+                  <a
+                    href="/sign-in"
+                    className="btn-ghost-light"
+                    style={{ padding: "9px 20px", fontSize: "14px" }}
+                  >
+                    Sign in
+                  </a>
+                  <a
+                    href="/sign-up"
+                    className="btn-primary-light"
+                    style={{ padding: "9px 20px", fontSize: "14px" }}
+                  >
+                    Get started free
+                  </a>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile compact auth */}
           <div
             className="nav-auth-compact"
-            style={{ display: "none", gap: "8px" }}
+            style={{
+              display: "none",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              position: "relative",
+              minWidth: "130px",
+              height: "30px",
+            }}
           >
-            {isLoggedIn ? (
-              <a
-                href="/dashboard"
-                className="btn-primary-light"
-                style={{ padding: "8px 14px", fontSize: "13px" }}
-              >
-                Dashboard →
-              </a>
-            ) : (
-              <>
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+                opacity: isPending ? 1 : 0,
+                transition: "opacity 0.15s ease",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={skeletonStyle(60, 30)} />
+              <div style={skeletonStyle(62, 30)} />
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+                opacity: isPending ? 0 : 1,
+                transition: "opacity 0.15s ease",
+              }}
+            >
+              {isLoggedIn ? (
                 <a
-                  href="/sign-in"
-                  className="btn-ghost-light"
-                  style={{ padding: "8px 14px", fontSize: "13px" }}
-                >
-                  Sign in
-                </a>
-                <a
-                  href="/sign-up"
+                  href="/dashboard"
                   className="btn-primary-light"
                   style={{ padding: "8px 14px", fontSize: "13px" }}
                 >
-                  Sign up
+                  Dashboard →
                 </a>
-              </>
-            )}
+              ) : (
+                <>
+                  <a
+                    href="/sign-in"
+                    className="btn-ghost-light"
+                    style={{ padding: "8px 14px", fontSize: "13px" }}
+                  >
+                    Sign in
+                  </a>
+                  <a
+                    href="/sign-up"
+                    className="btn-primary-light"
+                    style={{ padding: "8px 14px", fontSize: "13px" }}
+                  >
+                    Sign up
+                  </a>
+                </>
+              )}
+            </div>
           </div>
         </nav>
 

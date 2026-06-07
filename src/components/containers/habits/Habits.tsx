@@ -105,7 +105,7 @@ export default function Habits() {
       {/* Main content — stacked on mobile, side-by-side on lg+ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Habits list — full width on mobile, 2/3 on lg */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl shadow-sm">
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl shadow-sm self-start pb-2">
           {/* Add habit bar */}
           <div className="flex items-center gap-3 p-3 sm:p-4 border-b border-border">
             {!showForm ? (
@@ -229,7 +229,10 @@ export default function Habits() {
             {loading ? (
               <WeeklyChartSkeleton />
             ) : (
-              <div className="flex items-end gap-1.5 h-16">
+              <div
+                className="flex items-end gap-1.5"
+                style={{ height: `${Math.max(64, totalHabits * 12)}px` }}
+              >
                 {weeklyData.map(({ day, count, pct }) => {
                   const today = last7Days[last7Days.length - 1];
                   const isToday = day === today;

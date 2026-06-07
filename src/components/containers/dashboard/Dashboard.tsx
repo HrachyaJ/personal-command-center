@@ -18,6 +18,7 @@ import { SettingsDialog } from "../settings/SettingsDialog";
 import {
   CATEGORY_ICONS,
   formatShortDate,
+  getDynamicMotivationalSubtitle,
   getMomentumLabel,
   getTimeOfDayGreeting,
   isTaskOverdue,
@@ -172,7 +173,7 @@ export default function Dashboard() {
                   {getTimeOfDayGreeting()}, {user?.name}
                 </h2>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Ready to tackle your goals today?
+                  {getDynamicMotivationalSubtitle()}
                 </p>
               </>
             )}

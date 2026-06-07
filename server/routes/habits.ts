@@ -37,12 +37,19 @@ router.get("/", async (req, res) => {
     .from(habitCompletions)
     .where(eq(habitCompletions.userId, session.user.id));
 
-  const result = userHabits.map((habit) => ({
-    ...habit,
-    completedDates: completions
+  const result = userHabits.map((habit) => {
+    const completedDates = completions
       .filter((c) => c.habitId === habit.id)
-      .map((c) => c.completedDate),
-  }));
+      .map((c) => c.completedDate);
+
+    const streak = calcStreak(completedDates);
+
+    return {
+      ...habit,
+      streak,
+      completedDates,
+    };
+  });
 
   res.json(result);
 });
@@ -107,10 +114,25 @@ router.delete("/:id", async (req, res) => {
 
 /** Calculates current streak from a list of completion date strings (YYYY-MM-DD). */
 function calcStreak(completedDates: string[]): number {
-  const dates = [...completedDates].sort().reverse();
+  if (completedDates.length === 0) return 0;
+
+  const dates = [...completedDates].sort().reverse(); // most recent first
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const mostRecent = new Date(dates[0] + "T00:00");
+  mostRecent.setHours(0, 0, 0, 0);
+
+  const diffFromToday = Math.round(
+    (today.getTime() - mostRecent.getTime()) / 86400000,
+  );
+
+  // If the last completion was more than 1 day ago, streak is broken
+  if (diffFromToday > 1) return 0;
+
   let streak = 0;
-  let current = new Date();
-  current.setHours(0, 0, 0, 0);
+  let current = mostRecent;
 
   for (const d of dates) {
     const day = new Date(d + "T00:00");
