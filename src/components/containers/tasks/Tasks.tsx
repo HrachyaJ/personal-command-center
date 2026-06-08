@@ -4,12 +4,14 @@ import { Button } from "../../ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../ui/tabs";
 import { useTasks } from "../../../hooks/task.hooks";
 import { ListTodo } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TaskListSkeleton,
   TasksStatCardSkeleton,
 } from "../../shared/Skeletons";
 import { StatCard } from "../../shared/StatCard";
+import { OnboardingDialog } from "../../shared/OnboardingPanel";
+import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 
 const Tasks = () => {
   const {
@@ -27,10 +29,42 @@ const Tasks = () => {
 
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const stats = getStats();
+  const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
+    useOnboardingSeen("tasks");
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  const pageNeedsOnboarding =
+    !loading && tasks.length === 0 && activeTab === "active" && !onboardingSeen;
+
+  useEffect(() => {
+    if (pageNeedsOnboarding) {
+      setIsOnboardingOpen(true);
+    }
+  }, [pageNeedsOnboarding]);
+
+  const handleOnboardingOpenChange = (open: boolean) => {
+    setIsOnboardingOpen(open);
+    if (!open) {
+      markOnboardingSeen();
+    }
+  };
+
+  const handleStartTaskOnboarding = () => {
+    markOnboardingSeen();
+    setIsOnboardingOpen(false);
+    scrollToTaskInput();
+  };
 
   const activeTasks = tasks.filter((t) => !t.completed);
   const completedTasks = tasks.filter((t) => t.completed);
   const visibleTasks = activeTab === "active" ? activeTasks : completedTasks;
+
+  const scrollToTaskInput = () => {
+    document.getElementById("task-input")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
@@ -53,6 +87,37 @@ const Tasks = () => {
           </Button>
         )}
       </div>
+
+      <OnboardingDialog
+        open={isOnboardingOpen}
+        onOpenChange={handleOnboardingOpenChange}
+        title="Start with one important task"
+        subtitle="Add your first task, set a priority, and begin building reliable momentum."
+        steps={[
+          {
+            title: "Capture a task",
+            description:
+              "Enter something actionable and specific in the task input.",
+          },
+          {
+            title: "Add context",
+            description:
+              "Use priority, deadlines, and categories to keep work organized.",
+          },
+          {
+            title: "Complete and review",
+            description: "Mark it done and watch your productivity score rise.",
+          },
+        ]}
+        primaryAction={{
+          label: "Add your first task",
+          onClick: handleStartTaskOnboarding,
+        }}
+        secondaryAction={{
+          label: "Later",
+          onClick: () => handleOnboardingOpenChange(false),
+        }}
+      />
 
       {error ? (
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
@@ -24,6 +24,8 @@ import { useGoals } from "../../../hooks/goal.hooks";
 import { GoalCardSkeleton, GoalStatCardSkeleton } from "../../shared/Skeletons";
 import { GoalCard } from "./GoalCard";
 import { StatCard } from "../../shared/StatCard";
+import { OnboardingDialog } from "../../shared/OnboardingPanel";
+import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 
 export default function Goals() {
   const {
@@ -50,6 +52,30 @@ export default function Goals() {
     unit: "tasks",
     deadline: "",
   });
+  const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
+    useOnboardingSeen("goals");
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  const pageNeedsOnboarding = !loading && stats.total === 0 && !onboardingSeen;
+
+  useEffect(() => {
+    if (pageNeedsOnboarding) {
+      setIsOnboardingOpen(true);
+    }
+  }, [pageNeedsOnboarding]);
+
+  const handleOnboardingOpenChange = (open: boolean) => {
+    setIsOnboardingOpen(open);
+    if (!open) {
+      markOnboardingSeen();
+    }
+  };
+
+  const handleStartGoalOnboarding = () => {
+    markOnboardingSeen();
+    setIsOnboardingOpen(false);
+    setIsAddDialogOpen(true);
+  };
 
   const handleCreateGoal = (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,6 +210,37 @@ export default function Goals() {
           {error}
         </div>
       ) : null}
+
+      <OnboardingDialog
+        open={isOnboardingOpen}
+        onOpenChange={handleOnboardingOpenChange}
+        title="Turn your ambitions into real goals"
+        subtitle="Create a goal with a clear target, deadline, and progress tracker."
+        steps={[
+          {
+            title: "Frame a strong outcome",
+            description: "Name the goal and describe what success looks like.",
+          },
+          {
+            title: "Pick a target",
+            description:
+              "Add a measurable milestone so you can track progress.",
+          },
+          {
+            title: "Check progress often",
+            description:
+              "Mark updates and move closer to completion every week.",
+          },
+        ]}
+        primaryAction={{
+          label: "Create your first goal",
+          onClick: handleStartGoalOnboarding,
+        }}
+        secondaryAction={{
+          label: "Maybe later",
+          onClick: () => handleOnboardingOpenChange(false),
+        }}
+      />
 
       {/* Stat Cards — 2 cols on mobile, 4 on lg */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

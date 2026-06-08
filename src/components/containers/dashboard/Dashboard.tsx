@@ -14,6 +14,7 @@ import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
 import { useHabits } from "../../../hooks/habit.hooks";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SettingsDialog } from "../settings/SettingsDialog";
 import {
   CATEGORY_ICONS,
@@ -35,6 +36,8 @@ import {
 import { DashboardSectionCard } from "./DashboardSectionCard";
 import { DashboardStatCard, type StatCardProps } from "./DashboardStatCard";
 import { useUserStore } from "../../../stores/useUserStore";
+import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
+import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import Insights from "../../shared/Insights";
 
@@ -76,6 +79,38 @@ export default function Dashboard() {
   const openSettings = (tab: typeof settingsTab = "appearance") => {
     setSettingsTab(tab);
     setSettingsOpen(true);
+  };
+
+  const navigate = useNavigate();
+  const {
+    seen: dashboardOnboardingSeen,
+    markSeen: markDashboardOnboardingSeen,
+  } = useOnboardingSeen("dashboard");
+  const [isDashboardOnboardingOpen, setIsDashboardOnboardingOpen] =
+    useState(false);
+
+  const showDashboardOnboardingBanner =
+    !isLoading &&
+    tasks.length === 0 &&
+    goals.length === 0 &&
+    totalHabits === 0 &&
+    !dashboardOnboardingSeen;
+
+  const handleDashboardOnboardingOpenChange = (open: boolean) => {
+    setIsDashboardOnboardingOpen(open);
+    if (!open) {
+      markDashboardOnboardingSeen();
+    }
+  };
+
+  const handleDashboardGetStarted = () => {
+    setIsDashboardOnboardingOpen(true);
+  };
+
+  const handleDashboardPrimaryAction = () => {
+    markDashboardOnboardingSeen();
+    setIsDashboardOnboardingOpen(false);
+    navigate("/tasks");
   };
 
   const sortedDashboardTasks = [...tasks].sort((a, b) => {
@@ -208,6 +243,20 @@ export default function Dashboard() {
       </header>
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        {showDashboardOnboardingBanner ? (
+          <div className="rounded-3xl border border-blue-200 bg-blue-50 p-4 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-blue-900">
+                Ready to get started?
+              </p>
+              <p className="text-sm text-blue-700">
+                Build momentum with a task, goal, or habit from your dashboard.
+              </p>
+            </div>
+            <Button onClick={handleDashboardGetStarted}>Get started</Button>
+          </div>
+        ) : null}
+
         {/* ── Stat Cards ───────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {isLoading
@@ -478,6 +527,38 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <OnboardingDialog
+        open={isDashboardOnboardingOpen}
+        onOpenChange={handleDashboardOnboardingOpenChange}
+        title="Launch your productivity system"
+        subtitle="Choose one guided first step and get moving across tasks, goals, and habits."
+        steps={[
+          {
+            title: "Capture your first task",
+            description:
+              "Start with one actionable item you can complete today.",
+          },
+          {
+            title: "Set a clear goal",
+            description:
+              "Define a measurable outcome that motivates your work.",
+          },
+          {
+            title: "Add a habit",
+            description:
+              "Pick one routine to track each day and build consistency.",
+          },
+        ]}
+        primaryAction={{
+          label: "Start with Tasks",
+          onClick: handleDashboardPrimaryAction,
+        }}
+        secondaryAction={{
+          label: "Maybe later",
+          onClick: () => handleDashboardOnboardingOpenChange(false),
+        }}
+      />
 
       {/* Settings Modal */}
       <SettingsDialog

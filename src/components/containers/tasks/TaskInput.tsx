@@ -135,7 +135,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form id="task-input" onSubmit={handleSubmit} className="space-y-3">
       {/* Main input row */}
       <div className="flex items-center gap-2">
         <Input

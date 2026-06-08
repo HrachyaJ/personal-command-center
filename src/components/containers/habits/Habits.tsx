@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { HabitCategory, HabitFrequency } from "../../../types/habit.types";
 import { useHabits } from "../../../hooks/habit.hooks";
 import HabitList from "./HabitList";
@@ -12,6 +12,8 @@ import {
 } from "../../shared/Skeletons";
 import { CATEGORIES, getDayLabel, getLast7Days } from "../../../lib/utils";
 import { StatCard } from "../../shared/StatCard";
+import { OnboardingDialog } from "../../shared/OnboardingPanel";
+import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 
 export default function Habits() {
   const {
@@ -33,6 +35,30 @@ export default function Habits() {
   const [frequency, setFrequency] = useState<HabitFrequency>("daily");
   const [showForm, setShowForm] = useState(false);
   const last7Days = getLast7Days();
+  const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
+    useOnboardingSeen("habits");
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  const pageNeedsOnboarding = !loading && totalHabits === 0 && !onboardingSeen;
+
+  useEffect(() => {
+    if (pageNeedsOnboarding) {
+      setIsOnboardingOpen(true);
+    }
+  }, [pageNeedsOnboarding]);
+
+  const handleOnboardingOpenChange = (open: boolean) => {
+    setIsOnboardingOpen(open);
+    if (!open) {
+      markOnboardingSeen();
+    }
+  };
+
+  const handleStartHabitOnboarding = () => {
+    markOnboardingSeen();
+    setIsOnboardingOpen(false);
+    setShowForm(true);
+  };
 
   function handleAdd() {
     if (!newHabitName.trim()) return;
@@ -70,6 +96,36 @@ export default function Habits() {
           Build consistency, one day at a time
         </p>
       </div>
+
+      <OnboardingDialog
+        open={isOnboardingOpen}
+        onOpenChange={handleOnboardingOpenChange}
+        title="Build a daily habit stack"
+        subtitle="Add your first habit, choose a cadence, and watch your streaks grow."
+        steps={[
+          {
+            title: "Choose a simple behavior",
+            description: "Start with one habit you can do every day.",
+          },
+          {
+            title: "Set a category",
+            description: "Group habits by focus so they stay easy to manage.",
+          },
+          {
+            title: "Track completion",
+            description:
+              "Mark it done each day to build momentum and confidence.",
+          },
+        ]}
+        primaryAction={{
+          label: "Add your first habit",
+          onClick: handleStartHabitOnboarding,
+        }}
+        secondaryAction={{
+          label: "Not right now",
+          onClick: () => handleOnboardingOpenChange(false),
+        }}
+      />
 
       {error ? (
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
