@@ -5,6 +5,9 @@ import AiCoachInsights, { totalInsightsCount } from "./AiCoachInsights";
 import AiCoachPatterns from "./AiCoachPatterns";
 import AiCoachRecommendations from "./AiCoachRecommendations";
 import AiCoachHeader from "./AiCoachHeader";
+import { useHabits } from "../../../hooks/habit.hooks";
+import { useTasks } from "../../../hooks/task.hooks";
+import { useGoals } from "../../../hooks/goal.hooks";
 
 export default function AICoach() {
   const [activeTab, setActiveTab] = useState<
@@ -14,9 +17,19 @@ export default function AICoach() {
 
   const visibleCount = totalInsightsCount - dismissedInsights.length;
 
+  const { habits, error: habitsError } = useHabits();
+  const { tasks, error: tasksError } = useTasks();
+  const { goals, error: goalsError } = useGoals();
+  const error = habitsError || tasksError || goalsError;
+
   return (
     <div className="p-6 space-y-6">
-      <AiCoachHeader />
+      <AiCoachHeader habits={habits} tasks={tasks} goals={goals} />
+      {error ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
+          {error}
+        </div>
+      ) : null}
 
       <Tabs
         value={activeTab}
@@ -47,7 +60,7 @@ export default function AICoach() {
         />
 
         {/* ── Patterns ── */}
-        <AiCoachPatterns />
+        <AiCoachPatterns tasks={tasks} />
 
         {/* ── Recommendations ── */}
         <AiCoachRecommendations />

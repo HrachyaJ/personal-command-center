@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import type {
   Habit,
   HabitCategory,
   HabitFrequency,
 } from "../types/habit.types";
-import { authFetch } from "../lib/utils";
+import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
+
+function getErrorMessage(err: unknown, fallback: string) {
+  return err instanceof Error ? err.message : fallback;
+}
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/habits`;
 
@@ -23,12 +28,16 @@ export function useHabits() {
       try {
         setLoading(true);
         setError(null);
-        const response = await authFetch(API);
-        if (!response.ok) throw new Error("Failed to fetch habits");
-        const data = await response.json();
+        const data = await authFetchJson<Habit[]>(
+          API,
+          {},
+          "Failed to load habits.",
+        );
         setHabits(data);
       } catch (err) {
-        setError((err as Error).message);
+        const message = getErrorMessage(err, "Failed to load habits.");
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -45,27 +54,36 @@ export function useHabits() {
   }) {
     try {
       setError(null);
-      const res = await authFetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
-      });
-      if (!res.ok) throw new Error("Failed to add habit");
-      const newHabit = await res.json();
+      const newHabit = await authFetchJson<Habit>(
+        API,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(params),
+        },
+        "Failed to add habit.",
+      );
       setHabits((prev) => [...prev, newHabit]);
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to add habit.");
+      setError(message);
+      toast.error(message);
     }
   }
 
   async function removeHabit(id: string) {
     try {
       setError(null);
-      const res = await authFetch(`${API}/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to remove habit");
+      await authFetchOrThrow(
+        `${API}/${id}`,
+        { method: "DELETE" },
+        "Failed to remove habit.",
+      );
       setHabits((prev) => prev.filter((h) => h.id !== id));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to remove habit.");
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -79,12 +97,15 @@ export function useHabits() {
       const alreadyDone = habit.completedDates?.includes(today);
 
       if (alreadyDone) {
-        const res = await authFetch(`${API}/${id}/complete`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: today }),
-        });
-        if (!res.ok) throw new Error("Failed to undo habit completion");
+        await authFetchOrThrow(
+          `${API}/${id}/complete`,
+          {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date: today }),
+          },
+          "Failed to undo habit completion.",
+        );
         setHabits((prev) =>
           prev.map((h) =>
             h.id === id
@@ -96,17 +117,21 @@ export function useHabits() {
           ),
         );
       } else {
-        const res = await authFetch(`${API}/${id}/complete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: today }),
-        });
-        if (!res.ok) throw new Error("Failed to complete habit");
-        const updated = await res.json();
+        const updated = await authFetchJson<Habit>(
+          `${API}/${id}/complete`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date: today }),
+          },
+          "Failed to complete habit.",
+        );
         setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
       }
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to update habit.");
+      setError(message);
+      toast.error(message);
     }
   }
 

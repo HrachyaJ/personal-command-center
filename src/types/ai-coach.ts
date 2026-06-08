@@ -7,7 +7,7 @@ export interface Insight {
   title: string;
   description: string;
   priority: Priority;
-  relatedTo: string;
+  relatedTo: "Tasks" | "Habits" | "Goals" | "Schedule";
   actionLabel?: string;
 }
 
@@ -16,7 +16,7 @@ export interface ProductivityScore {
   tasks: number;
   habits: number;
   goals: number;
-  trend: "up" | "down" | "stable";
+  trend: "up" | "down";
   trendValue: number;
 }
 
@@ -44,5 +44,5 @@ export interface Recommendation {
   description: string;
   impact: "high" | "medium" | "low";
   effort: "easy" | "moderate" | "hard";
-  category: string;
+  category: "Tasks" | "Habits" | "Goals" | "Schedule";
 }

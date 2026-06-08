@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { API_BASE, authFetch } from "../../lib/utils";
+import { toast } from "sonner";
+import { API_BASE, authFetchJson } from "../../lib/utils";
 
 type Status = "loading" | "error" | "empty" | "ready";
 
@@ -9,16 +10,20 @@ export default function Insights() {
 
   useEffect(() => {
     setStatus("loading");
-    authFetch(`${API_BASE}/api/ml-insights`)
-      .then((r) => {
-        if (!r.ok) throw new Error("Failed to fetch insights");
-        return r.json();
-      })
-      .then((data: string[]) => {
+
+    authFetchJson<string[]>(
+      `${API_BASE}/api/ml-insights`,
+      {},
+      "Failed to load insights.",
+    )
+      .then((data) => {
         setInsights(data);
         setStatus(data.length === 0 ? "empty" : "ready");
       })
-      .catch(() => setStatus("error"));
+      .catch(() => {
+        toast.error("Unable to load insights. Please try again later.");
+        setStatus("error");
+      });
   }, []);
 
   if (status === "loading") {

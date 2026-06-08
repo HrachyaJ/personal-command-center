@@ -1,9 +1,10 @@
 import TaskInput from "./TaskInput";
 import TaskList from "./TaskList";
 import { Button } from "../../ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../ui/tabs";
 import { useTasks } from "../../../hooks/task.hooks";
 import { ListTodo } from "lucide-react";
-import type { TaskFormData } from "../../../types/task.types";
+import { useState } from "react";
 import {
   TaskListSkeleton,
   TasksStatCardSkeleton,
@@ -21,9 +22,15 @@ const Tasks = () => {
     editTask,
     getStats,
     loading,
+    error,
   } = useTasks();
 
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const stats = getStats();
+
+  const activeTasks = tasks.filter((t) => !t.completed);
+  const completedTasks = tasks.filter((t) => t.completed);
+  const visibleTasks = activeTab === "active" ? activeTasks : completedTasks;
 
   return (
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
@@ -35,7 +42,7 @@ const Tasks = () => {
             Manage and complete your tasks
           </p>
         </div>
-        {!loading && countCompleted() > 0 && (
+        {!loading && countCompleted() > 0 && activeTab === "completed" && (
           <Button
             onClick={clearCompleted}
             variant="destructive"
@@ -47,7 +54,13 @@ const Tasks = () => {
         )}
       </div>
 
-      {/* Stat Cards — 2 cols on mobile, 4 on sm+ */}
+      {error ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
+          {error}
+        </div>
+      ) : null}
+
+      {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
@@ -63,35 +76,62 @@ const Tasks = () => {
             ))}
       </div>
 
-      {/* Task Panel */}
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-        <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-muted">
-          <TaskInput onAdd={addTask} />
-        </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "active" | "completed")}
+      >
+        {/* Tabs outside the card */}
+        <TabsList className="mb-3">
+          <TabsTrigger
+            value="active"
+            className="cursor-pointer text-xs sm:text-sm"
+          >
+            Active ({loading ? "…" : activeTasks.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="completed"
+            className="cursor-pointer text-xs sm:text-sm"
+          >
+            Completed ({loading ? "…" : completedTasks.length})
+          </TabsTrigger>
+        </TabsList>
 
-        <div className="px-3 sm:px-4 py-2">
-          {loading ? (
-            <TaskListSkeleton />
-          ) : tasks.length === 0 ? (
-            <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-muted-foreground">
-              <ListTodo
-                className="w-12 h-12 sm:w-16 sm:h-16 mb-3 opacity-20"
-                strokeWidth={1.5}
-              />
-              <p className="text-sm">No tasks found. Add one to get started!</p>
-            </div>
-          ) : (
-            <TaskList
-              tasks={tasks}
-              onDelete={removeTask}
-              onToggle={toggleTask}
-              onClearCompleted={clearCompleted}
-              onCountCompleted={countCompleted}
-              onEdit={editTask}
-            />
-          )}
+        {/* Task Panel */}
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-muted">
+            <TaskInput onAdd={addTask} />
+          </div>
+
+          <div className="px-3 sm:px-4 pt-3 pb-2">
+            <TabsContent value={activeTab}>
+              {loading ? (
+                <TaskListSkeleton />
+              ) : visibleTasks.length === 0 ? (
+                <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-muted-foreground">
+                  <ListTodo
+                    className="w-12 h-12 sm:w-16 sm:h-16 mb-3 opacity-20"
+                    strokeWidth={1.5}
+                  />
+                  <p className="text-sm">
+                    {activeTab === "active"
+                      ? "No active tasks. Add one above!"
+                      : "No completed tasks yet."}
+                  </p>
+                </div>
+              ) : (
+                <TaskList
+                  tasks={visibleTasks}
+                  onDelete={removeTask}
+                  onToggle={toggleTask}
+                  onClearCompleted={clearCompleted}
+                  onCountCompleted={countCompleted}
+                  onEdit={editTask}
+                />
+              )}
+            </TabsContent>
+          </div>
         </div>
-      </div>
+      </Tabs>
     </div>
   );
 };

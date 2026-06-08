@@ -105,7 +105,7 @@ function runPrediction(form: TaskFormData) {
       }
     })
     .catch(() => {
-      // Silently skip if ML is unavailable
+      toast.error("Task prediction unavailable right now.");
     });
 }
 

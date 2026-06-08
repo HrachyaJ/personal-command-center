@@ -178,6 +178,47 @@ export function authFetch(url: string, options: RequestInit = {}) {
   });
 }
 
+export async function getResponseErrorMessage(
+  response: Response,
+  fallbackMessage: string,
+) {
+  try {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const body = await response.json();
+      if (body?.message) return String(body.message);
+      if (body?.error) return String(body.error);
+      return JSON.stringify(body);
+    }
+
+    const text = await response.text();
+    return text ? text : fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
+export async function authFetchOrThrow(
+  url: string,
+  options: RequestInit = {},
+  fallbackMessage = "Request failed",
+) {
+  const res = await authFetch(url, options);
+  if (!res.ok) {
+    throw new Error(await getResponseErrorMessage(res, fallbackMessage));
+  }
+  return res;
+}
+
+export async function authFetchJson<T>(
+  url: string,
+  options: RequestInit = {},
+  fallbackMessage = "Request failed",
+) {
+  const res = await authFetchOrThrow(url, options, fallbackMessage);
+  return (await res.json()) as T;
+}
+
 export function insightColors(type: InsightType) {
   switch (type) {
     case "tip":

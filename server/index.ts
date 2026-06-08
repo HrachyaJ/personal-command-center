@@ -151,8 +151,6 @@ app.delete("/api/user/avatar", async (req: any, res) => {
   }
 });
 
-// ── Misc routes ────────────────────────────────────────────────────────────────
-
 // ── Internal ML data endpoint — called by Python scripts only, not the browser
 // Bound to localhost in production so it's never exposed publicly
 app.get("/api/ml-data-internal", async (req, res) => {
@@ -518,6 +516,19 @@ app.delete("/api/user/sessions/:id", async (req: any, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// app.post("/api/ai-coach/insights", async (req: any, res) => {
+//   try {
+//     const session = await auth.api.getSession({
+//       headers: fromNodeHeaders(req.headers),
+//     });
+//     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
+
+//     res.json({ ok: true });
+//   } catch (err: any) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => console.log(`Server running on :${PORT}`));

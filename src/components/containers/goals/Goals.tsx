@@ -34,6 +34,7 @@ export default function Goals() {
     getGoalsByStatus,
     getStats,
     loading,
+    error,
   } = useGoals();
 
   const stats = getStats();
@@ -177,6 +178,12 @@ export default function Goals() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {error ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
+          {error}
+        </div>
+      ) : null}
 
       {/* Stat Cards — 2 cols on mobile, 4 on lg */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

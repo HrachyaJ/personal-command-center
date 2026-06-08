@@ -220,6 +220,66 @@ function TopStreaksSkeleton() {
   );
 }
 
+export default function AiCoachHeaderSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Title row */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <Skeleton className="h-9 w-24 rounded-md" />
+      </div>
+
+      {/* Productivity score card */}
+      <Card className="border-primary/20 overflow-hidden relative">
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+            {/* Circle + label */}
+            <div className="shrink-0 flex items-center gap-5">
+              <Skeleton className="w-20 h-20 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-3.5 w-28" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+            </div>
+
+            {/* Three score columns */}
+            <div className="flex-1 grid grid-cols-3 gap-4 sm:border-l sm:pl-6 border-primary/10">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-6 w-10" />
+                  <Skeleton className="h-1.5 w-full rounded-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-7 w-14" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="w-4 h-4 rounded-sm mt-0.5 ml-2 shrink-0" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export {
   Skeleton,
   TasksSkeleton,
@@ -236,4 +296,5 @@ export {
   WeeklyChartSkeleton,
   ProgressSidebarSkeleton,
   TopStreaksSkeleton,
+  AiCoachHeaderSkeleton,
 };

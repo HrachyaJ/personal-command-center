@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import type { Goal } from "../types/goal.types";
-import { authFetch } from "../lib/utils";
+import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
+
+function getErrorMessage(err: unknown, fallback: string) {
+  return err instanceof Error ? err.message : fallback;
+}
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/goals`;
 
@@ -13,12 +18,16 @@ export function useGoals() {
     async function fetchGoals() {
       try {
         setError(null);
-        const res = await authFetch(API);
-        if (!res.ok) throw new Error("Failed to fetch goals");
-        const data = await res.json();
+        const data = await authFetchJson<Goal[]>(
+          API,
+          {},
+          "Failed to load goals.",
+        );
         setGoals(data);
       } catch (err) {
-        setError((err as Error).message);
+        const message = getErrorMessage(err, "Failed to load goals.");
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -35,44 +44,57 @@ export function useGoals() {
   }) {
     try {
       setError(null);
-      const res = await authFetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(goalData),
-      });
-      if (!res.ok) throw new Error("Failed to add goal");
-      const newGoal = await res.json();
+      const newGoal = await authFetchJson<Goal>(
+        API,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(goalData),
+        },
+        "Failed to add goal.",
+      );
       setGoals((prev) => [...prev, newGoal]);
       return newGoal;
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to add goal.");
+      setError(message);
+      toast.error(message);
     }
   }
 
   async function updateGoal(goalId: string, updates: Partial<Goal>) {
     try {
       setError(null);
-      const res = await authFetch(`${API}/${goalId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error("Failed to update goal");
-      const updated = await res.json();
+      const updated = await authFetchJson<Goal>(
+        `${API}/${goalId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updates),
+        },
+        "Failed to update goal.",
+      );
       setGoals((prev) => prev.map((g) => (g.id === goalId ? updated : g)));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to update goal.");
+      setError(message);
+      toast.error(message);
     }
   }
 
   async function deleteGoal(goalId: string) {
     try {
       setError(null);
-      const res = await authFetch(`${API}/${goalId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete goal");
+      await authFetchOrThrow(
+        `${API}/${goalId}`,
+        { method: "DELETE" },
+        "Failed to delete goal.",
+      );
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to delete goal.");
+      setError(message);
+      toast.error(message);
     }
   }
 

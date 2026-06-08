@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import type { Task, TaskFormData } from "../types/task.types";
-import { authFetch } from "../lib/utils";
+import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
 
 const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/tasks`;
+
+function getErrorMessage(err: unknown, fallback: string) {
+  return err instanceof Error ? err.message : fallback;
+}
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -13,12 +18,16 @@ export function useTasks() {
     async function fetchTasks() {
       try {
         setError(null);
-        const res = await authFetch(API);
-        if (!res.ok) throw new Error("Failed to fetch tasks");
-        const data = await res.json();
+        const data = await authFetchJson<Task[]>(
+          API,
+          {},
+          "Failed to load tasks.",
+        );
         setTasks(data);
       } catch (err) {
-        setError((err as Error).message);
+        const message = getErrorMessage(err, "Failed to load tasks.");
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -29,36 +38,45 @@ export function useTasks() {
   async function addTask(data: TaskFormData) {
     try {
       setError(null);
-      const res = await authFetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: data.title,
-          dueDate: data.dueDate,
-          scheduledFor: data.scheduledFor,
-          priority: data.priority,
-          category: data.category,
-          estimatedMinutes: data.estimatedMinutes,
-          isRecurring: data.isRecurring,
-          recurrenceRule: data.recurrenceRule,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to add task");
-      const newTask = await res.json();
+      const newTask = await authFetchJson<Task>(
+        API,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: data.title,
+            dueDate: data.dueDate,
+            scheduledFor: data.scheduledFor,
+            priority: data.priority,
+            category: data.category,
+            estimatedMinutes: data.estimatedMinutes,
+            isRecurring: data.isRecurring,
+            recurrenceRule: data.recurrenceRule,
+          }),
+        },
+        "Failed to add task.",
+      );
       setTasks((prev) => [...prev, newTask]);
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to add task.");
+      setError(message);
+      toast.error(message);
     }
   }
 
   async function removeTask(id: Task["id"]) {
     try {
       setError(null);
-      const res = await authFetch(`${API}/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to remove task");
+      await authFetchOrThrow(
+        `${API}/${id}`,
+        { method: "DELETE" },
+        "Failed to remove task.",
+      );
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to remove task.");
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -73,32 +91,40 @@ export function useTasks() {
 
     try {
       setError(null);
-      const res = await authFetch(`${API}/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      if (!res.ok) throw new Error("Failed to update task");
-      const updated = await res.json();
+      const updated = await authFetchJson<Task>(
+        `${API}/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        },
+        "Failed to update task.",
+      );
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to update task.");
+      setError(message);
+      toast.error(message);
     }
   }
 
   async function editTask(id: Task["id"], data: Partial<TaskFormData>) {
     try {
       setError(null);
-      const res = await authFetch(`${API}/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to edit task");
-      const updated = await res.json();
+      const updated = await authFetchJson<Task>(
+        `${API}/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+        "Failed to edit task.",
+      );
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to edit task.");
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -107,7 +133,13 @@ export function useTasks() {
     try {
       setError(null);
       const results = await Promise.allSettled(
-        completed.map((t) => authFetch(`${API}/${t.id}`, { method: "DELETE" })),
+        completed.map((t) =>
+          authFetchOrThrow(
+            `${API}/${t.id}`,
+            { method: "DELETE" },
+            "Failed to remove completed task.",
+          ),
+        ),
       );
       const deletedIds = new Set(
         completed
@@ -115,8 +147,16 @@ export function useTasks() {
           .map((t) => t.id),
       );
       setTasks((prev) => prev.filter((t) => !deletedIds.has(t.id)));
+      const failed = results.some((result) => result.status === "rejected");
+      if (failed) {
+        const message = "Failed to clear some completed tasks.";
+        setError(message);
+        toast.error(message);
+      }
     } catch (err) {
-      setError((err as Error).message);
+      const message = getErrorMessage(err, "Failed to clear completed tasks.");
+      setError(message);
+      toast.error(message);
     }
   }
 

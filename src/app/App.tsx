@@ -4,7 +4,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Dashboard from "../components/containers/dashboard/Dashboard";
 import Tasks from "../components/containers/tasks/Tasks";
 import Goals from "../components/containers/goals/Goals";
@@ -26,11 +26,12 @@ import { API_BASE, SIDEBAR_ROUTES } from "../lib/utils";
 function AppLayout() {
   const location = useLocation();
   const { theme } = useThemeStore();
+  const initialPathname = useRef(location.pathname);
 
   useEffect(() => {
-    const isCallback = location.pathname === "/auth/callback/google";
+    const isCallback = initialPathname.current === "/auth/callback/google";
 
-    // Wake the server first, then fetch user
+    // Wake the server first, then fetch user once on mount.
     fetch(`${API_BASE}/health`)
       .catch(() => {})
       .finally(() => {
@@ -38,6 +39,9 @@ function AppLayout() {
           useUserStore.getState().fetch();
         }
       });
+  }, []);
+
+  useEffect(() => {
     document.title = "FocusFlow";
   }, []);
 
