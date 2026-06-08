@@ -166,14 +166,12 @@ export const getStatusColor = (status: string) => {
 };
 
 export function authFetch(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("focusflow:token");
   return fetch(url, {
     ...options,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
 }

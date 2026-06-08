@@ -9,10 +9,8 @@ export function GoogleButton() {
           provider: "google",
           callbackURL: `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/jwt-redirect`,
           // fetchOptions: {
-          //   onSuccess: (ctx) => {
-          //     const token = ctx.response.headers.get("set-auth-token");
-          //     if (token) localStorage.setItem("focusflow:token", token);
-          //   },
+          //   // Browser auth should rely on the HttpOnly session cookie.
+          //   // Do not persist JWT tokens in localStorage.
           // },
         })
       }

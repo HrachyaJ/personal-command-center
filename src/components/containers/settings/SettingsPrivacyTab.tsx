@@ -37,7 +37,7 @@ export function PrivacyTab() {
 
   const handleLogout = async () => {
     await signOut();
-    clearUser(); // clears token + remembered user from localStorage
+    clearUser();
     navigate("/sign-in");
   };
 

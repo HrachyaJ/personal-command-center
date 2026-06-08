@@ -10,7 +10,7 @@ export function useAuthActions() {
   const handleLogout = async () => {
     try {
       await signOut();
-      clearUser(); // also removes token + remembered user from localStorage
+      clearUser();
       navigate("/sign-in");
     } catch {
       toast.error("Failed to sign out. Please try again.");

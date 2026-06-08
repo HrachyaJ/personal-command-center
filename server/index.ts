@@ -44,12 +44,9 @@ app.get("/api/auth/jwt-redirect", async (req: any, res) => {
     return res.redirect("https://focus-flow-site.vercel.app/sign-in");
   }
 
-  const token = session.session.token;
-
-  // Make sure this path exactly matches your react-router route path for AuthCallback.tsx
-  res.redirect(
-    `https://focus-flow-site.vercel.app/auth/callback/google?token=${token}`,
-  );
+  // Redirect through the client callback route without exposing the JWT.
+  // The browser session is validated by the HttpOnly cookie on the next request.
+  res.redirect("https://focus-flow-site.vercel.app/auth/callback/google");
 });
 
 app.all("/api/auth/*path", toNodeHandler(auth));

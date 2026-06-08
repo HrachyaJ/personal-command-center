@@ -8,12 +8,10 @@ import {
   authInputStyle,
 } from "./AuthLayout";
 import { GoogleButton } from "./GoogleButton";
-import { API_BASE, authFetch } from "../../../lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { useUserStore } from "../../../stores/useUserStore";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
-const TOKEN_KEY = "focusflow:token";
 
 interface StoredUser {
   email: string;
@@ -72,11 +70,8 @@ export default function SignIn() {
       return;
     }
 
-    // The onResponse hook in auth-client.ts saves the token automatically,
-    // but better-auth also returns it in the response data — save it here
-    // as a fallback in case the header wasn't present.
-    const token = (result.data as any)?.token;
-    if (token) localStorage.setItem(TOKEN_KEY, token);
+    // The auth server uses an HttpOnly session cookie for browser auth,
+    // so we do not persist the JWT token in localStorage.
 
     await useUserStore.getState().fetch();
 

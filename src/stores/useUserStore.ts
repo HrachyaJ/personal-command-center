@@ -1,8 +1,6 @@
 import { API_BASE, authFetch } from "../lib/utils";
 import { create } from "zustand";
 
-const TOKEN_KEY = "focusflow:token";
-
 interface User {
   id: string;
   name: string;
@@ -34,8 +32,7 @@ export const useUserStore = create<UserStore>()((set) => ({
   update: (data) =>
     set((s) => ({ user: s.user ? { ...s.user, ...data } : null })),
   clearUser: () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem("focusflow:last_user");
+    // Keep the remembered user info so fast sign-in can still work after logout.
     set({ user: null, loading: false });
   },
 }));

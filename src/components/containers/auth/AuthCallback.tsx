@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../../stores/useUserStore";
-import { authClient } from "../../../lib/auth-client";
 
-const TOKEN_KEY = "focusflow:token";
 const REMEMBERED_USER_KEY = "focusflow:last_user";
 
 /**
@@ -11,8 +9,8 @@ const REMEMBERED_USER_KEY = "focusflow:last_user";
  *
  * better-auth appends ?token=<jwt> when redirectMetadata: true is set.
  * In dev (http) the JWT plugin may not produce the token, but the session
- * cookie is always set — so we save the token if present, then fetch the
- * user via cookie auth regardless.
+ * cookie is always set — browser auth relies on cookies rather than local
+ * storage persistence.
  */
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -24,16 +22,8 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        const queryToken = new URLSearchParams(window.location.search).get(
-          "token",
-        );
-
-        if (queryToken) {
-          localStorage.setItem(TOKEN_KEY, queryToken);
-        } else {
-          // Fallback if no token is passed in the URL string
-          console.warn("[AuthCallback] No token found in query params.");
-        }
+        // Ignore any JWT from the redirect URL in browser auth flows.
+        // Authentication is validated from the HttpOnly cookie on the next fetch.
 
         // Execute store fetch with the freshly set token
         await useUserStore.getState().fetch();
@@ -50,13 +40,10 @@ export default function AuthCallback() {
           );
           navigate("/dashboard", { replace: true });
         } else {
-          // If the fetch failed, clean up the bad token
-          localStorage.removeItem(TOKEN_KEY);
           navigate("/sign-in", { replace: true });
         }
       } catch (err) {
         console.error("[AuthCallback] error:", err);
-        localStorage.removeItem(TOKEN_KEY);
         navigate("/sign-in", { replace: true });
       }
     })();

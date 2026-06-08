@@ -10,8 +10,6 @@ import {
 import { GoogleButton } from "./GoogleButton";
 import { useUserStore } from "../../../stores/useUserStore";
 
-const TOKEN_KEY = "focusflow:token";
-
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -36,9 +34,8 @@ export default function SignUp() {
       return;
     }
 
-    // Save token (onResponse hook also does this, but save explicitly as fallback)
-    const token = (result.data as any)?.token;
-    if (token) localStorage.setItem(TOKEN_KEY, token);
+    // The auth server uses an HttpOnly session cookie for browser auth,
+    // so we do not persist the JWT token in localStorage.
 
     await useUserStore.getState().fetch();
     navigate("/dashboard");
