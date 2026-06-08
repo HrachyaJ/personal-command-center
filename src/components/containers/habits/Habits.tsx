@@ -14,6 +14,7 @@ import { CATEGORIES, getDayLabel, getLast7Days } from "../../../lib/utils";
 import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export default function Habits() {
   const {
@@ -29,6 +30,7 @@ export default function Habits() {
     loading,
     error,
   } = useHabits();
+  const { t } = useTranslation();
 
   const [newHabitName, setNewHabitName] = useState("");
   const [category, setCategory] = useState<HabitCategory>("productivity");
@@ -90,39 +92,38 @@ export default function Habits() {
       {/* Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold text-foreground">
-          Habits
+          {t("habits.header")}
         </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Build consistency, one day at a time
+          {t("habits.subtitle")}
         </p>
       </div>
 
       <OnboardingDialog
         open={isOnboardingOpen}
         onOpenChange={handleOnboardingOpenChange}
-        title="Build a daily habit stack"
-        subtitle="Add your first habit, choose a cadence, and watch your streaks grow."
+        title={t("habits.onboarding.title")}
+        subtitle={t("habits.onboarding.subtitle")}
         steps={[
           {
-            title: "Choose a simple behavior",
-            description: "Start with one habit you can do every day.",
+            title: t("habits.onboarding.step.chooseBehavior"),
+            description: t("habits.onboarding.step.chooseBehaviorDesc"),
           },
           {
-            title: "Set a category",
-            description: "Group habits by focus so they stay easy to manage.",
+            title: t("habits.onboarding.step.setCategory"),
+            description: t("habits.onboarding.step.setCategoryDesc"),
           },
           {
-            title: "Track completion",
-            description:
-              "Mark it done each day to build momentum and confidence.",
+            title: t("habits.onboarding.step.trackCompletion"),
+            description: t("habits.onboarding.step.trackCompletionDesc"),
           },
         ]}
         primaryAction={{
-          label: "Add your first habit",
+          label: t("habits.onboarding.primaryAction"),
           onClick: handleStartHabitOnboarding,
         }}
         secondaryAction={{
-          label: "Not right now",
+          label: t("habits.onboarding.secondaryAction"),
           onClick: () => handleOnboardingOpenChange(false),
         }}
       />
@@ -143,22 +144,22 @@ export default function Habits() {
           <>
             <StatCard
               value={totalHabits}
-              label="Total Habits"
+              label={t("habits.stats.totalHabits")}
               color="text-blue-600"
             />
             <StatCard
               value={completedToday}
-              label="Done Today"
+              label={t("habits.stats.doneToday")}
               color="text-orange-500"
             />
             <StatCard
               value={completionRate + "%"}
-              label="Completion"
+              label={t("habits.stats.completion")}
               color="text-green-600"
             />
             <StatCard
               value={longestCurrentStreak}
-              label="Best Streak 🔥"
+              label={t("habits.stats.bestStreak")}
               color="text-purple-600"
             />
           </>
@@ -175,7 +176,7 @@ export default function Habits() {
               <>
                 <input
                   type="text"
-                  placeholder="New habit..."
+                  placeholder={t("habits.newHabitPlaceholder")}
                   value={newHabitName}
                   onChange={(e) => setNewHabitName(e.target.value)}
                   onFocus={() => setShowForm(true)}
@@ -198,14 +199,16 @@ export default function Habits() {
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  <span className="hidden sm:inline">Add</span>
+                  <span className="hidden sm:inline">
+                    {t("habits.addButton")}
+                  </span>
                 </button>
               </>
             ) : (
               <div className="flex-1 space-y-3">
                 <input
                   type="text"
-                  placeholder="Habit name..."
+                  placeholder={t("habits.habitNamePlaceholder")}
                   value={newHabitName}
                   onChange={(e) => setNewHabitName(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -240,7 +243,7 @@ export default function Habits() {
                             : "bg-muted text-muted-foreground hover:bg-secondary"
                         }`}
                       >
-                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                        {t(`habits.frequency.${f}`)}
                       </button>
                     ))}
                   </div>
@@ -253,14 +256,14 @@ export default function Habits() {
                     }}
                     className="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors cursor-pointer"
                   >
-                    Cancel
+                    {t("habits.cancel")}
                   </button>
                   <button
                     onClick={handleAdd}
                     disabled={!newHabitName.trim()}
                     className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                   >
-                    Add Habit
+                    {t("habits.addHabit")}
                   </button>
                 </div>
               </div>
@@ -287,7 +290,7 @@ export default function Habits() {
           {/* Weekly overview */}
           <div className="bg-card border border-border rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
-              This Week
+              {t("habits.weeklyOverview.title")}
             </h3>
             {loading ? (
               <WeeklyChartSkeleton />
@@ -303,7 +306,10 @@ export default function Habits() {
                     <div
                       key={day}
                       className="flex-1 flex flex-col items-center gap-1"
-                      title={`${count} / ${totalHabits} habits`}
+                      title={t("habits.weeklyTooltip", {
+                        completed: count,
+                        total: totalHabits,
+                      })}
                     >
                       <div className="w-full relative flex items-end h-10">
                         <div
@@ -336,13 +342,13 @@ export default function Habits() {
           {/* Today's progress */}
           <div className="bg-card border border-border rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
-              Today's Progress
+              {t("habits.progress.title")}
             </h3>
             {loading ? (
               <ProgressSidebarSkeleton />
             ) : totalHabits === 0 ? (
               <p className="text-xs text-muted-foreground">
-                No habits to track yet
+                {t("habits.progress.noHabits")}
               </p>
             ) : (
               <>
@@ -351,7 +357,10 @@ export default function Habits() {
                     {completionRate}%
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {completedToday}/{totalHabits} done
+                    {t("habits.progress.doneCount", {
+                      completed: completedToday,
+                      total: totalHabits,
+                    })}
                   </span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
@@ -362,7 +371,7 @@ export default function Habits() {
                 </div>
                 {completionRate === 100 && (
                   <p className="text-xs text-green-600 font-medium mt-2">
-                    🎉 All habits done today!
+                    {t("habits.progress.allDoneToday")}
                   </p>
                 )}
               </>
@@ -372,12 +381,14 @@ export default function Habits() {
           {/* Top streaks */}
           <div className="bg-card border border-border rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
-              Top Streaks
+              {t("habits.topStreaks.title")}
             </h3>
             {loading ? (
               <TopStreaksSkeleton />
             ) : habits.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No habits yet</p>
+              <p className="text-xs text-muted-foreground">
+                {t("habits.topStreaks.noHabits")}
+              </p>
             ) : (
               <div className="space-y-2">
                 {[...habits]

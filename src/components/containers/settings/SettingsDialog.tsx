@@ -11,6 +11,7 @@ import { AppearanceTab, type Tab } from "./SettingsAppearanceTab";
 import { AccountTab } from "./SettingsAccountTab";
 import { NotificationsTab } from "./SettingsNotificationsTab";
 import { PrivacyTab } from "./SettingsPrivacyTab";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function SettingsDialog({
   initialTab = "appearance",
 }: SettingsDialogProps) {
   const [tab, setTab] = useState<Tab>(initialTab);
+  const { t } = useTranslation();
 
   // reset tab when dialog opens so re-opening from bell always lands on notifications
   useEffect(() => {
@@ -31,10 +33,10 @@ export function SettingsDialog({
   }, [open, initialTab]);
 
   const tabs: { id: Tab; icon: React.ElementType; label: string }[] = [
-    { id: "appearance", icon: Sun, label: "Appearance" },
-    { id: "account", icon: User, label: "Account" },
-    { id: "notifications", icon: Bell, label: "Notifications" },
-    { id: "privacy", icon: Lock, label: "Privacy & Security" },
+    { id: "appearance", icon: Sun, label: t("settings.appearance") },
+    { id: "account", icon: User, label: t("settings.account") },
+    { id: "notifications", icon: Bell, label: t("settings.notifications") },
+    { id: "privacy", icon: Lock, label: t("settings.privacy") },
   ];
 
   return (

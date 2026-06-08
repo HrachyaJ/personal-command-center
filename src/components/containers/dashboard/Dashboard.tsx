@@ -16,6 +16,7 @@ import { useHabits } from "../../../hooks/habit.hooks";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SettingsDialog } from "../settings/SettingsDialog";
+import { useTranslation } from "../../../hooks/useTranslation";
 import {
   CATEGORY_ICONS,
   formatShortDate,
@@ -67,6 +68,7 @@ export default function Dashboard() {
     loading: habitsLoading,
   } = useHabits();
   const { user, loading: userLoading } = useUserStore();
+  const { t } = useTranslation();
 
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || userLoading;
@@ -144,19 +146,19 @@ export default function Dashboard() {
 
   const statCards: StatCardProps[] = [
     {
-      title: "Tasks Completed",
+      title: t("dashboard.stats.tasksCompleted"),
       value: completedTasksCount,
       subtext:
         tasksLeft === 0 && totalTasks > 0
-          ? "All done! 🎉"
-          : `${tasksLeft} remaining`,
+          ? t("dashboard.stats.allDone")
+          : t("dashboard.stats.remaining", { count: tasksLeft }),
       icon: CheckCircle,
       iconColor: "text-emerald-600",
       iconBg: "bg-emerald-100",
       testId: "stat-tasks-completed",
     },
     {
-      title: "Productivity Score",
+      title: t("dashboard.stats.productivityScore"),
       value: `${taskCompletionRate}%`,
       subtext: getMomentumLabel(taskCompletionRate),
       icon: Flame,
@@ -165,21 +167,26 @@ export default function Dashboard() {
       testId: "stat-productivity-score",
     },
     {
-      title: "Goals Completed",
+      title: t("dashboard.stats.goalsCompleted"),
       value: completedGoalsCount,
       subtext:
         activeGoals.length === 0
-          ? "No active goals"
-          : `${activeGoals.length} active`,
+          ? t("dashboard.stats.noActiveGoals")
+          : t("dashboard.stats.activeGoalsCount", {
+              count: activeGoals.length,
+            }),
       icon: Target,
       iconColor: "text-blue-600",
       iconBg: "bg-blue-100",
       testId: "stat-goals-completed",
     },
     {
-      title: "Habit Streak",
+      title: t("dashboard.stats.habitStreak"),
       value: longestCurrentStreak,
-      subtext: `${completedToday}/${totalHabits} done today`,
+      subtext: t("dashboard.stats.doneToday", {
+        completed: completedToday,
+        total: totalHabits,
+      }),
       icon: Repeat2,
       iconColor: "text-orange-600",
       iconBg: "bg-orange-100",
@@ -247,13 +254,15 @@ export default function Dashboard() {
           <div className="rounded-3xl border border-blue-200 bg-blue-50 p-4 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-blue-900">
-                Ready to get started?
+                {t("dashboard.onboarding.readyToGetStarted")}
               </p>
               <p className="text-sm text-blue-700">
-                Build momentum with a task, goal, or habit from your dashboard.
+                {t("dashboard.onboarding.buildMomentum")}
               </p>
             </div>
-            <Button onClick={handleDashboardGetStarted}>Get started</Button>
+            <Button onClick={handleDashboardGetStarted}>
+              {t("dashboard.onboarding.getStarted")}
+            </Button>
           </div>
         ) : null}
 
@@ -273,12 +282,12 @@ export default function Dashboard() {
           {/* Left: Tasks + Goals ───────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Today's Tasks */}
-            <DashboardSectionCard title="Today's Tasks">
+            <DashboardSectionCard title={t("dashboard.section.tasks")}>
               {isLoading ? (
                 <TasksSkeleton />
               ) : tasks.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No tasks yet. Head to Tasks to add some.
+                  {t("dashboard.tasks.noTasks")}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -336,7 +345,9 @@ export default function Dashboard() {
                                   className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-muted-foreground"}`}
                                 >
                                   <Calendar size={9} />
-                                  {overdue ? "Overdue · " : ""}
+                                  {overdue
+                                    ? `${t("dashboard.tasks.overdue")} · `
+                                    : ""}
                                   {formatShortDate(task.dueDate)}
                                 </span>
                               )}
@@ -353,7 +364,9 @@ export default function Dashboard() {
                   })}
                   {tasks.length > 6 && (
                     <p className="text-xs text-muted-foreground pt-1">
-                      +{tasks.length - 6} more tasks
+                      {t("dashboard.tasks.moreTasks", {
+                        count: tasks.length - 6,
+                      })}
                     </p>
                   )}
                 </div>
@@ -361,12 +374,12 @@ export default function Dashboard() {
             </DashboardSectionCard>
 
             {/* Active Goals */}
-            <DashboardSectionCard title="Active Goals">
+            <DashboardSectionCard title={t("dashboard.section.activeGoals")}>
               {isLoading ? (
                 <GoalsSkeleton />
               ) : activeGoals.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No active goals. Head to Goals to create one.
+                  {t("dashboard.goals.noActiveGoals")}
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -391,7 +404,9 @@ export default function Dashboard() {
                   })}
                   {activeGoals.length > 4 && (
                     <p className="text-xs text-muted-foreground">
-                      +{activeGoals.length - 4} more goals
+                      {t("dashboard.goals.moreGoals", {
+                        count: activeGoals.length - 4,
+                      })}
                     </p>
                   )}
                 </div>
@@ -402,12 +417,12 @@ export default function Dashboard() {
           {/* Right: Habits + Overview ──────────────────────────────────────── */}
           <div className="space-y-4 sm:space-y-6">
             {/* Today's Habits */}
-            <DashboardSectionCard title="Today's Habits">
+            <DashboardSectionCard title={t("dashboard.section.habits")}>
               {isLoading ? (
                 <HabitsSkeleton />
               ) : totalHabits === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No habits yet. Head to Habits to add some.
+                  {t("dashboard.habits.noHabits")}
                 </p>
               ) : (
                 <>
@@ -415,7 +430,10 @@ export default function Dashboard() {
                   <div className="mb-4">
                     <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                       <span>
-                        {completedToday}/{totalHabits} completed
+                        {t("dashboard.habits.completed", {
+                          completed: completedToday,
+                          total: totalHabits,
+                        })}
                       </span>
                       <span>{habitCompletionRate}%</span>
                     </div>
@@ -465,7 +483,9 @@ export default function Dashboard() {
                     })}
                     {todaysHabits.length > 5 && (
                       <p className="text-xs text-muted-foreground pt-1">
-                        +{todaysHabits.length - 5} more habits
+                        {t("dashboard.habits.moreHabits", {
+                          count: todaysHabits.length - 5,
+                        })}
                       </p>
                     )}
                   </div>
@@ -473,11 +493,11 @@ export default function Dashboard() {
               )}
             </DashboardSectionCard>
 
-            <DashboardSectionCard title="AI Insights">
+            <DashboardSectionCard title={t("dashboard.section.aiInsights")}>
               <ErrorBoundary
                 fallback={
                   <p className="text-sm text-destructive">
-                    AI Insights unavailable right now.
+                    {t("dashboard.aiInsights.unavailable")}
                   </p>
                 }
               >
@@ -486,24 +506,26 @@ export default function Dashboard() {
             </DashboardSectionCard>
 
             {/* Overall Progress */}
-            <DashboardSectionCard title="Overall Progress">
+            <DashboardSectionCard
+              title={t("dashboard.section.overallProgress")}
+            >
               {isLoading ? (
                 <OverallProgressSkeleton />
               ) : (
                 <div className="space-y-3">
                   {[
                     {
-                      label: "Tasks",
+                      label: t("dashboard.overall.tasks"),
                       rate: taskCompletionRate,
                       color: "bg-emerald-500",
                     },
                     {
-                      label: "Goals",
+                      label: t("dashboard.overall.goals"),
                       rate: goalsCompletionRate,
                       color: "bg-blue-500",
                     },
                     {
-                      label: "Habits",
+                      label: t("dashboard.overall.habits"),
                       rate: habitCompletionRate,
                       color: "bg-orange-500",
                     },
@@ -531,31 +553,28 @@ export default function Dashboard() {
       <OnboardingDialog
         open={isDashboardOnboardingOpen}
         onOpenChange={handleDashboardOnboardingOpenChange}
-        title="Launch your productivity system"
-        subtitle="Choose one guided first step and get moving across tasks, goals, and habits."
+        title={t("dashboard.onboarding.dialog.title")}
+        subtitle={t("dashboard.onboarding.dialog.subtitle")}
         steps={[
           {
-            title: "Capture your first task",
-            description:
-              "Start with one actionable item you can complete today.",
+            title: t("dashboard.onboarding.step.captureTask"),
+            description: t("dashboard.onboarding.step.captureTaskDesc"),
           },
           {
-            title: "Set a clear goal",
-            description:
-              "Define a measurable outcome that motivates your work.",
+            title: t("dashboard.onboarding.step.setGoal"),
+            description: t("dashboard.onboarding.step.setGoalDesc"),
           },
           {
-            title: "Add a habit",
-            description:
-              "Pick one routine to track each day and build consistency.",
+            title: t("dashboard.onboarding.step.addHabit"),
+            description: t("dashboard.onboarding.step.addHabitDesc"),
           },
         ]}
         primaryAction={{
-          label: "Start with Tasks",
+          label: t("dashboard.onboarding.primaryAction"),
           onClick: handleDashboardPrimaryAction,
         }}
         secondaryAction={{
-          label: "Maybe later",
+          label: t("dashboard.onboarding.secondaryAction"),
           onClick: () => handleDashboardOnboardingOpenChange(false),
         }}
       />

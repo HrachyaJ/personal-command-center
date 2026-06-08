@@ -5,6 +5,7 @@ import { effortColors, impactColors } from "../../../lib/utils";
 import { Button } from "../../ui/button";
 import type { Recommendation } from "../../../types/ai-coach";
 import { Badge } from "../../ui/badge";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 const recommendations: Recommendation[] = [
   {
@@ -46,6 +47,8 @@ const recommendations: Recommendation[] = [
 ];
 
 export default function AiCoachRecommendations() {
+  const { t } = useTranslation();
+
   return (
     <TabsContent value="recommendations" className="space-y-3 mt-4">
       {recommendations.map((rec) => (
@@ -54,31 +57,37 @@ export default function AiCoachRecommendations() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-semibold text-sm">{rec.title}</h3>
-                  <Badge className="text-[10px]">{rec.category}</Badge>
+                  <h3 className="font-semibold text-sm">
+                    {t(`aiCoach.recommendations.${rec.id}.title`)}
+                  </h3>
+                  <Badge className="text-[10px]">
+                    {t(
+                      `aiCoach.recommendations.category.${rec.category.toLowerCase()}`,
+                    )}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {rec.description}
+                  {t(`aiCoach.recommendations.${rec.id}.description`)}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">
-                      Impact:
+                      {t("aiCoach.recommendations.labels.impact")}
                     </span>
                     <Badge
                       className={`text-[10px] ${impactColors(rec.impact)}`}
                     >
-                      {rec.impact}
+                      {t(`aiCoach.recommendations.impact.${rec.impact}`)}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">
-                      Effort:
+                      {t("aiCoach.recommendations.labels.effort")}
                     </span>
                     <Badge
                       className={`text-[10px] ${effortColors(rec.effort)}`}
                     >
-                      {rec.effort}
+                      {t(`aiCoach.recommendations.effort.${rec.effort}`)}
                     </Badge>
                   </div>
                 </div>
@@ -88,7 +97,7 @@ export default function AiCoachRecommendations() {
                 variant="outline"
                 className="cursor-pointer shrink-0 gap-1 text-xs"
               >
-                Try this
+                {t("aiCoach.recommendations.tryThis")}
                 <ChevronRight className="w-3 h-3" />
               </Button>
             </div>

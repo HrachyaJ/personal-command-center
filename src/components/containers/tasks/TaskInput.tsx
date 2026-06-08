@@ -23,6 +23,7 @@ import type {
   TaskPriority,
 } from "../../../types/task.types";
 import { API_BASE } from "../../../lib/utils";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface TaskInputProps {
   onAdd: (data: TaskFormData) => void;
@@ -112,6 +113,7 @@ function runPrediction(form: TaskFormData) {
 export default function TaskInput({ onAdd }: TaskInputProps) {
   const [form, setForm] = useState<TaskFormData>(EMPTY_FORM);
   const [showOptions, setShowOptions] = useState(false);
+  const { t } = useTranslation();
 
   function set<K extends keyof TaskFormData>(key: K, value: TaskFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -141,7 +143,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
         <Input
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
-          placeholder="New task..."
+          placeholder={t("tasks.newTaskPlaceholder")}
           className="flex-1 bg-card border-border"
         />
         <Select

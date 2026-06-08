@@ -12,6 +12,7 @@ import {
 import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 const Tasks = () => {
   const {
@@ -32,6 +33,7 @@ const Tasks = () => {
   const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
     useOnboardingSeen("tasks");
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const { t } = useTranslation();
 
   const pageNeedsOnboarding =
     !loading && tasks.length === 0 && activeTab === "active" && !onboardingSeen;
@@ -71,10 +73,10 @@ const Tasks = () => {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">Tasks</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage and complete your tasks
-          </p>
+          <h1 className="text-xl sm:text-2xl font-semibold">
+            {t("tasks.header")}
+          </h1>
+          <p className="text-muted-foreground text-sm">{t("tasks.subtitle")}</p>
         </div>
         {!loading && countCompleted() > 0 && activeTab === "completed" && (
           <Button
@@ -83,7 +85,7 @@ const Tasks = () => {
             size="sm"
             className="cursor-pointer shrink-0 text-xs sm:text-sm"
           >
-            Clear ({countCompleted()})
+            {t("tasks.clearCompleted", { count: countCompleted() })}
           </Button>
         )}
       </div>
@@ -91,30 +93,28 @@ const Tasks = () => {
       <OnboardingDialog
         open={isOnboardingOpen}
         onOpenChange={handleOnboardingOpenChange}
-        title="Start with one important task"
-        subtitle="Add your first task, set a priority, and begin building reliable momentum."
+        title={t("tasks.onboarding.title")}
+        subtitle={t("tasks.onboarding.subtitle")}
         steps={[
           {
-            title: "Capture a task",
-            description:
-              "Enter something actionable and specific in the task input.",
+            title: t("tasks.onboarding.step.captureTask"),
+            description: t("tasks.onboarding.step.captureTaskDesc"),
           },
           {
-            title: "Add context",
-            description:
-              "Use priority, deadlines, and categories to keep work organized.",
+            title: t("tasks.onboarding.step.addContext"),
+            description: t("tasks.onboarding.step.addContextDesc"),
           },
           {
-            title: "Complete and review",
-            description: "Mark it done and watch your productivity score rise.",
+            title: t("tasks.onboarding.step.completeReview"),
+            description: t("tasks.onboarding.step.completeReviewDesc"),
           },
         ]}
         primaryAction={{
-          label: "Add your first task",
+          label: t("tasks.onboarding.primaryAction"),
           onClick: handleStartTaskOnboarding,
         }}
         secondaryAction={{
-          label: "Later",
+          label: t("tasks.onboarding.secondaryAction"),
           onClick: () => handleOnboardingOpenChange(false),
         }}
       />
@@ -151,17 +151,20 @@ const Tasks = () => {
             value="active"
             className="cursor-pointer text-xs sm:text-sm"
           >
-            Active ({loading ? "…" : activeTasks.length})
+            {t("tasks.tabs.active", {
+              count: loading ? "…" : activeTasks.length,
+            })}
           </TabsTrigger>
           <TabsTrigger
             value="completed"
             className="cursor-pointer text-xs sm:text-sm"
           >
-            Completed ({loading ? "…" : completedTasks.length})
+            {t("tasks.tabs.completed", {
+              count: loading ? "…" : completedTasks.length,
+            })}
           </TabsTrigger>
         </TabsList>
 
-        {/* Task Panel */}
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
           <div className="px-3 sm:px-4 py-3 sm:py-4 border-b bg-muted">
             <TaskInput onAdd={addTask} />
@@ -179,8 +182,8 @@ const Tasks = () => {
                   />
                   <p className="text-sm">
                     {activeTab === "active"
-                      ? "No active tasks. Add one above!"
-                      : "No completed tasks yet."}
+                      ? t("tasks.empty.active")
+                      : t("tasks.empty.completed")}
                   </p>
                 </div>
               ) : (

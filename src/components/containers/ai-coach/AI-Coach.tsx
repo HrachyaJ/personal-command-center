@@ -8,8 +8,10 @@ import AiCoachHeader from "./AiCoachHeader";
 import { useHabits } from "../../../hooks/habit.hooks";
 import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export default function AICoach() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<
     "insights" | "patterns" | "recommendations"
   >("insights");
@@ -38,18 +40,18 @@ export default function AICoach() {
         <TabsList>
           <TabsTrigger value="insights" className="cursor-pointer gap-1.5">
             <Lightbulb className="w-3.5 h-3.5" />
-            Insights ({visibleCount})
+            {t("aiCoach.tabs.insights", { count: visibleCount })}
           </TabsTrigger>
           <TabsTrigger value="patterns" className="cursor-pointer gap-1.5">
             <BarChart3 className="w-3.5 h-3.5" />
-            Patterns
+            {t("aiCoach.tabs.patterns")}
           </TabsTrigger>
           <TabsTrigger
             value="recommendations"
             className="cursor-pointer gap-1.5"
           >
             <Target className="w-3.5 h-3.5" />
-            Recommendations
+            {t("aiCoach.tabs.recommendations")}
           </TabsTrigger>
         </TabsList>
 

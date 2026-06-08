@@ -1,6 +1,9 @@
 import { habits, tasks } from "../../../lib/constants";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export function AppPreview() {
+  const { t } = useTranslation();
+
   return (
     <div
       style={{
@@ -55,7 +58,7 @@ export function AppPreview() {
             color: "rgba(0,0,0,0.3)",
           }}
         >
-          FocusFlow
+          {t("app.title")}
         </span>
       </div>
 
@@ -72,7 +75,12 @@ export function AppPreview() {
             background: "#f8faff",
           }}
         >
-          {["Dashboard", "Tasks", "Habits", "Goals"].map((item, i) => (
+          {[
+            t("landing.preview.sidebar.dashboard"),
+            t("landing.preview.sidebar.tasks"),
+            t("landing.preview.sidebar.habits"),
+            t("landing.preview.sidebar.goals"),
+          ].map((item, i) => (
             <div
               key={item}
               style={{
@@ -99,7 +107,7 @@ export function AppPreview() {
               marginBottom: "12px",
             }}
           >
-            Today's Tasks
+            {t("landing.preview.tasksTitle")}
           </div>
           <div
             style={{
@@ -152,7 +160,7 @@ export function AppPreview() {
               marginBottom: "10px",
             }}
           >
-            Habits
+            {t("landing.preview.habitsTitle")}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {habits.map((h) => (
@@ -203,7 +211,7 @@ export function AppPreview() {
               }}
             >
               <span style={{ fontSize: "10px", color: "rgba(0,0,0,0.4)" }}>
-                Daily progress
+                {t("landing.preview.dailyProgress")}
               </span>
               <span
                 style={{ fontSize: "10px", color: "#2563eb", fontWeight: 600 }}

@@ -12,6 +12,7 @@ import { TabsContent } from "../../ui/tabs";
 import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 const insights: Insight[] = [
   {
@@ -85,6 +86,7 @@ export default function AiCoachInsights({
   dismissedInsights,
   onDismiss,
 }: AiCoachInsightsProps) {
+  const { t } = useTranslation();
   const visibleInsights = insights.filter(
     (i) => !dismissedInsights.includes(i.id),
   );
@@ -113,7 +115,7 @@ export default function AiCoachInsights({
           <CardContent className="p-8 text-center">
             <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
-              All insights reviewed. Check back after more activity!
+              {t("aiCoach.insights.emptyMessage")}
             </p>
           </CardContent>
         </Card>
@@ -131,19 +133,26 @@ export default function AiCoachInsights({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                      <h3 className="font-semibold text-sm">{insight.title}</h3>
+                      <h3 className="font-semibold text-sm">
+                        {t(`aiCoach.insights.${insight.id}.title`)}
+                      </h3>
                       <Badge className={`text-[10px] ${colors.badge}`}>
-                        {insight.type}
+                        {t(`aiCoach.insights.type.${insight.type}`)}
                       </Badge>
                       <Badge
                         className={`text-[10px] ${priorityColors(insight.priority)}`}
                       >
-                        {insight.priority} priority
+                        {t(`aiCoach.insights.priority.${insight.priority}`)}{" "}
+                        {t("aiCoach.insights.labels.priority")}
                       </Badge>
-                      <Badge className="text-[10px]">{insight.relatedTo}</Badge>
+                      <Badge className="text-[10px]">
+                        {t(
+                          `aiCoach.insights.relatedTo.${insight.relatedTo.toLowerCase()}`,
+                        )}
+                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {insight.description}
+                      {t(`aiCoach.insights.${insight.id}.description`)}
                     </p>
                     <div className="flex items-center gap-2 mt-3">
                       {insight.actionLabel && (
@@ -152,7 +161,7 @@ export default function AiCoachInsights({
                           variant="outline"
                           className="cursor-pointer h-7 text-xs gap-1"
                         >
-                          {insight.actionLabel}
+                          {t(`aiCoach.insights.${insight.id}.actionLabel`)}
                           <ChevronRight className="w-3 h-3" />
                         </Button>
                       )}
@@ -162,7 +171,7 @@ export default function AiCoachInsights({
                         className="cursor-pointer h-7 text-xs text-muted-foreground"
                         onClick={() => handleDismiss(insight.id)}
                       >
-                        Dismiss
+                        {t("aiCoach.insights.dismiss")}
                       </Button>
                     </div>
                   </div>

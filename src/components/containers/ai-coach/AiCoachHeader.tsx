@@ -18,6 +18,7 @@ import type { Habit } from "../../../types/habit.types";
 import type { Task } from "../../../types/task.types";
 import type { Goal } from "../../../types/goal.types";
 import { computeScores } from "../../../hooks/useProductivityReport";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface AiCoachHeaderProps {
   habits: Habit[];
@@ -30,6 +31,7 @@ export default function AiCoachHeader({
   tasks,
   goals,
 }: AiCoachHeaderProps) {
+  const { t } = useTranslation();
   const { scores, stats } = computeScores(habits, tasks, goals);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -43,10 +45,10 @@ export default function AiCoachHeader({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2">
-            AI Coach
+            {t("aiCoach.title")}
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Personalized insights based on your activity
+            {t("aiCoach.subtitle")}
           </p>
         </div>
         <Button
@@ -58,7 +60,7 @@ export default function AiCoachHeader({
           <RefreshCw
             className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
           />
-          Refresh
+          {t("aiCoach.button.refresh")}
         </Button>
       </div>
 
@@ -102,7 +104,7 @@ export default function AiCoachHeader({
               </div>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Productivity Score
+                  {t("aiCoach.productivityScore")}
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
                   {scores.trend === "up" ? (
@@ -114,7 +116,7 @@ export default function AiCoachHeader({
                     className={`text-sm font-medium ${scores.trend === "up" ? "text-green-600" : "text-red-500"}`}
                   >
                     {scores.trend === "up" ? "+" : "-"}
-                    {scores.trendValue}% vs last week
+                    {scores.trendValue}% {t("aiCoach.trend.vsLastWeek")}
                   </span>
                 </div>
               </div>
@@ -123,17 +125,17 @@ export default function AiCoachHeader({
             <div className="flex-1 grid grid-cols-3 gap-4 sm:border-l sm:pl-6 border-primary/10">
               {[
                 {
-                  label: "Tasks",
+                  label: t("aiCoach.scoreLabel.tasks"),
                   value: scores.tasks,
                   icon: <CheckCircle2 className="w-3.5 h-3.5" />,
                 },
                 {
-                  label: "Habits",
+                  label: t("aiCoach.scoreLabel.habits"),
                   value: scores.habits,
                   icon: <Flame className="w-3.5 h-3.5" />,
                 },
                 {
-                  label: "Goals",
+                  label: t("aiCoach.scoreLabel.goals"),
                   value: scores.goals,
                   icon: <Target className="w-3.5 h-3.5" />,
                 },
@@ -157,33 +159,35 @@ export default function AiCoachHeader({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           {
-            label: "Current Streak",
+            label: t("aiCoach.stats.currentStreak"),
             value: `${stats.currentStreak}d`,
-            sub: "best habit",
+            sub: t("aiCoach.stats.sub.bestHabit"),
             icon: <Flame className="w-4 h-4 text-orange-500" />,
             color: "text-orange-600",
           },
           {
-            label: "Best Streak",
+            label: t("aiCoach.stats.bestStreak"),
             value: `${stats.longestStreak}d`,
-            sub: "all time",
+            sub: t("aiCoach.stats.sub.allTime"),
             icon: <Zap className="w-4 h-4 text-yellow-500" />,
             color: "text-yellow-600",
           },
           {
-            label: "Avg Tasks / Day",
+            label: t("aiCoach.stats.avgTasksPerDay"),
             value: stats.avgTasksPerDay,
-            sub: "this week",
+            sub: t("aiCoach.stats.sub.thisWeek"),
             icon: <BarChart3 className="w-4 h-4 text-blue-500" />,
             color: "text-blue-600",
           },
           {
-            label: "Peak Hours",
+            label: t("aiCoach.stats.peakHours"),
             value: stats.peakHour,
             sub:
               stats.peakCompletion > 0
-                ? `${stats.peakCompletion}% of completions`
-                : "not enough data",
+                ? t("aiCoach.stats.sub.completionRate", {
+                    percent: stats.peakCompletion,
+                  })
+                : t("aiCoach.stats.sub.noData"),
             icon: <Clock className="w-4 h-4 text-green-500" />,
             color: "text-green-600",
           },

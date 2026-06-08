@@ -22,6 +22,7 @@ import Sidebar from "../components/shared/Sidebar";
 import { useDensityStore } from "../stores/useDensityStore";
 import { Toaster } from "../components/ui/sonner";
 import { API_BASE, SIDEBAR_ROUTES } from "../lib/utils";
+import { useTranslation } from "../hooks/useTranslation";
 
 function AppLayout() {
   const location = useLocation();
@@ -41,9 +42,11 @@ function AppLayout() {
       });
   }, []);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
-    document.title = "FocusFlow";
-  }, []);
+    document.title = t("app.title");
+  }, [t]);
 
   useEffect(() => {
     const root = document.documentElement;

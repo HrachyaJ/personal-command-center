@@ -5,6 +5,7 @@ import { useUIStore } from "../../stores/useUIStore";
 import { signOut } from "../../lib/auth-client";
 import { useLocation, useNavigate } from "react-router";
 import { useState } from "react";
+import { useTranslation } from "../../hooks/useTranslation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,7 @@ import { getInitials, resolveAvatarUrl } from "../../lib/avatar";
 import { toast } from "sonner";
 
 function Sidebar() {
+  const { t } = useTranslation();
   const { sidebarCollapsed: collapsed, setSidebarCollapsed } = useUIStore();
   const { user, loading: isPending, clearUser } = useUserStore();
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -35,6 +37,11 @@ function Sidebar() {
 
   const location = useLocation();
   const currentPath = location.pathname;
+
+  const getNavLabel = (name: string) => {
+    const key = name === "AI Coach" ? "aiCoach" : name.toLowerCase();
+    return t(`sidebar.navigation.${key}`);
+  };
 
   return (
     <>
@@ -74,7 +81,7 @@ function Sidebar() {
           className="absolute -right-3 top-6.5 bg-card border border-border rounded-full p-1.5 shadow-md z-10 cursor-pointer hover:bg-accent hover:text-white"
           style={{ transition: "background 150ms ease, color 150ms ease" }}
           data-testid="toggle-sidebar"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
         >
           <ChevronLeft
             className="w-4 h-4"
@@ -103,11 +110,13 @@ function Sidebar() {
                     variant={currentPath === item.href ? "default" : "ghost"}
                     size="default"
                     onClick={() => navigate(item.href)}
-                    title={collapsed ? item.name : undefined}
+                    title={collapsed ? getNavLabel(item.name) : undefined}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
                     {!collapsed && (
-                      <span className="whitespace-nowrap">{item.name}</span>
+                      <span className="whitespace-nowrap">
+                        {getNavLabel(item.name)}
+                      </span>
                     )}
                   </Button>
                 </li>
@@ -162,7 +171,7 @@ function Sidebar() {
                   {user?.name}
                 </p>
                 <p className="text-xs text-muted-foreground whitespace-nowrap">
-                  Free Plan
+                  {t("sidebar.freePlan")}
                 </p>
               </div>
             </div>
@@ -176,12 +185,12 @@ function Sidebar() {
               paddingRight: collapsed ? "0" : "12px",
             }}
             data-testid="button-upgrade"
-            title={collapsed ? "Upgrade to Pro" : undefined}
-            onClick={() => toast.info("Pro plan coming soon — stay tuned!")}
+            title={collapsed ? t("sidebar.upgrade") : undefined}
+            onClick={() => toast.info(t("sidebar.upgradeToast"))}
           >
             <CreditCard className="w-4 h-4 shrink-0" />
             {!collapsed && (
-              <span className="whitespace-nowrap">Upgrade to Pro</span>
+              <span className="whitespace-nowrap">{t("sidebar.upgrade")}</span>
             )}
           </Button>
 
@@ -194,11 +203,13 @@ function Sidebar() {
               paddingRight: collapsed ? "0" : "12px",
             }}
             data-testid="button-logout"
-            title={collapsed ? "Logout" : undefined}
+            title={collapsed ? t("sidebar.logout") : undefined}
             onClick={() => setLogoutOpen(true)}
           >
             <LogOut className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="whitespace-nowrap">Logout</span>}
+            {!collapsed && (
+              <span className="whitespace-nowrap">{t("sidebar.logout")}</span>
+            )}
           </Button>
         </div>
       </aside>
@@ -212,6 +223,10 @@ function Sidebar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = currentPath === item.href;
+            const compactLabel =
+              item.name === "AI Coach"
+                ? t("sidebar.navigation.aiShort")
+                : getNavLabel(item.name);
             return (
               <li key={item.name} className="flex-1">
                 <button
@@ -221,11 +236,11 @@ function Sidebar() {
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
-                  aria-label={item.name}
+                  aria-label={getNavLabel(item.name)}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
                   <span className="text-[10px] font-medium leading-none">
-                    {item.name === "AI Coach" ? "AI" : item.name}
+                    {compactLabel}
                   </span>
                 </button>
               </li>
@@ -238,20 +253,20 @@ function Sidebar() {
       <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
         <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Log out of FocusFlow?</AlertDialogTitle>
+            <AlertDialogTitle>{t("sidebar.logoutTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              You'll need to sign back in to access your account.
+              {t("sidebar.logoutDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="cursor-pointer">
-              Cancel
+              {t("sidebar.logoutCancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="cursor-pointer bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleLogout}
             >
-              Log out
+              {t("sidebar.logoutConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

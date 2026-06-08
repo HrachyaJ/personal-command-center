@@ -2,18 +2,19 @@ import { AlertCircle, BarChart3, Calendar, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { TabsContent } from "../../ui/tabs";
 import type { Task } from "../../../types/task.types";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface AiCoachPatternsProps {
   tasks: Task[];
 }
 
 const TIME_BUCKETS = [
-  { key: "6", label: "6–9 AM", min: 6, max: 9 },
-  { key: "9", label: "9–12 PM", min: 9, max: 12 },
-  { key: "12", label: "12–3 PM", min: 12, max: 15 },
-  { key: "15", label: "3–6 PM", min: 15, max: 18 },
-  { key: "18", label: "6–9 PM", min: 18, max: 21 },
-  { key: "21", label: "9 PM+", min: 21, max: 24 },
+  { key: "6", label: "aiCoach.patterns.timeBucket.6to9", min: 6, max: 9 },
+  { key: "9", label: "aiCoach.patterns.timeBucket.9to12", min: 9, max: 12 },
+  { key: "12", label: "aiCoach.patterns.timeBucket.12to3", min: 12, max: 15 },
+  { key: "15", label: "aiCoach.patterns.timeBucket.3to6", min: 15, max: 18 },
+  { key: "18", label: "aiCoach.patterns.timeBucket.6to9", min: 18, max: 21 },
+  { key: "21", label: "aiCoach.patterns.timeBucket.9pm", min: 21, max: 24 },
 ];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -87,6 +88,7 @@ function computePatterns(tasks: Task[]) {
 }
 
 export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
+  const { t } = useTranslation();
   const hasData = tasks.some((t) => t.completedAt);
   const { bestTimeOfDay, dayRates, weakDays } = computePatterns(tasks);
 
@@ -97,19 +99,19 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
         <CardHeader className="pt-5">
           <CardTitle className="text-base flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
-            Completion Rate by Time of Day
+            {t("aiCoach.patterns.timeOfDayTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 pb-5">
           {!hasData ? (
             <p className="text-sm text-muted-foreground">
-              Complete some tasks to see your patterns.
+              {t("aiCoach.patterns.noPatternsMessage")}
             </p>
           ) : (
             bestTimeOfDay.map(({ label, completionRate }) => (
               <div key={label} className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{label}</span>
+                  <span className="text-muted-foreground">{t(label)}</span>
                   <span
                     className={`font-medium ${
                       completionRate >= 80
@@ -147,13 +149,13 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
         <CardHeader className="pt-5">
           <CardTitle className="text-base flex items-center gap-2">
             <Calendar className="w-4 h-4 text-primary" />
-            Days That Need Attention
+            {t("aiCoach.patterns.weakDaysTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="pb-5">
           {!hasData || weakDays.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Not enough data yet.
+              {t("aiCoach.patterns.noWeakDaysMessage")}
             </p>
           ) : (
             <>
@@ -169,14 +171,15 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
                     <p className="text-2xl font-bold text-red-500">
                       {completionRate}%
                     </p>
-                    <p className="text-xs text-muted-foreground">completion</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("aiCoach.patterns.completionLabel")}
+                    </p>
                   </div>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
-                Avoid scheduling critical tasks on these days, or reduce the
-                number of tasks planned.
+                {t("aiCoach.patterns.weakDaysAdvice")}
               </p>
             </>
           )}
@@ -188,13 +191,13 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
         <CardHeader className="pt-5">
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-primary" />
-            Weekly Activity Overview
+            {t("aiCoach.patterns.weeklyOverviewTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="pb-4">
           {!hasData ? (
             <p className="text-sm text-muted-foreground">
-              Complete some tasks to see your weekly overview.
+              {t("aiCoach.patterns.noWeeklyOverviewMessage")}
             </p>
           ) : (
             <>
@@ -212,17 +215,22 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
                     <div key={label} className="text-center space-y-1.5">
                       <div
                         className={`h-10 rounded-md ${opacity} transition-all`}
-                        title={`${label}: ${completionRate}% completion`}
+                        title={t("aiCoach.patterns.heatmapTooltip", {
+                          label: t(label),
+                          rate: completionRate,
+                        })}
                       />
                       <p className="text-[10px] text-muted-foreground">
-                        {label}
+                        {t(`aiCoach.patterns.day.${label.toLowerCase()}`)}
                       </p>
                     </div>
                   );
                 })}
               </div>
               <div className="flex items-center justify-end gap-2 mt-3">
-                <span className="text-[10px] text-muted-foreground">Less</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {t("aiCoach.patterns.less")}
+                </span>
                 {[
                   "bg-primary/10",
                   "bg-primary/25",
@@ -231,7 +239,9 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
                 ].map((c) => (
                   <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
                 ))}
-                <span className="text-[10px] text-muted-foreground">More</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {t("aiCoach.patterns.more")}
+                </span>
               </div>
             </>
           )}

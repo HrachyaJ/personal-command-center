@@ -26,6 +26,7 @@ import { GoalCard } from "./GoalCard";
 import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export default function Goals() {
   const {
@@ -55,6 +56,7 @@ export default function Goals() {
   const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
     useOnboardingSeen("goals");
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const { t } = useTranslation();
 
   const pageNeedsOnboarding = !loading && stats.total === 0 && !onboardingSeen;
 
@@ -103,28 +105,28 @@ export default function Goals() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">Goals</h1>
-          <p className="text-muted-foreground text-sm">
-            Set and track your productivity goals
-          </p>
+          <h1 className="text-xl sm:text-2xl font-semibold">
+            {t("goals.header")}
+          </h1>
+          <p className="text-muted-foreground text-sm">{t("goals.subtitle")}</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="cursor-pointer shrink-0" size="sm">
               <Plus className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Add Goal</span>
+              <span className="hidden sm:inline">{t("goals.addButton")}</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[calc(100vw-2rem)] max-w-lg sm:w-full rounded-xl">
             <DialogHeader>
-              <DialogTitle>Create New Goal</DialogTitle>
+              <DialogTitle>{t("goals.dialog.title")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateGoal} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
+                <Label htmlFor="title">{t("goals.form.titleLabel")}</Label>
                 <Input
                   id="title"
-                  placeholder="Enter goal title"
+                  placeholder={t("goals.form.titlePlaceholder")}
                   value={newGoal.title}
                   onChange={(e) =>
                     setNewGoal({ ...newGoal, title: e.target.value })
@@ -133,10 +135,12 @@ export default function Goals() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">
+                  {t("goals.form.descriptionLabel")}
+                </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter goal description"
+                  placeholder={t("goals.form.descriptionPlaceholder")}
                   value={newGoal.description}
                   onChange={(e) =>
                     setNewGoal({ ...newGoal, description: e.target.value })
@@ -145,11 +149,13 @@ export default function Goals() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="targetValue">Target Value *</Label>
+                  <Label htmlFor="targetValue">
+                    {t("goals.form.targetValueLabel")}
+                  </Label>
                   <Input
                     id="targetValue"
                     type="number"
-                    placeholder="100"
+                    placeholder={t("goals.form.targetValuePlaceholder")}
                     value={newGoal.targetValue}
                     onChange={(e) =>
                       setNewGoal({ ...newGoal, targetValue: e.target.value })
@@ -158,7 +164,7 @@ export default function Goals() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="unit">Unit</Label>
+                  <Label htmlFor="unit">{t("goals.form.unitLabel")}</Label>
                   <Select
                     value={newGoal.unit}
                     onValueChange={(value) =>
@@ -169,16 +175,26 @@ export default function Goals() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="tasks">Tasks</SelectItem>
-                      <SelectItem value="hours">Hours</SelectItem>
-                      <SelectItem value="sessions">Sessions</SelectItem>
-                      <SelectItem value="days">Days</SelectItem>
+                      <SelectItem value="tasks">
+                        {t("goals.form.unit.tasks")}
+                      </SelectItem>
+                      <SelectItem value="hours">
+                        {t("goals.form.unit.hours")}
+                      </SelectItem>
+                      <SelectItem value="sessions">
+                        {t("goals.form.unit.sessions")}
+                      </SelectItem>
+                      <SelectItem value="days">
+                        {t("goals.form.unit.days")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="deadline">Deadline</Label>
+                <Label htmlFor="deadline">
+                  {t("goals.form.deadlineLabel")}
+                </Label>
                 <Input
                   id="deadline"
                   type="date"
@@ -194,10 +210,10 @@ export default function Goals() {
                   variant="outline"
                   onClick={() => setIsAddDialogOpen(false)}
                 >
-                  Cancel
+                  {t("goals.form.cancel")}
                 </Button>
                 <Button type="submit" className="cursor-pointer">
-                  Create Goal
+                  {t("goals.form.createGoal")}
                 </Button>
               </div>
             </form>
@@ -214,30 +230,28 @@ export default function Goals() {
       <OnboardingDialog
         open={isOnboardingOpen}
         onOpenChange={handleOnboardingOpenChange}
-        title="Turn your ambitions into real goals"
-        subtitle="Create a goal with a clear target, deadline, and progress tracker."
+        title={t("goals.onboarding.title")}
+        subtitle={t("goals.onboarding.subtitle")}
         steps={[
           {
-            title: "Frame a strong outcome",
-            description: "Name the goal and describe what success looks like.",
+            title: t("goals.onboarding.step.frameOutcome"),
+            description: t("goals.onboarding.step.frameOutcomeDesc"),
           },
           {
-            title: "Pick a target",
-            description:
-              "Add a measurable milestone so you can track progress.",
+            title: t("goals.onboarding.step.pickTarget"),
+            description: t("goals.onboarding.step.pickTargetDesc"),
           },
           {
-            title: "Check progress often",
-            description:
-              "Mark updates and move closer to completion every week.",
+            title: t("goals.onboarding.step.checkProgress"),
+            description: t("goals.onboarding.step.checkProgressDesc"),
           },
         ]}
         primaryAction={{
-          label: "Create your first goal",
+          label: t("goals.onboarding.primaryAction"),
           onClick: handleStartGoalOnboarding,
         }}
         secondaryAction={{
-          label: "Maybe later",
+          label: t("goals.onboarding.secondaryAction"),
           onClick: () => handleOnboardingOpenChange(false),
         }}
       />
@@ -252,22 +266,22 @@ export default function Goals() {
           <>
             <StatCard
               value={stats.total}
-              label="Total Goals"
+              label={t("goals.stats.totalGoals")}
               color="text-primary"
             />
             <StatCard
               value={stats.active}
-              label="Active Goals"
+              label={t("goals.stats.activeGoals")}
               color="text-blue-600"
             />
             <StatCard
               value={stats.completed}
-              label="Completed"
+              label={t("goals.stats.completed")}
               color="text-green-600"
             />
             <StatCard
               value={`${stats.completionRate}%`}
-              label="Completion Rate"
+              label={t("goals.stats.completionRate")}
               color="text-purple-600"
             />
           </>
@@ -286,19 +300,21 @@ export default function Goals() {
             value="active"
             className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
           >
-            Active ({loading ? "…" : stats.active})
+            {t("goals.tabs.active", { count: loading ? "…" : stats.active })}
           </TabsTrigger>
           <TabsTrigger
             value="completed"
             className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
           >
-            Completed ({loading ? "…" : stats.completed})
+            {t("goals.tabs.completed", {
+              count: loading ? "…" : stats.completed,
+            })}
           </TabsTrigger>
           <TabsTrigger
             value="paused"
             className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
           >
-            Paused ({loading ? "…" : stats.paused})
+            {t("goals.tabs.paused", { count: loading ? "…" : stats.paused })}
           </TabsTrigger>
         </TabsList>
 
@@ -312,13 +328,13 @@ export default function Goals() {
               <CardContent className="p-8 text-center">
                 <Target className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4 text-sm">
-                  No {activeTab} goals yet
+                  {t(`goals.empty.${activeTab}`)}
                 </p>
                 <Button
                   className="cursor-pointer"
                   onClick={() => setIsAddDialogOpen(true)}
                 >
-                  Create your first goal
+                  {t("goals.empty.createFirstGoal")}
                 </Button>
               </CardContent>
             </Card>

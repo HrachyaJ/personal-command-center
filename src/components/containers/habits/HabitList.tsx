@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Habit } from "../../../types/habit.types";
 import { CATEGORY_LABELS } from "../../../lib/utils";
 import { CATEGORY_COLORS } from "../../../lib/theme";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface HabitListProps {
   habits: Habit[];
@@ -16,6 +17,7 @@ export default function HabitList({
   onRemove,
   isCompletedToday,
 }: HabitListProps) {
+  const { t } = useTranslation();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null); // add this
 
@@ -26,10 +28,10 @@ export default function HabitList({
           <span className="text-3xl">🌱</span>
         </div>
         <p className="text-muted-foreground text-sm font-medium">
-          No habits yet
+          {t("habits.list.emptyTitle")}
         </p>
         <p className="text-muted-foreground text-xs mt-1">
-          Add your first habit to start tracking
+          {t("habits.list.emptySubtitle")}
         </p>
       </div>
     );
@@ -70,7 +72,11 @@ export default function HabitList({
                   ? "border-green-500 bg-green-500"
                   : "border-border hover:border-primary"
               }`}
-              aria-label={done ? "Mark incomplete" : "Mark complete"}
+              aria-label={
+                done
+                  ? t("habits.list.markIncomplete")
+                  : t("habits.list.markComplete")
+              }
             >
               {done && (
                 <svg

@@ -6,6 +6,7 @@ import { Button } from "../../ui/button";
 import { Progress } from "../../ui/progress";
 import { Input } from "../../ui/input";
 import { useState } from "react";
+import { useTranslation } from "../../../hooks/useTranslation";
 import { getStatusColor } from "../../../lib/utils";
 
 interface GoalCardProps {
@@ -21,6 +22,7 @@ export const GoalCard = ({
   onCompleteGoal,
   onDeleteGoal,
 }: GoalCardProps) => {
+  const { t } = useTranslation();
   const [progressInput, setProgressInput] = useState("");
 
   const progressPercentage = Math.round(
@@ -56,7 +58,7 @@ export const GoalCard = ({
                 {goal.status === "completed" && (
                   <CheckCircle2 className="w-3 h-3 mr-1" />
                 )}
-                {goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}
+                {t(`goals.status.${goal.status}`)}
               </Badge>
               <Button
                 variant="ghost"
@@ -73,7 +75,8 @@ export const GoalCard = ({
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>
-                {goal.currentValue} / {goal.targetValue} {goal.unit}
+                {goal.currentValue} / {goal.targetValue}{" "}
+                {t(`goals.form.unit.${goal.unit}`)}
               </span>
               <span className="text-muted-foreground">
                 {progressPercentage}%
@@ -86,7 +89,10 @@ export const GoalCard = ({
           {goal.deadline && (
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 shrink-0" />
-              <span>Due: {new Date(goal.deadline).toLocaleDateString()}</span>
+              <span>
+                {t("goals.goalCard.dueLabel")}:{" "}
+                {new Date(goal.deadline).toLocaleDateString()}
+              </span>
             </div>
           )}
 
@@ -95,7 +101,7 @@ export const GoalCard = ({
             <div className="flex items-center gap-2 pt-1">
               <Input
                 type="number"
-                placeholder="Add progress"
+                placeholder={t("goals.goalCard.addProgressPlaceholder")}
                 className="flex-1 h-8 text-sm"
                 value={progressInput}
                 onChange={(e) => setProgressInput(e.target.value)}
@@ -109,7 +115,7 @@ export const GoalCard = ({
                 onClick={submitProgress}
                 disabled={!progressInput || parseInt(progressInput, 10) <= 0}
                 className="cursor-pointer h-8 px-2"
-                aria-label="Add progress"
+                aria-label={t("goals.goalCard.addProgressAria")}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -119,7 +125,7 @@ export const GoalCard = ({
                   onClick={() => onCompleteGoal(goal.id)}
                   className="cursor-pointer h-8 text-xs whitespace-nowrap"
                 >
-                  Mark Complete
+                  {t("goals.goalCard.markComplete")}
                 </Button>
               )}
             </div>
