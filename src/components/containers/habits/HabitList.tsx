@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { Habit } from "../../../types/habit.types";
-import { CATEGORY_LABELS } from "../../../lib/utils";
 import { CATEGORY_COLORS } from "../../../lib/theme";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { getCategoryLabels } from "../../../lib/utils";
 
 interface HabitListProps {
   habits: Habit[];
@@ -112,8 +112,10 @@ export default function HabitList({
                   {habit.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {CATEGORY_LABELS[habit.category]} ·{" "}
-                  {habit.frequency === "daily" ? "Daily" : "Weekly"}
+                  {getCategoryLabels(t)[habit.category]} ·{" "}
+                  {habit.frequency === "daily"
+                    ? t("habits.frequency.daily")
+                    : t("habits.frequency.weekly")}
                 </p>
               </div>
             </div>
@@ -140,14 +142,14 @@ export default function HabitList({
                     }}
                     className="text-xs text-red-500 hover:text-red-700 font-medium"
                   >
-                    Delete
+                    {t("habits.list.confirmDelete")}
                   </button>
                   <span className="text-muted-foreground">|</span>
                   <button
                     onClick={() => setConfirmDelete(null)}
                     className="text-xs text-muted-foreground hover:text-muted-foreground"
                   >
-                    Cancel
+                    {t("habits.list.cancelDelete")}
                   </button>
                 </div>
               ) : (

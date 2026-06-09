@@ -34,7 +34,15 @@ export function AppearanceTab() {
           <p className="text-sm font-medium text-foreground mb-3">
             {t("settings.colorMode")}
           </p>
-          <ThemePicker value={theme} onChange={handleThemeChange} />
+          <ThemePicker
+            value={theme}
+            onChange={handleThemeChange}
+            labels={{
+              light: t("settings.theme.light"),
+              dark: t("settings.theme.dark"),
+              system: t("settings.theme.system"),
+            }}
+          />
         </div>
       </Section>
 

@@ -9,6 +9,7 @@ import {
   Repeat2,
   Calendar,
   Clock,
+  Shield,
 } from "lucide-react";
 import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
@@ -41,6 +42,7 @@ import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import Insights from "../../shared/Insights";
+import { Badge } from "../../ui/badge";
 
 const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
@@ -160,7 +162,7 @@ export default function Dashboard() {
     {
       title: t("dashboard.stats.productivityScore"),
       value: `${taskCompletionRate}%`,
-      subtext: getMomentumLabel(taskCompletionRate),
+      subtext: getMomentumLabel(taskCompletionRate, t),
       icon: Flame,
       iconColor: "text-purple-600",
       iconBg: "bg-purple-100",
@@ -212,10 +214,10 @@ export default function Dashboard() {
                   className="text-xl sm:text-2xl font-semibold truncate"
                   data-testid="greeting"
                 >
-                  {getTimeOfDayGreeting()}, {user?.name}
+                  {getTimeOfDayGreeting(t)}, {user?.name}
                 </h2>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  {getDynamicMotivationalSubtitle()}
+                  {getDynamicMotivationalSubtitle(t)}
                 </p>
               </>
             )}
@@ -223,10 +225,10 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             {/* Hide badge on very small screens */}
-            {/* <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+            <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
               <Shield className="w-3 h-3 mr-1" />
-              AI Coach Active
-            </Badge> */}
+              {t("dashboard.aiBadge")}
+            </Badge>
             <Button
               variant="ghost"
               size="icon"

@@ -10,6 +10,7 @@ import { Button } from "../../ui/button";
 import { Separator } from "../../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { getInitials, resolveAvatarUrl } from "../../../lib/avatar";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export function AccountTab() {
   const { user, update: updateUser } = useUserStore();
@@ -28,6 +29,8 @@ export function AccountTab() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (user) {
       setName(user.name ?? "");
@@ -38,11 +41,11 @@ export function AccountTab() {
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
+      toast.error(t("settings.account.avatarTypeError"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5 MB");
+      toast.error(t("settings.account.avatarSizeError"));
       return;
     }
     setAvatarFile(file);
@@ -66,14 +69,14 @@ export function AccountTab() {
         method: "DELETE",
       });
       if (!res.ok) {
-        toast.error("Failed to remove avatar");
+        toast.error(t("settings.account.avatarRemoveError"));
         return;
       }
       updateUser({ image: null });
       setAvatarPreview(null);
-      toast.success("Avatar removed");
+      toast.success(t("settings.account.avatarRemoved"));
     } catch {
-      toast.error("Failed to remove avatar");
+      toast.error(t("settings.account.avatarRemoveError"));
     }
   };
 
@@ -107,7 +110,9 @@ export function AccountTab() {
           setAvatarFile(null);
         } catch (err: unknown) {
           toast.error(
-            err instanceof Error ? err.message : "Failed to upload avatar",
+            err instanceof Error
+              ? err.message
+              : toast.error(t("settings.account.avatarUploadError")),
           );
           return;
         } finally {
@@ -121,7 +126,7 @@ export function AccountTab() {
         body: JSON.stringify({ name, email }),
       });
       if (!res.ok) {
-        toast.error("Failed to update profile");
+        toast.error(t("settings.account.profileUpdateError"));
         return;
       }
 
@@ -130,7 +135,7 @@ export function AccountTab() {
         email,
         ...(newImagePath ? { image: newImagePath } : {}),
       });
-      toast.success("Profile updated");
+      toast.success(t("settings.account.profileUpdated"));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {
@@ -140,11 +145,11 @@ export function AccountTab() {
 
   async function handlePasswordChange() {
     if (!currentPw || !newPw) {
-      toast.error("Please fill in both password fields");
+      toast.error(t("settings.account.passwordFieldsRequired"));
       return;
     }
     if (newPw.length < 8) {
-      toast.error("New password must be at least 8 characters");
+      toast.error(t("settings.account.passwordTooShort"));
       return;
     }
 
@@ -162,13 +167,13 @@ export function AccountTab() {
         const data = await res.json().catch(() => ({}));
         const msg: string = data.error ?? "Failed to update password";
         if (msg.toLowerCase().includes("short"))
-          toast.error("Password must be at least 8 characters");
+          toast.error(t("settings.account.passwordTooShort"));
         else if (msg.toLowerCase().includes("invalid"))
-          toast.error("Current password is incorrect");
-        else toast.error(msg);
+          toast.error(t("settings.account.passwordIncorrect"));
+        else toast.error(t("settings.account.passwordUpdateError"));
         return;
       }
-      toast.success("Password updated");
+      toast.success(t("settings.account.passwordUpdated"));
       setCurrentPw("");
       setNewPw("");
     } finally {
@@ -181,7 +186,7 @@ export function AccountTab() {
 
   return (
     <div className="space-y-6">
-      <Section title="Profile">
+      <Section title={t("settings.account.profileSection")}>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
@@ -222,14 +227,16 @@ export function AccountTab() {
                 disabled={uploadingAvatar}
               >
                 <Upload size={13} className="mr-1.5" />
-                {avatarPreview ? "Change photo" : "Upload photo"}
+                {avatarPreview
+                  ? t("settings.account.changePhoto")
+                  : t("settings.account.uploadPhoto")}
               </Button>
               <p className="text-xs text-muted-foreground">
-                JPG, PNG or GIF · max 5 MB
+                {t("settings.account.avatarHint")}
               </p>
               {hasUnsavedAvatar && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                  Unsaved — click "Save changes" to apply
+                  {t("settings.account.unsavedAvatar")}
                 </p>
               )}
             </div>
@@ -237,26 +244,26 @@ export function AccountTab() {
 
           <div>
             <Label htmlFor="name" className="text-xs mb-1.5 block">
-              Display name
+              {t("settings.account.displayName")}
             </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t("settings.account.namePlaceholder")}
             />
           </div>
 
           <div>
             <Label htmlFor="email" className="text-xs mb-1.5 block">
-              Email address
+              {t("settings.account.emailLabel")}
             </Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t("settings.account.emailPlaceholder")}
             />
           </div>
 
@@ -268,16 +275,17 @@ export function AccountTab() {
           >
             {savingProfile ? (
               uploadingAvatar ? (
-                "Uploading avatar..."
+                t("settings.account.uploadingAvatar")
               ) : (
-                "Saving..."
+                t("settings.account.saving")
               )
             ) : saved ? (
               <>
-                <Check size={14} className="mr-1.5" /> Saved
+                <Check size={14} className="mr-1.5" />{" "}
+                {t("settings.account.saved")}
               </>
             ) : (
-              "Save changes"
+              t("settings.account.saveChanges")
             )}
           </Button>
         </div>
@@ -285,7 +293,7 @@ export function AccountTab() {
 
       <Separator />
 
-      <Section title="Password">
+      <Section title={t("settings.account.passwordSection")}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -303,7 +311,7 @@ export function AccountTab() {
           />
           <div>
             <Label htmlFor="current-pw" className="text-xs mb-1.5 block">
-              Current password
+              {t("settings.account.currentPassword")}
             </Label>
             <Input
               id="current-pw"
@@ -316,7 +324,7 @@ export function AccountTab() {
           </div>
           <div>
             <Label htmlFor="new-pw" className="text-xs mb-1.5 block">
-              New password
+              {t("settings.account.newPassword")}
             </Label>
             <Input
               id="new-pw"
@@ -335,7 +343,9 @@ export function AccountTab() {
             disabled={savingPassword}
           >
             <Lock size={14} className="mr-1.5" />
-            {savingPassword ? "Updating..." : "Update password"}
+            {savingPassword
+              ? t("settings.account.updating")
+              : t("settings.account.updatePassword")}
           </Button>
         </form>
       </Section>

@@ -23,8 +23,14 @@ import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { useUserStore } from "../../../stores/useUserStore";
 import { SessionsSheet } from "./SettingsActiveSessions";
+import { translate } from "../../../lib/i18n";
+import { useLocaleStore } from "../../../stores/useLocaleStore";
 
 export function PrivacyTab() {
+  const locale = useLocaleStore((s) => s.locale);
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
+
   const [twoFa, setTwoFa] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -44,7 +50,6 @@ export function PrivacyTab() {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      // Use authFetch so the Bearer token is attached cross-origin
       const res = await authFetch(`${API_BASE}/api/user/account`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -52,13 +57,13 @@ export function PrivacyTab() {
       });
       if (!res.ok) {
         const data = await res.json();
-        const msg = data.error ?? "Failed to delete account";
+        const msg = data.error ?? t("settings.privacy.deleteAccountError");
         if (msg.toLowerCase().includes("password"))
-          toast.error("Incorrect password");
+          toast.error(t("settings.privacy.incorrectPassword"));
         else toast.error(msg);
         return;
       }
-      toast.success("Account deleted");
+      toast.success(t("settings.privacy.accountDeleted"));
       await signOut();
       clearUser();
       navigate("/sign-in");
@@ -71,10 +76,9 @@ export function PrivacyTab() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      // Use authFetch so the Bearer token is attached cross-origin
       const res = await authFetch(`${API_BASE}/api/user/export`);
       if (!res.ok) {
-        toast.error("Failed to export data");
+        toast.error(t("settings.privacy.exportError"));
         return;
       }
       const blob = new Blob([await res.arrayBuffer()], {
@@ -85,9 +89,9 @@ export function PrivacyTab() {
       a.download = "focusflow-export.pdf";
       a.click();
       URL.revokeObjectURL(a.href);
-      toast.success("Export downloaded!");
+      toast.success(t("settings.privacy.exportSuccess"));
     } catch {
-      toast.error("Failed to export data");
+      toast.error(t("settings.privacy.exportError"));
     } finally {
       setExporting(false);
     }
@@ -95,10 +99,10 @@ export function PrivacyTab() {
 
   return (
     <div className="space-y-6">
-      <Section title="Security">
+      <Section title={t("settings.privacy.securitySection")}>
         <Row
-          label="Two-factor authentication"
-          description="Add an extra layer of security to your account"
+          label={t("settings.privacy.twoFa")}
+          description={t("settings.privacy.twoFaDesc")}
         >
           <Switch
             checked={twoFa}
@@ -106,15 +110,15 @@ export function PrivacyTab() {
               setTwoFa(val);
               toast.info(
                 val
-                  ? "2FA coming soon — this feature is under development."
-                  : "2FA disabled.",
+                  ? t("settings.privacy.twoFaComingSoon")
+                  : t("settings.privacy.twoFaDisabled"),
               );
             }}
           />
         </Row>
         <Row
-          label="Active sessions"
-          description="Manage where you're logged in"
+          label={t("settings.privacy.activeSessions")}
+          description={t("settings.privacy.activeSessionsDesc")}
         >
           <Button
             size="sm"
@@ -122,17 +126,17 @@ export function PrivacyTab() {
             className="cursor-pointer text-xs h-8 gap-1.5"
             onClick={() => setSessionsOpen(true)}
           >
-            Manage <ChevronRight size={12} />
+            {t("settings.privacy.manageBtn")} <ChevronRight size={12} />
           </Button>
         </Row>
       </Section>
 
       <Separator />
 
-      <Section title="Data">
+      <Section title={t("settings.privacy.dataSection")}>
         <Row
-          label="Export your data"
-          description="Download a copy of all your tasks, goals, and habits"
+          label={t("settings.privacy.exportData")}
+          description={t("settings.privacy.exportDataDesc")}
         >
           <Button
             size="sm"
@@ -142,16 +146,21 @@ export function PrivacyTab() {
             disabled={exporting}
           >
             <Globe size={13} className="mr-1.5" />
-            {exporting ? "Exporting..." : "Export"}
+            {exporting
+              ? t("settings.privacy.exporting")
+              : t("settings.privacy.exportBtn")}
           </Button>
         </Row>
       </Section>
 
       <Separator />
 
-      <Section title="Danger zone">
+      <Section title={t("settings.privacy.dangerSection")}>
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-3">
-          <Row label="Sign out everywhere" description="Log out of all devices">
+          <Row
+            label={t("settings.privacy.signOutEverywhere")}
+            description={t("settings.privacy.signOutEverywhereDesc")}
+          >
             <Button
               size="sm"
               variant="outline"
@@ -159,13 +168,13 @@ export function PrivacyTab() {
               onClick={() => setLogoutOpen(true)}
             >
               <LogOut size={13} className="mr-1.5" />
-              Sign out
+              {t("settings.privacy.signOutBtn")}
             </Button>
           </Row>
           <Separator className="bg-destructive/20" />
           <Row
-            label="Delete account"
-            description="Permanently remove your data"
+            label={t("settings.privacy.deleteAccount")}
+            description={t("settings.privacy.deleteAccountDesc")}
           >
             <Button
               size="sm"
@@ -174,7 +183,7 @@ export function PrivacyTab() {
               onClick={() => setDeleteOpen(true)}
             >
               <Trash2 size={13} className="mr-1.5" />
-              Delete
+              {t("settings.privacy.deleteBtn")}
             </Button>
           </Row>
         </div>
@@ -183,20 +192,22 @@ export function PrivacyTab() {
       <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
         <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Log out of FocusFlow?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("settings.privacy.logoutTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You'll need to sign back in to access your account.
+              {t("settings.privacy.logoutDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="cursor-pointer">
-              Cancel
+              {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="cursor-pointer bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleLogout}
             >
-              Log out
+              {t("settings.privacy.logoutConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -212,12 +223,10 @@ export function PrivacyTab() {
         <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive">
-              Delete account?
+              {t("settings.privacy.deleteDialogTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your account and all associated data
-              — tasks, goals, habits, and settings. This action{" "}
-              <strong>cannot</strong> be undone.
+              {t("settings.privacy.deleteDialogDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <form
@@ -236,7 +245,7 @@ export function PrivacyTab() {
               tabIndex={-1}
             />
             <Label htmlFor="delete-confirm-pw" className="text-xs mb-1.5 block">
-              Confirm your password to continue
+              {t("settings.privacy.confirmPasswordLabel")}
             </Label>
             <Input
               id="delete-confirm-pw"
@@ -252,7 +261,7 @@ export function PrivacyTab() {
               className="cursor-pointer"
               onClick={() => setDeletePassword("")}
             >
-              Cancel
+              {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="cursor-pointer bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -260,11 +269,14 @@ export function PrivacyTab() {
               form="delete-account-form"
               disabled={!deletePassword || deletingAccount}
             >
-              {deletingAccount ? "Deleting…" : "Delete account"}
+              {deletingAccount
+                ? t("settings.privacy.deleting")
+                : t("settings.privacy.deleteAccountConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
       <SessionsSheet open={sessionsOpen} onOpenChange={setSessionsOpen} />
     </div>
   );

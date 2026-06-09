@@ -4,8 +4,14 @@ import { Row } from "./SettingsRow";
 import { Switch } from "../../ui/switch";
 import { Separator } from "../../ui/separator";
 import { toast } from "sonner";
+import { translate } from "../../../lib/i18n";
+import { useLocaleStore } from "../../../stores/useLocaleStore";
 
 export function NotificationsTab() {
+  const locale = useLocaleStore((s) => s.locale);
+  const t = (key: string, vars?: Record<string, string | number>) =>
+    translate(locale, key, vars);
+
   const [prefs, setPrefs] = useState({
     taskReminders: true,
     habitReminders: true,
@@ -14,95 +20,90 @@ export function NotificationsTab() {
     aiInsights: true,
   });
 
-  const toggle = (key: keyof typeof prefs) =>
-    setPrefs((p) => ({ ...p, [key]: !p[key] }));
+  const handleToggle = (key: keyof typeof prefs, featureKey: string) => {
+    const next = !prefs[key];
+    setPrefs((p) => ({ ...p, [key]: next }));
+    const feature = t(featureKey);
+    toast.info(
+      next
+        ? t("settings.notifications.underDev", { feature })
+        : t("settings.notifications.disabled", { feature }),
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <Section title="Reminders">
+      <Section title={t("settings.notifications.remindersSection")}>
         <Row
-          label="Task reminders"
-          description="Get notified before tasks are due"
+          label={t("settings.notifications.taskReminders")}
+          description={t("settings.notifications.taskRemindersDesc")}
         >
           <Switch
             checked={prefs.taskReminders}
-            onCheckedChange={() => {
-              setPrefs((p) => ({ ...p, taskReminders: !p.taskReminders }));
-              toast.info(
-                !prefs.taskReminders
-                  ? "Task reminders — this feature is under development."
-                  : "Task reminders disabled.",
-              );
-            }}
+            onCheckedChange={() =>
+              handleToggle(
+                "taskReminders",
+                "settings.notifications.taskReminders",
+              )
+            }
           />
         </Row>
         <Row
-          label="Habit reminders"
-          description="Daily nudge to complete your habits"
+          label={t("settings.notifications.habitReminders")}
+          description={t("settings.notifications.habitRemindersDesc")}
         >
           <Switch
             checked={prefs.habitReminders}
-            onCheckedChange={() => {
-              setPrefs((p) => ({ ...p, habitReminders: !p.habitReminders }));
-              toast.info(
-                !prefs.habitReminders
-                  ? "Habit reminders — this feature is under development."
-                  : "Habit reminders disabled.",
-              );
-            }}
+            onCheckedChange={() =>
+              handleToggle(
+                "habitReminders",
+                "settings.notifications.habitReminders",
+              )
+            }
           />
         </Row>
         <Row
-          label="Goal milestones"
-          description="Celebrate when you hit a milestone"
+          label={t("settings.notifications.goalMilestones")}
+          description={t("settings.notifications.goalMilestonesDesc")}
         >
           <Switch
             checked={prefs.goalMilestones}
-            onCheckedChange={() => {
-              setPrefs((p) => ({ ...p, goalMilestones: !p.goalMilestones }));
-              toast.info(
-                !prefs.goalMilestones
-                  ? "Goal reminders — this feature is under development."
-                  : "Goal reminders disabled.",
-              );
-            }}
+            onCheckedChange={() =>
+              handleToggle(
+                "goalMilestones",
+                "settings.notifications.goalMilestones",
+              )
+            }
           />
         </Row>
       </Section>
 
       <Separator />
 
-      <Section title="Reports">
+      <Section title={t("settings.notifications.reportsSection")}>
         <Row
-          label="Weekly digest"
-          description="Sunday summary of your week's progress"
+          label={t("settings.notifications.weeklyDigest")}
+          description={t("settings.notifications.weeklyDigestDesc")}
         >
           <Switch
             checked={prefs.weeklyDigest}
-            onCheckedChange={() => {
-              setPrefs((p) => ({ ...p, weeklyDigest: !p.weeklyDigest }));
-              toast.info(
-                !prefs.weeklyDigest
-                  ? "Weekly digest — this feature is under development."
-                  : "Weekly digest disabled.",
-              );
-            }}
+            onCheckedChange={() =>
+              handleToggle(
+                "weeklyDigest",
+                "settings.notifications.weeklyDigest",
+              )
+            }
           />
         </Row>
         <Row
-          label="AI Coach insights"
-          description="Personalized tips from your AI Coach"
+          label={t("settings.notifications.aiInsights")}
+          description={t("settings.notifications.aiInsightsDesc")}
         >
           <Switch
             checked={prefs.aiInsights}
-            onCheckedChange={() => {
-              setPrefs((p) => ({ ...p, aiInsights: !p.aiInsights }));
-              toast.info(
-                !prefs.aiInsights
-                  ? "AI Coach insights — this feature is under development."
-                  : "AI Coach insights disabled.",
-              );
-            }}
+            onCheckedChange={() =>
+              handleToggle("aiInsights", "settings.notifications.aiInsights")
+            }
           />
         </Row>
       </Section>

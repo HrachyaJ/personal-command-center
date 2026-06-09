@@ -11,62 +11,60 @@ export function cn(...inputs: ClassValue[]) {
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 // For the future the dynamic subtitle could be enhanced to pull from a larger set of phrases or even use an AI service to generate personalized messages based on user data and time of day.
-export function getDynamicMotivationalSubtitle(): string {
+export function getDynamicMotivationalSubtitle(
+  t: (key: string) => string,
+): string {
   const hour = new Date().getHours();
 
   if (hour >= 5 && hour < 12) {
-    // 5:00 AM - 11:59 AM
-    const morningPhrases = [
-      "Ready to tackle your goals today?",
-      "The morning is yours. Let's make it count.",
-      "Win the morning, win the day. What's first?",
-      "Fresh start, clear focus. Let's build momentum.",
+    const keys = [
+      "dashboard.subtitle.morning.0",
+      "dashboard.subtitle.morning.1",
+      "dashboard.subtitle.morning.2",
+      "dashboard.subtitle.morning.3",
     ];
-    return morningPhrases[hour % morningPhrases.length];
+    return t(keys[hour % keys.length]);
   } else if (hour >= 12 && hour < 17) {
-    // 12:00 PM - 4:59 PM
-    const afternoonPhrases = [
-      "Keep the momentum going!",
-      "Stay focused, you're making solid progress.",
-      "One task at a time. You've got this handled.",
-      "Midday check-in: channel your energy effectively.",
+    const keys = [
+      "dashboard.subtitle.afternoon.0",
+      "dashboard.subtitle.afternoon.1",
+      "dashboard.subtitle.afternoon.2",
+      "dashboard.subtitle.afternoon.3",
     ];
-    return afternoonPhrases[hour % afternoonPhrases.length];
+    return t(keys[hour % keys.length]);
   } else if (hour >= 17 && hour < 22) {
-    // 5:00 PM - 9:59 PM
-    const eveningPhrases = [
-      "Let's finish the day strong.",
-      "Reviewing your wins? Excellent discipline.",
-      "Bringing order to the evening. Keep it up.",
-      "Time to tie up loose ends and wrap up gracefully.",
+    const keys = [
+      "dashboard.subtitle.evening.0",
+      "dashboard.subtitle.evening.1",
+      "dashboard.subtitle.evening.2",
+      "dashboard.subtitle.evening.3",
     ];
-    return eveningPhrases[hour % eveningPhrases.length];
+    return t(keys[hour % keys.length]);
   } else {
-    // 10:00 PM - 4:59 AM
-    const nightPhrases = [
-      "Preparing the ground for tomorrow?",
-      "Late-night focus hits differently. Stay steady.",
-      "Wrap up your thoughts and clear your mind.",
-      "Rest is part of the discipline. Don't overdo it.",
+    const keys = [
+      "dashboard.subtitle.night.0",
+      "dashboard.subtitle.night.1",
+      "dashboard.subtitle.night.2",
+      "dashboard.subtitle.night.3",
     ];
-    return nightPhrases[hour % nightPhrases.length];
+    return t(keys[hour % keys.length]);
   }
 }
-
-// For the fu
-export function getTimeOfDayGreeting(): string {
+export function getTimeOfDayGreeting(t: (key: string) => string): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good Morning";
-  if (hour < 18) return "Good Afternoon";
-  return "Good Evening";
+  if (hour < 12) return t("dashboard.greeting.morning");
+  if (hour < 18) return t("dashboard.greeting.afternoon");
+  return t("dashboard.greeting.evening");
 }
-
-export function getMomentumLabel(rate: number): string {
-  if (rate >= 80) return "🔥 On fire!";
-  if (rate >= 60) return "💪 Keep it up!";
-  if (rate >= 40) return "📈 Building momentum";
-  if (rate > 0) return "🌱 Just getting started";
-  return "✨ Nothing yet";
+export function getMomentumLabel(
+  rate: number,
+  t: (key: string) => string,
+): string {
+  if (rate >= 80) return t("dashboard.momentum.onFire");
+  if (rate >= 60) return t("dashboard.momentum.keepItUp");
+  if (rate >= 40) return t("dashboard.momentum.building");
+  if (rate > 0) return t("dashboard.momentum.starting");
+  return t("dashboard.momentum.nothing");
 }
 
 export function getLast7Days(): string[] {
@@ -77,9 +75,12 @@ export function getLast7Days(): string[] {
   });
 }
 
-export function getDayLabel(iso: string): string {
+export function getDayLabel(iso: string, locale: string = "en-US"): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { weekday: "short" }).charAt(0);
+  return d
+    .toLocaleDateString(locale, { weekday: "short" })
+    .charAt(0)
+    .toUpperCase();
 }
 
 export const PRIORITY_STYLES: Record<
@@ -132,19 +133,24 @@ export const isOverdue = (dateStr: string | null, completed: boolean) => {
 
 // Alias kept for any callers using the old name — delegates to isOverdue
 export const isTaskOverdue = isOverdue;
-
-export const CATEGORIES: {
-  value: HabitCategory;
-  label: string;
-  emoji: string;
-}[] = [
-  { value: "health", label: "Health", emoji: "🩺" },
-  { value: "fitness", label: "Fitness", emoji: "💪" },
-  { value: "mindfulness", label: "Mindfulness", emoji: "🧘" },
-  { value: "learning", label: "Learning", emoji: "📚" },
-  { value: "productivity", label: "Productivity", emoji: "⚡" },
-  { value: "other", label: "Other", emoji: "✨" },
-];
+export function getCategories(t: (key: string) => string) {
+  return [
+    { value: "health", label: t("habits.category.health"), emoji: "🩺" },
+    { value: "fitness", label: t("habits.category.fitness"), emoji: "💪" },
+    {
+      value: "mindfulness",
+      label: t("habits.category.mindfulness"),
+      emoji: "🧘",
+    },
+    { value: "learning", label: t("habits.category.learning"), emoji: "📚" },
+    {
+      value: "productivity",
+      label: t("habits.category.productivity"),
+      emoji: "⚡",
+    },
+    { value: "other", label: t("habits.category.other"), emoji: "✨" },
+  ] as const;
+}
 
 export const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
@@ -278,15 +284,18 @@ export function effortColors(effort: "easy" | "moderate" | "hard") {
       return "bg-red-100 text-red-700 border-red-200";
   }
 }
-
-export const CATEGORY_LABELS: Record<string, string> = {
-  health: "🩺 Health",
-  fitness: "💪 Fitness",
-  mindfulness: "🧘 Mindfulness",
-  learning: "📚 Learning",
-  productivity: "⚡ Productivity",
-  other: "✨ Other",
-};
+export function getCategoryLabels(
+  t: (key: string) => string,
+): Record<string, string> {
+  return {
+    health: `🩺 ${t("habits.category.health")}`,
+    fitness: `💪 ${t("habits.category.fitness")}`,
+    mindfulness: `🧘 ${t("habits.category.mindfulness")}`,
+    learning: `📚 ${t("habits.category.learning")}`,
+    productivity: `⚡ ${t("habits.category.productivity")}`,
+    other: `✨ ${t("habits.category.other")}`,
+  };
+}
 
 export const SIDEBAR_ROUTES = [
   "/dashboard",

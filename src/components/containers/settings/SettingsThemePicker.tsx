@@ -5,16 +5,21 @@ export type Theme = "light" | "dark" | "system";
 export function ThemePicker({
   value,
   onChange,
+  labels,
 }: {
   value: Theme;
   onChange: (v: Theme) => void;
+  labels?: { light: string; dark: string; system: string };
 }) {
-  const options: { value: Theme; icon: React.ElementType; label: string }[] = [
-    { value: "light", icon: Sun, label: "Light" },
-    { value: "dark", icon: Moon, label: "Dark" },
-    { value: "system", icon: Monitor, label: "System" },
+  const options = [
+    { value: "light" as Theme, icon: Sun, label: labels?.light ?? "Light" },
+    { value: "dark" as Theme, icon: Moon, label: labels?.dark ?? "Dark" },
+    {
+      value: "system" as Theme,
+      icon: Monitor,
+      label: labels?.system ?? "System",
+    },
   ];
-
   return (
     <div className="flex gap-2">
       {options.map((opt) => {

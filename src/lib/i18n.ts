@@ -23,6 +23,49 @@ const translations: Record<Locale, Record<string, string>> = {
     "language.en": "English",
     "language.ru": "Русский",
 
+    "settings.account.profileSection": "Profile",
+    "settings.account.passwordSection": "Password",
+    "settings.account.changePhoto": "Change photo",
+    "settings.account.uploadPhoto": "Upload photo",
+    "settings.account.avatarHint": "JPG, PNG or GIF · max 5 MB",
+    "settings.account.unsavedAvatar": 'Unsaved — click "Save changes" to apply',
+    "settings.account.displayName": "Display name",
+    "settings.account.namePlaceholder": "Your name",
+    "settings.account.emailLabel": "Email address",
+    "settings.account.emailPlaceholder": "you@example.com",
+    "settings.account.uploadingAvatar": "Uploading avatar...",
+    "settings.account.saving": "Saving...",
+    "settings.account.saved": "Saved",
+    "settings.account.saveChanges": "Save changes",
+    "settings.account.currentPassword": "Current password",
+    "settings.account.newPassword": "New password",
+    "settings.account.updating": "Updating...",
+    "settings.account.updatePassword": "Update password",
+    "settings.account.avatarTypeError": "Please upload an image file",
+    "settings.account.avatarSizeError": "Image must be smaller than 5 MB",
+    "settings.account.avatarRemoveError": "Failed to remove avatar",
+    "settings.account.avatarRemoved": "Avatar removed",
+    "settings.account.avatarUploadError": "Failed to upload avatar",
+    "settings.account.profileUpdateError": "Failed to update profile",
+    "settings.account.profileUpdated": "Profile updated",
+    "settings.account.passwordFieldsRequired":
+      "Please fill in both password fields",
+    "settings.account.passwordTooShort":
+      "New password must be at least 8 characters",
+    "settings.account.passwordIncorrect": "Current password is incorrect",
+    "settings.account.passwordUpdated": "Password updated",
+
+    "settings.sessions.title": "Active Sessions",
+    "settings.sessions.empty": "No active sessions found.",
+    "settings.sessions.current": "Current",
+    "settings.sessions.unknownIp": "Unknown IP",
+    "settings.sessions.unknownDevice": "Unknown device",
+    "settings.sessions.unknownBrowser": "Unknown browser",
+    "settings.sessions.signedIn": "Signed in",
+    "settings.sessions.loadError": "Failed to load sessions",
+    "settings.sessions.revokeError": "Failed to revoke session",
+    "settings.sessions.revoked": "Session revoked",
+
     "tasks.header": "Tasks",
     "tasks.subtitle": "Manage and complete your tasks.",
     "tasks.clearCompleted": "Clear completed ({count})",
@@ -45,6 +88,34 @@ const translations: Record<Locale, Record<string, string>> = {
     "tasks.empty.active": "No active tasks. Add one above!",
     "tasks.empty.completed": "No completed tasks yet.",
     "tasks.newTaskPlaceholder": "New task...",
+    "tasks.addButton": "Add",
+    "tasks.totalTasks": "Total Tasks",
+    "tasks.activeTasks": "Active Tasks",
+    "tasks.completed": "Completed",
+    "tasks.completion": "Completion",
+    "tasks.priority.label": "Priority",
+    "tasks.priority.low": "Low",
+    "tasks.priority.medium": "Medium",
+    "tasks.priority.high": "High",
+    "tasks.category.work": "Work",
+    "tasks.category.health": "Health",
+    "tasks.category.personal": "Personal",
+    "tasks.category.learning": "Learning",
+    "tasks.category.finance": "Finance",
+    "tasks.category.other": "Other",
+    "tasks.categoryLabel": "Category",
+    "tasks.estimatedMinutes": "Est. minutes",
+    "tasks.dueDate": "Due date",
+    "tasks.scheduledFor": "Schedule for",
+    "tasks.isRecurring": "Recurring",
+    "tasks.recurrence.daily": "Daily",
+    "tasks.recurrence.weekdays": "Weekdays",
+    "tasks.recurrence.weekly": "Weekly",
+    "tasks.recurrence.monthly": "Monthly",
+    "tasks.recurrence.frequency": "Frequency",
+    "tasks.estimatedMinutes.placeholder": "e.g. 30",
+    "habits.list.confirmDelete": "Delete",
+    "habits.list.cancelDelete": "Cancel",
 
     "habits.header": "Habits",
     "habits.subtitle": "Build consistency, one day at a time.",
@@ -175,6 +246,8 @@ const translations: Record<Locale, Record<string, string>> = {
       "Pick one routine to track each day and build consistency.",
     "dashboard.onboarding.primaryAction": "Start with Tasks",
     "dashboard.onboarding.secondaryAction": "Maybe later",
+    "dashboard.aiBadge": "AI Coach active",
+
     "aiCoach.title": "AI Coach",
     "aiCoach.subtitle": "Personalized insights based on your activity",
     "aiCoach.button.refresh": "Refresh",
@@ -314,6 +387,118 @@ const translations: Record<Locale, Record<string, string>> = {
     "goals.goalCard.addProgressPlaceholder": "Add progress",
     "goals.goalCard.addProgressAria": "Add progress",
     "goals.goalCard.markComplete": "Mark Complete",
+
+    "dashboard.greeting.morning": "Good Morning",
+    "dashboard.greeting.afternoon": "Good Afternoon",
+    "dashboard.greeting.evening": "Good Evening",
+
+    "dashboard.subtitle.morning.0": "Ready to tackle your goals today?",
+    "dashboard.subtitle.morning.1":
+      "The morning is yours. Let's make it count.",
+    "dashboard.subtitle.morning.2":
+      "Win the morning, win the day. What's first?",
+    "dashboard.subtitle.morning.3":
+      "Fresh start, clear focus. Let's build momentum.",
+    "dashboard.subtitle.afternoon.0": "Keep the momentum going!",
+    "dashboard.subtitle.afternoon.1":
+      "Stay focused, you're making solid progress.",
+    "dashboard.subtitle.afternoon.2":
+      "One task at a time. You've got this handled.",
+    "dashboard.subtitle.afternoon.3":
+      "Midday check-in: channel your energy effectively.",
+    "dashboard.subtitle.evening.0": "Let's finish the day strong.",
+    "dashboard.subtitle.evening.1":
+      "Reviewing your wins? Excellent discipline.",
+    "dashboard.subtitle.evening.2":
+      "Bringing order to the evening. Keep it up.",
+    "dashboard.subtitle.evening.3":
+      "Time to tie up loose ends and wrap up gracefully.",
+    "dashboard.subtitle.night.0": "Preparing the ground for tomorrow?",
+    "dashboard.subtitle.night.1":
+      "Late-night focus hits differently. Stay steady.",
+    "dashboard.subtitle.night.2": "Wrap up your thoughts and clear your mind.",
+    "dashboard.subtitle.night.3":
+      "Rest is part of the discipline. Don't overdo it.",
+
+    "dashboard.momentum.onFire": "🔥 On fire!",
+    "dashboard.momentum.keepItUp": "💪 Keep it up!",
+    "dashboard.momentum.building": "📈 Building momentum",
+    "dashboard.momentum.starting": "🌱 Just getting started",
+    "dashboard.momentum.nothing": "✨ Nothing yet",
+
+    "habits.category.health": "Health",
+    "habits.category.fitness": "Fitness",
+    "habits.category.mindfulness": "Mindfulness",
+    "habits.category.learning": "Learning",
+    "habits.category.productivity": "Productivity",
+    "habits.category.other": "Other",
+
+    "settings.theme.light": "Light",
+    "settings.theme.dark": "Dark",
+    "settings.theme.system": "System",
+
+    "settings.notifications.remindersSection": "Reminders",
+    "settings.notifications.reportsSection": "Reports",
+    "settings.notifications.taskReminders": "Task reminders",
+    "settings.notifications.taskRemindersDesc":
+      "Get notified before tasks are due",
+    "settings.notifications.habitReminders": "Habit reminders",
+    "settings.notifications.habitRemindersDesc":
+      "Daily nudge to complete your habits",
+    "settings.notifications.goalMilestones": "Goal milestones",
+    "settings.notifications.goalMilestonesDesc":
+      "Celebrate when you hit a milestone",
+    "settings.notifications.weeklyDigest": "Weekly digest",
+    "settings.notifications.weeklyDigestDesc":
+      "Sunday summary of your week's progress",
+    "settings.notifications.aiInsights": "AI Coach insights",
+    "settings.notifications.aiInsightsDesc":
+      "Personalized tips from your AI Coach",
+    "settings.notifications.underDev":
+      "{{feature}} — this feature is under development.",
+    "settings.notifications.disabled": "{{feature}} disabled.",
+
+    "settings.privacy.securitySection": "Security",
+    "settings.privacy.dataSection": "Data",
+    "settings.privacy.dangerSection": "Danger zone",
+    "settings.privacy.twoFa": "Two-factor authentication",
+    "settings.privacy.twoFaDesc":
+      "Add an extra layer of security to your account",
+    "settings.privacy.twoFaComingSoon":
+      "2FA coming soon — this feature is under development.",
+    "settings.privacy.twoFaDisabled": "2FA disabled.",
+    "settings.privacy.activeSessions": "Active sessions",
+    "settings.privacy.activeSessionsDesc": "Manage where you're logged in",
+    "settings.privacy.exportData": "Export your data",
+    "settings.privacy.exportDataDesc":
+      "Download a copy of all your tasks, goals, and habits",
+    "settings.privacy.signOutEverywhere": "Sign out everywhere",
+    "settings.privacy.signOutEverywhereDesc": "Log out of all devices",
+    "settings.privacy.deleteAccount": "Delete account",
+    "settings.privacy.deleteAccountDesc": "Permanently remove your data",
+    "settings.privacy.manageBtn": "Manage",
+    "settings.privacy.exporting": "Exporting...",
+    "settings.privacy.exportBtn": "Export",
+    "settings.privacy.signOutBtn": "Sign out",
+    "settings.privacy.deleteBtn": "Delete",
+    "settings.privacy.exportError": "Failed to export data",
+    "settings.privacy.exportSuccess": "Export downloaded!",
+    "settings.privacy.incorrectPassword": "Incorrect password",
+    "settings.privacy.deleteAccountError": "Failed to delete account",
+    "settings.privacy.accountDeleted": "Account deleted",
+    "settings.privacy.logoutTitle": "Log out of FocusFlow?",
+    "settings.privacy.logoutDesc":
+      "You'll need to sign back in to access your account.",
+    "settings.privacy.logoutConfirm": "Log out",
+    "settings.privacy.deleteDialogTitle": "Delete account?",
+    "settings.privacy.deleteDialogDesc":
+      "This will permanently delete your account and all associated data — tasks, goals, habits, and settings. This action cannot be undone.",
+    "settings.privacy.confirmPasswordLabel":
+      "Confirm your password to continue",
+    "settings.privacy.deleting": "Deleting…",
+    "settings.privacy.deleteAccountConfirm": "Delete account",
+
+    "common.cancel": "Cancel",
   },
   ru: {
     "app.title": "FocusFlow",
@@ -334,6 +519,51 @@ const translations: Record<Locale, Record<string, string>> = {
       "Перевод интерфейса на предпочитаемый язык.",
     "language.en": "English",
     "language.ru": "Русский",
+
+    "settings.account.profileSection": "Профиль",
+    "settings.account.passwordSection": "Пароль",
+    "settings.account.changePhoto": "Изменить фото",
+    "settings.account.uploadPhoto": "Загрузить фото",
+    "settings.account.avatarHint": "JPG, PNG или GIF · макс. 5 МБ",
+    "settings.account.unsavedAvatar":
+      "Не сохранено — нажмите «Сохранить изменения»",
+    "settings.account.displayName": "Отображаемое имя",
+    "settings.account.namePlaceholder": "Ваше имя",
+    "settings.account.emailLabel": "Электронная почта",
+    "settings.account.emailPlaceholder": "you@example.com",
+    "settings.account.uploadingAvatar": "Загрузка аватара...",
+    "settings.account.saving": "Сохранение...",
+    "settings.account.saved": "Сохранено",
+    "settings.account.saveChanges": "Сохранить изменения",
+    "settings.account.currentPassword": "Текущий пароль",
+    "settings.account.newPassword": "Новый пароль",
+    "settings.account.updating": "Обновление...",
+    "settings.account.updatePassword": "Обновить пароль",
+    "settings.account.avatarTypeError":
+      "Пожалуйста, загрузите файл изображения",
+    "settings.account.avatarSizeError": "Изображение должно быть меньше 5 МБ",
+    "settings.account.avatarRemoveError": "Не удалось удалить аватар",
+    "settings.account.avatarRemoved": "Аватар удалён",
+    "settings.account.avatarUploadError": "Не удалось загрузить аватар",
+    "settings.account.profileUpdateError": "Не удалось обновить профиль",
+    "settings.account.profileUpdated": "Профиль обновлён",
+    "settings.account.passwordFieldsRequired":
+      "Пожалуйста, заполните оба поля пароля",
+    "settings.account.passwordTooShort":
+      "Новый пароль должен содержать не менее 8 символов",
+    "settings.account.passwordIncorrect": "Текущий пароль неверен",
+    "settings.account.passwordUpdated": "Пароль обновлён",
+
+    "settings.sessions.title": "Активные сессии",
+    "settings.sessions.empty": "Активных сессий не найдено.",
+    "settings.sessions.current": "Текущая",
+    "settings.sessions.unknownIp": "Неизвестный IP",
+    "settings.sessions.unknownDevice": "Неизвестное устройство",
+    "settings.sessions.unknownBrowser": "Неизвестный браузер",
+    "settings.sessions.signedIn": "Вход выполнен",
+    "settings.sessions.loadError": "Не удалось загрузить сессии",
+    "settings.sessions.revokeError": "Не удалось отозвать сессию",
+    "settings.sessions.revoked": "Сессия отозвана",
 
     "tasks.header": "Задачи",
     "tasks.subtitle": "Управляйте и выполняйте свои задачи.",
@@ -357,6 +587,32 @@ const translations: Record<Locale, Record<string, string>> = {
     "tasks.empty.active": "Нет активных задач. Добавьте одну сверху!",
     "tasks.empty.completed": "Пока нет выполненных задач.",
     "tasks.newTaskPlaceholder": "Новая задача...",
+    "tasks.addButton": "Добавить",
+    "tasks.totalTasks": "Всего задач",
+    "tasks.activeTasks": "Активные задачи",
+    "tasks.completed": "Выполнено",
+    "tasks.completion": "Завершение",
+    "tasks.priority.label": "Приоритет",
+    "tasks.priority.low": "Низкий",
+    "tasks.priority.medium": "Средний",
+    "tasks.priority.high": "Высокий",
+    "tasks.category.work": "Работа",
+    "tasks.category.health": "Здоровье",
+    "tasks.category.personal": "Личное",
+    "tasks.category.learning": "Обучение",
+    "tasks.category.finance": "Финансы",
+    "tasks.category.other": "Другое",
+    "tasks.categoryLabel": "Категория",
+    "tasks.estimatedMinutes": "Примерно минут",
+    "tasks.dueDate": "Срок выполнения",
+    "tasks.scheduledFor": "Запланировано на",
+    "tasks.isRecurring": "Повторяющаяся",
+    "tasks.recurrence.daily": "Ежедневно",
+    "tasks.recurrence.weekdays": "Рабочие дни",
+    "tasks.recurrence.weekly": "Еженедельно",
+    "tasks.recurrence.monthly": "Ежемесячно",
+    "tasks.recurrence.frequency": "Частота",
+    "tasks.estimatedMinutes.placeholder": "Например, 30",
 
     "habits.header": "Привычки",
     "habits.subtitle": "Формируйте систематичность шаг за шагом.",
@@ -398,6 +654,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "habits.list.markIncomplete": "Отметить как невыполненную",
     "habits.weeklyTooltip": "{completed} / {total} привычек",
     "habits.weeklyOverview.title": "Эта неделя",
+    "habits.list.confirmDelete": "Удалить",
+    "habits.list.cancelDelete": "Отмена",
 
     "goals.header": "Цели",
     "goals.subtitle":
@@ -448,7 +706,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "dashboard.stats.allDone": "Все готово! 🎉",
     "dashboard.stats.goalsCompleted": "Выполнено целей",
     "dashboard.stats.remaining": "Осталось {count}",
-    "dashboard.stats.productivityScore": "Индекс продуктивности",
+    "dashboard.stats.productivityScore": "Уровень продуктивности",
     "dashboard.stats.noActiveGoals": "Нет активных целей",
     "dashboard.stats.activeGoalsCount": "{count} активных",
     "dashboard.stats.habitStreak": "Серия привычек",
@@ -492,11 +750,13 @@ const translations: Record<Locale, Record<string, string>> = {
       "Выберите одну рутину для ежедневного отслеживания и выстраивайте стабильность.",
     "dashboard.onboarding.primaryAction": "Начать с задач",
     "dashboard.onboarding.secondaryAction": "Может позже",
+    "dashboard.aiBadge": "ИИ тренер доступен",
+
     "aiCoach.title": "ИИ Тренер",
     "aiCoach.subtitle":
       "Персонализированные рекомендации на основе вашей активности",
     "aiCoach.button.refresh": "Обновить",
-    "aiCoach.productivityScore": "Индекс продуктивности",
+    "aiCoach.productivityScore": "Уровень продуктивности",
     "aiCoach.trend.vsLastWeek": "по сравнению с прошлой неделей",
     "aiCoach.scoreLabel.tasks": "Задачи",
     "aiCoach.scoreLabel.habits": "Привычки",
@@ -636,6 +896,113 @@ const translations: Record<Locale, Record<string, string>> = {
     "goals.goalCard.addProgressPlaceholder": "Добавить прогресс",
     "goals.goalCard.addProgressAria": "Добавить прогресс",
     "goals.goalCard.markComplete": "Отметить выполненной",
+
+    "dashboard.greeting.morning": "Доброе утро",
+    "dashboard.greeting.afternoon": "Добрый день",
+    "dashboard.greeting.evening": "Добрый вечер",
+
+    "dashboard.subtitle.morning.0": "Готовы покорять цели сегодня?",
+    "dashboard.subtitle.morning.1": "Утро — ваше. Используйте его с пользой.",
+    "dashboard.subtitle.morning.2":
+      "Выиграйте утро — выиграйте день. С чего начнём?",
+    "dashboard.subtitle.morning.3": "Свежий старт, ясный фокус. Набираем темп.",
+    "dashboard.subtitle.afternoon.0": "Держите темп!",
+    "dashboard.subtitle.afternoon.1":
+      "Сосредоточьтесь — вы делаете отличный прогресс.",
+    "dashboard.subtitle.afternoon.2": "Одна задача за раз. Вы справляетесь.",
+    "dashboard.subtitle.afternoon.3":
+      "Дневная проверка: направьте энергию в нужное русло.",
+    "dashboard.subtitle.evening.0": "Завершим день сильно.",
+    "dashboard.subtitle.evening.1": "Подводите итоги? Отличная дисциплина.",
+    "dashboard.subtitle.evening.2": "Наводим порядок вечером. Продолжайте.",
+    "dashboard.subtitle.evening.3": "Время завершить дела и подвести черту.",
+    "dashboard.subtitle.night.0": "Готовите почву для завтра?",
+    "dashboard.subtitle.night.1":
+      "Ночная сосредоточенность — особенная. Держитесь.",
+    "dashboard.subtitle.night.2": "Соберите мысли и очистите голову.",
+    "dashboard.subtitle.night.3":
+      "Отдых — часть дисциплины. Не переусердствуйте.",
+
+    "dashboard.momentum.onFire": "🔥 В огне!",
+    "dashboard.momentum.keepItUp": "💪 Так держать!",
+    "dashboard.momentum.building": "📈 Набираем темп",
+    "dashboard.momentum.starting": "🌱 Только начинаем",
+    "dashboard.momentum.nothing": "✨ Пока ничего",
+
+    "habits.category.health": "Здоровье",
+    "habits.category.fitness": "Фитнес",
+    "habits.category.mindfulness": "Осознанность",
+    "habits.category.learning": "Обучение",
+    "habits.category.productivity": "Продуктивность",
+    "habits.category.other": "Другое",
+
+    "settings.theme.light": "Светлая",
+    "settings.theme.dark": "Тёмная",
+    "settings.theme.system": "Системная",
+
+    "settings.notifications.remindersSection": "Напоминания",
+    "settings.notifications.reportsSection": "Отчёты",
+    "settings.notifications.taskReminders": "Напоминания о задачах",
+    "settings.notifications.taskRemindersDesc":
+      "Уведомления до истечения срока задачи",
+    "settings.notifications.habitReminders": "Напоминания о привычках",
+    "settings.notifications.habitRemindersDesc":
+      "Ежедневное напоминание выполнить привычки",
+    "settings.notifications.goalMilestones": "Этапы целей",
+    "settings.notifications.goalMilestonesDesc":
+      "Отмечайте достижение контрольных точек",
+    "settings.notifications.weeklyDigest": "Еженедельный дайджест",
+    "settings.notifications.weeklyDigestDesc":
+      "Воскресная сводка прогресса за неделю",
+    "settings.notifications.aiInsights": "Советы ИИ-тренера",
+    "settings.notifications.aiInsightsDesc":
+      "Персонализированные советы от вашего ИИ-тренера",
+    "settings.notifications.underDev":
+      "{{feature}} — функция находится в разработке.",
+    "settings.notifications.disabled": "{{feature}} отключены.",
+
+    "settings.privacy.securitySection": "Безопасность",
+    "settings.privacy.dataSection": "Данные",
+    "settings.privacy.dangerSection": "Опасная зона",
+    "settings.privacy.twoFa": "Двухфакторная аутентификация",
+    "settings.privacy.twoFaDesc":
+      "Добавьте дополнительный уровень защиты аккаунта",
+    "settings.privacy.twoFaComingSoon":
+      "2FA скоро появится — функция в разработке.",
+    "settings.privacy.twoFaDisabled": "2FA отключена.",
+    "settings.privacy.activeSessions": "Активные сессии",
+    "settings.privacy.activeSessionsDesc":
+      "Управляйте устройствами, на которых выполнен вход",
+    "settings.privacy.exportData": "Экспорт данных",
+    "settings.privacy.exportDataDesc":
+      "Скачайте копию ваших задач, целей и привычек",
+    "settings.privacy.signOutEverywhere": "Выйти везде",
+    "settings.privacy.signOutEverywhereDesc":
+      "Выйти из аккаунта на всех устройствах",
+    "settings.privacy.deleteAccount": "Удалить аккаунт",
+    "settings.privacy.deleteAccountDesc": "Безвозвратно удалить ваши данные",
+    "settings.privacy.manageBtn": "Управление",
+    "settings.privacy.exporting": "Экспорт...",
+    "settings.privacy.exportBtn": "Экспорт",
+    "settings.privacy.signOutBtn": "Выйти",
+    "settings.privacy.deleteBtn": "Удалить",
+    "settings.privacy.exportError": "Не удалось экспортировать данные",
+    "settings.privacy.exportSuccess": "Экспорт загружен!",
+    "settings.privacy.incorrectPassword": "Неверный пароль",
+    "settings.privacy.deleteAccountError": "Не удалось удалить аккаунт",
+    "settings.privacy.accountDeleted": "Аккаунт удалён",
+    "settings.privacy.logoutTitle": "Выйти из FocusFlow?",
+    "settings.privacy.logoutDesc": "Вам потребуется снова войти в аккаунт.",
+    "settings.privacy.logoutConfirm": "Выйти",
+    "settings.privacy.deleteDialogTitle": "Удалить аккаунт?",
+    "settings.privacy.deleteDialogDesc":
+      "Это безвозвратно удалит ваш аккаунт и все связанные данные — задачи, цели, привычки и настройки. Действие невозможно отменить.",
+    "settings.privacy.confirmPasswordLabel":
+      "Подтвердите пароль для продолжения",
+    "settings.privacy.deleting": "Удаление…",
+    "settings.privacy.deleteAccountConfirm": "Удалить аккаунт",
+
+    "common.cancel": "Отмена",
   },
 };
 

@@ -151,23 +151,23 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           onValueChange={(v) => set("priority", v as TaskPriority)}
         >
           <SelectTrigger className="w-27.5 bg-card border-border text-xs cursor-pointer">
-            <SelectValue placeholder="Priority" />
+            <SelectValue placeholder={t("tasks.priority.label")} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem
               value="low"
               className="cursor-pointer text-muted-foreground"
             >
-              Low
+              {t("tasks.priority.low")}
             </SelectItem>
             <SelectItem
               value="medium"
               className="cursor-pointer text-amber-600"
             >
-              Medium
+              {t("tasks.priority.medium")}
             </SelectItem>
             <SelectItem value="high" className="cursor-pointer text-red-600">
-              High
+              {t("tasks.priority.high")}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -190,7 +190,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           className="cursor-pointer shrink-0"
         >
           <PlusIcon size={16} />
-          Add
+          {t("tasks.addButton")}
         </Button>
       </div>
 
@@ -199,32 +199,34 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
         <CollapsibleContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 pb-1 px-0.5">
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Category</Label>
+              <Label className="text-xs text-muted-foreground">
+                {t("tasks.categoryLabel")}
+              </Label>
               <Select
                 value={form.category ?? ""}
                 onValueChange={(v) => set("category", v as TaskCategory)}
               >
                 <SelectTrigger className="bg-card border-border text-xs h-8 cursor-pointer">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder={t("tasks.categoryLabel")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="work" className="cursor-pointer">
-                    💼 Work
+                    💼 {t("tasks.category.work")}
                   </SelectItem>
                   <SelectItem value="health" className="cursor-pointer">
-                    🏃 Health
+                    🏃 {t("tasks.category.health")}
                   </SelectItem>
                   <SelectItem value="personal" className="cursor-pointer">
-                    🏠 Personal
+                    🏠 {t("tasks.category.personal")}
                   </SelectItem>
                   <SelectItem value="learning" className="cursor-pointer">
-                    📚 Learning
+                    📚 {t("tasks.category.learning")}
                   </SelectItem>
                   <SelectItem value="finance" className="cursor-pointer">
-                    💰 Finance
+                    💰 {t("tasks.category.finance")}
                   </SelectItem>
                   <SelectItem value="other" className="cursor-pointer">
-                    📌 Other
+                    📌 {t("tasks.category.other")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -232,12 +234,12 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
 
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">
-                Est. minutes
+                {t("tasks.estimatedMinutes")}
               </Label>
               <Input
                 type="number"
                 min={1}
-                placeholder="e.g. 30"
+                placeholder={t("tasks.estimatedMinutes.placeholder")}
                 value={form.estimatedMinutes ?? ""}
                 onChange={(e) =>
                   set(
@@ -250,7 +252,9 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Due date</Label>
+              <Label className="text-xs text-muted-foreground">
+                {t("tasks.dueDate")}
+              </Label>
               <Input
                 type="date"
                 value={form.dueDate ?? ""}
@@ -261,7 +265,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
 
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">
-                Schedule for
+                {t("tasks.scheduledFor")}
               </Label>
               <Input
                 type="date"
@@ -286,7 +290,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 htmlFor="recurring"
                 className="text-xs text-muted-foreground cursor-pointer"
               >
-                Recurring
+                {t("tasks.isRecurring")}
               </Label>
             </div>
 
@@ -296,20 +300,20 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 onValueChange={(v) => set("recurrenceRule", v || null)}
               >
                 <SelectTrigger className="w-32.5 bg-card border-border text-xs h-8 cursor-pointer">
-                  <SelectValue placeholder="Frequency" />
+                  <SelectValue placeholder={t("tasks.recurrence.frequency")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily" className="cursor-pointer">
-                    Daily
+                    {t("tasks.recurrence.daily")}
                   </SelectItem>
                   <SelectItem value="weekdays" className="cursor-pointer">
-                    Weekdays
+                    {t("tasks.recurrence.weekdays")}
                   </SelectItem>
                   <SelectItem value="weekly" className="cursor-pointer">
-                    Weekly
+                    {t("tasks.recurrence.weekly")}
                   </SelectItem>
                   <SelectItem value="monthly" className="cursor-pointer">
-                    Monthly
+                    {t("tasks.recurrence.monthly")}
                   </SelectItem>
                 </SelectContent>
               </Select>

@@ -10,7 +10,7 @@ import {
   TopStreaksSkeleton,
   WeeklyChartSkeleton,
 } from "../../shared/Skeletons";
-import { CATEGORIES, getDayLabel, getLast7Days } from "../../../lib/utils";
+import { getCategories, getDayLabel, getLast7Days } from "../../../lib/utils";
 import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
@@ -30,7 +30,7 @@ export default function Habits() {
     loading,
     error,
   } = useHabits();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [newHabitName, setNewHabitName] = useState("");
   const [category, setCategory] = useState<HabitCategory>("productivity");
@@ -218,7 +218,7 @@ export default function Habits() {
                 {/* Category buttons — wrap on mobile */}
                 <div className="flex items-start gap-3 flex-col sm:flex-row">
                   <div className="flex gap-1 flex-wrap">
-                    {CATEGORIES.map((c) => (
+                    {getCategories(t).map((c) => (
                       <button
                         key={c.value}
                         onClick={() => setCategory(c.value)}
@@ -330,7 +330,7 @@ export default function Habits() {
                       <span
                         className={`text-xs ${isToday ? "text-blue-600 font-semibold" : "text-muted-foreground"}`}
                       >
-                        {getDayLabel(day)}
+                        {getDayLabel(day, locale === "ru" ? "ru-RU" : "en-US")}
                       </span>
                     </div>
                   );

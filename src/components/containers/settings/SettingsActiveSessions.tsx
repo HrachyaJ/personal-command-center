@@ -5,6 +5,7 @@ import { Monitor, Smartphone, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../../ui/sheet";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 interface Session {
   id: string;
@@ -19,14 +20,17 @@ function parseDevice(userAgent: string | null): {
   label: string;
   mobile: boolean;
 } {
-  if (!userAgent) return { label: "Unknown device", mobile: false };
+  const { t } = useTranslation();
+
+  if (!userAgent)
+    return { label: t("settings.sessions.unknownDevice"), mobile: false };
   const ua = userAgent.toLowerCase();
   const mobile = /mobile|android|iphone|ipad/.test(ua);
   if (ua.includes("chrome")) return { label: "Chrome", mobile };
   if (ua.includes("firefox")) return { label: "Firefox", mobile };
   if (ua.includes("safari")) return { label: "Safari", mobile };
   if (ua.includes("edg")) return { label: "Edge", mobile };
-  return { label: "Unknown browser", mobile };
+  return { label: t("settings.sessions.unknownBrowser"), mobile };
 }
 
 interface Props {
@@ -38,6 +42,7 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [revoking, setRevoking] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!open) return;
@@ -49,7 +54,7 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
           data.sort((a, b) => (b.isCurrent ? 1 : 0) - (a.isCurrent ? 1 : 0)),
         ),
       )
-      .catch(() => toast.error("Failed to load sessions"))
+      .catch(() => toast.error(t("settings.sessions.loadError")))
       .finally(() => setLoading(false));
   }, [open]);
 
@@ -60,13 +65,13 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
         method: "DELETE",
       });
       if (!res.ok) {
-        toast.error("Failed to revoke session");
+        toast.error(t("settings.sessions.revokeError"));
         return;
       }
       setSessions((prev) => prev.filter((s) => s.id !== id));
-      toast.success("Session revoked");
+      toast.success(t("settings.sessions.revoked"));
     } catch {
-      toast.error("Failed to revoke session");
+      toast.error(t("settings.sessions.revokeError"));
     } finally {
       setRevoking(null);
     }
@@ -79,7 +84,7 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
         className="w-full sm:w-100 sm:max-w-none overflow-y-auto"
       >
         <SheetHeader>
-          <SheetTitle>Active Sessions</SheetTitle>
+          <SheetTitle>{t("settings.sessions.title")}</SheetTitle>
         </SheetHeader>
 
         {loading ? (
@@ -88,7 +93,7 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
           </div>
         ) : sessions.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
-            No active sessions found.
+            {t("settings.sessions.empty")}
           </p>
         ) : (
           <ul className="space-y-3 pr-1">
@@ -110,12 +115,13 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
                             variant="secondary"
                             className="text-[10px] px-1.5 py-0 shrink-0"
                           >
-                            Current
+                            {t("settings.sessions.current")}
                           </Badge>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate">
-                        {s.ipAddress ?? "Unknown IP"} · Signed in{" "}
+                        {s.ipAddress ?? t("settings.sessions.unknownIp")} ·
+                        {t("settings.sessions.signedIn")}{" "}
                         {new Date(s.createdAt).toLocaleDateString()}
                       </p>
                     </div>
