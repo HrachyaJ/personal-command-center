@@ -120,6 +120,13 @@ export default function LandingPage() {
             padding: 24px 20px !important;
           }
         }
+          
+        @media (max-width: 640px) {
+          .nav-links { display: none !important; }
+          .nav-auth-full { display: none !important; }
+          .nav-auth-compact { display: flex !important; }
+          .nav-inner { padding: 0 20px !important; grid-template-columns: 1fr auto !important; }
+        }
       `}</style>
 
       <div

@@ -16,12 +16,13 @@ interface Session {
   isCurrent: boolean;
 }
 
-function parseDevice(userAgent: string | null): {
+function parseDevice(
+  userAgent: string | null,
+  t: (key: string) => string,
+): {
   label: string;
   mobile: boolean;
 } {
-  const { t } = useTranslation();
-
   if (!userAgent)
     return { label: t("settings.sessions.unknownDevice"), mobile: false };
   const ua = userAgent.toLowerCase();
@@ -98,7 +99,7 @@ export function SessionsSheet({ open, onOpenChange }: Props) {
         ) : (
           <ul className="space-y-3 pr-1">
             {sessions.map((s) => {
-              const { label, mobile } = parseDevice(s.userAgent);
+              const { label, mobile } = parseDevice(s.userAgent, t);
               const Icon = mobile ? Smartphone : Monitor;
               return (
                 <li

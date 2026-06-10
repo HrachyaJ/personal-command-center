@@ -133,7 +133,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
     setShowOptions(false);
 
     // Fire prediction in background — result shows as a toast when ready
-    runPrediction(taskData);
+    // runPrediction(taskData);
   }
 
   return (
