@@ -6,12 +6,9 @@ export const authClient = createAuthClient({
   plugins: [jwtClient()],
   fetchOptions: {
     credentials: "include",
-    onRequest(ctx) {},
     onResponse(ctx) {
-      // Capture JWT issued after sign-in (email/password or social)
-      // No client-side JWT persistence is required for browser auth.
-      // The server sets an HttpOnly session cookie and requests are
-      // authenticated using credentials: "include".
+      const token = ctx.response.headers.get("set-auth-token");
+      if (token) localStorage.setItem("better-auth-token", token);
     },
   },
 });
