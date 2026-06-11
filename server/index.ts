@@ -36,17 +36,17 @@ app.use(
 );
 
 app.get("/api/auth/jwt-redirect", async (req: any, res) => {
+  const frontendUrl = process.env.VITE_FRONTEND_URL ?? "http://localhost:5173";
+
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(req.headers),
   });
 
   if (!session?.user) {
-    return res.redirect("https://focus-flow-site.vercel.app/sign-in");
+    return res.redirect(`${frontendUrl}/sign-in`);
   }
 
-  // Redirect through the client callback route without exposing the JWT.
-  // The browser session is validated by the HttpOnly cookie on the next request.
-  res.redirect("https://focus-flow-site.vercel.app/auth/callback/google");
+  res.redirect(`${frontendUrl}/auth/callback/google`);
 });
 
 app.all("/api/auth/*path", toNodeHandler(auth));
