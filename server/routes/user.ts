@@ -8,13 +8,40 @@ import {
 } from "../db/auth-schema.js";
 import { tasks } from "../db/schema.js";
 import { auth } from "../auth.js";
-import { fromNodeHeaders } from "better-auth/node"; // 👈 Native Better-Auth proxy helper
+import { fromNodeHeaders } from "better-auth/node";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const router = Router();
 
+const JWKS = createRemoteJWKSet(
+  new URL(
+    `${process.env.BETTER_AUTH_URL ?? "http://localhost:3001"}/api/auth/jwks`,
+  ),
+);
+
 async function getSession(req: Request) {
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.slice(7);
+      const { payload } = await jwtVerify(token, JWKS);
+      return {
+        user: {
+          id: payload.sub as string,
+          email: payload.email as string,
+          name: payload.name as string,
+          image: (payload.image as string) ?? null,
+        },
+        session: null,
+      };
+    } catch (err) {
+      console.error("JWT verification failed:", err);
+      return null;
+    }
+  }
   return auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
 }
+
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -59,7 +86,7 @@ router.post("/password", async (req, res) => {
   try {
     await auth.api.changePassword({
       body: { currentPassword, newPassword, revokeOtherSessions: false },
-      headers: fromNodeHeaders(req.headers), // 👈 Updated here too
+      headers: fromNodeHeaders(req.headers),
     });
     res.json({ success: true });
   } catch {

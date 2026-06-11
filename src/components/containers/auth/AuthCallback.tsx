@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUserStore } from "../../../stores/useUserStore";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const location = useLocation();
   const didRun = useRef(false);
 
   useEffect(() => {
@@ -14,13 +15,11 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Fetch JWT token first so authFetch can use it as Bearer token
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
         const token = params.get("token");
-        console.log("[AuthCallback] token:", token);
+        console.log("[AuthCallback] token from location:", token);
         if (token) localStorage.setItem("better-auth-token", token);
 
-        // Now fetch user — authFetch will send Bearer token in Authorization header
         await useUserStore.getState().fetch();
         const user = useUserStore.getState().user;
 
@@ -42,7 +41,7 @@ export default function AuthCallback() {
         navigate("/sign-in", { replace: true });
       }
     })();
-  }, [navigate]);
+  }, [navigate, location.search]);
 
   return (
     <div
