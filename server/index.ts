@@ -36,7 +36,7 @@ app.use(
 );
 
 app.get("/api/auth/jwt-redirect", async (req: any, res) => {
-  const frontendUrl = process.env.VITE_FRONTEND_URL ?? "http://localhost:5173";
+  const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(req.headers),
