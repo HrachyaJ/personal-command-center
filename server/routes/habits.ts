@@ -1,26 +1,10 @@
-import { Router, Request } from "express";
+import { Router } from "express";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db.js";
-import { auth } from "../auth.js";
 import { habitCompletions, habits } from "../db/schema.js";
+import { getSession } from "../auth-session.js";
 
 const router = Router();
-
-function toHeaders(req: Request): Headers {
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (Array.isArray(value)) {
-      value.forEach((v) => headers.append(key, v));
-    } else if (value) {
-      headers.set(key, value);
-    }
-  }
-  return headers;
-}
-
-async function getSession(req: Request) {
-  return auth.api.getSession({ headers: toHeaders(req) });
-}
 
 router.get("/", async (req, res) => {
   const session = await getSession(req);
@@ -112,11 +96,10 @@ router.delete("/:id", async (req, res) => {
   res.status(204).send();
 });
 
-/** Calculates current streak from a list of completion date strings (YYYY-MM-DD). */
 function calcStreak(completedDates: string[]): number {
   if (completedDates.length === 0) return 0;
 
-  const dates = [...completedDates].sort().reverse(); // most recent first
+  const dates = [...completedDates].sort().reverse();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -128,7 +111,6 @@ function calcStreak(completedDates: string[]): number {
     (today.getTime() - mostRecent.getTime()) / 86400000,
   );
 
-  // If the last completion was more than 1 day ago, streak is broken
   if (diffFromToday > 1) return 0;
 
   let streak = 0;

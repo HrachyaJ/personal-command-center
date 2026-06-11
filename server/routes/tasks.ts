@@ -1,26 +1,10 @@
-import { Router, Request } from "express";
+import { Router } from "express";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db.js";
 import { tasks } from "../db/schema.js";
-import { auth } from "../auth.js";
+import { getSession } from "../auth-session.js";
 
 const router = Router();
-
-function toHeaders(req: Request): Headers {
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (Array.isArray(value)) {
-      value.forEach((v) => headers.append(key, v));
-    } else if (value) {
-      headers.set(key, value);
-    }
-  }
-  return headers;
-}
-
-async function getSession(req: Request) {
-  return auth.api.getSession({ headers: toHeaders(req) });
-}
 
 router.get("/", async (req, res) => {
   const session = await getSession(req);

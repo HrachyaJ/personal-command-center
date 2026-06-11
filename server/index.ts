@@ -16,6 +16,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { session as sessionTable } from "./db/auth-schema.js";
 import streamifier from "streamifier";
 import PDFDocument from "pdfkit";
+import { getSession } from "./auth-session.js";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -35,6 +36,8 @@ app.use(
   }),
 );
 
+// jwt-redirect: uses auth.api.getToken directly — this runs before the JWT exists
+// so we can't use getSession here
 app.get("/api/auth/jwt-redirect", async (req: any, res) => {
   const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
@@ -58,8 +61,6 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
-
-// ── Shared helper: converts Express headers → Headers instance ────────────────
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
@@ -98,9 +99,7 @@ app.post(
   avatarUpload.single("avatar"),
   async (req: any, res) => {
     try {
-      const session = await auth.api.getSession({
-        headers: fromNodeHeaders(req.headers),
-      });
+      const session = await getSession(req);
       if (!session?.user) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -129,9 +128,7 @@ app.post(
 
 app.delete("/api/user/avatar", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -150,8 +147,7 @@ app.delete("/api/user/avatar", async (req: any, res) => {
   }
 });
 
-// ── Internal ML data endpoint — called by Python scripts only, not the browser
-// Bound to localhost in production so it's never exposed publicly
+// ── Internal ML data endpoint — no auth needed, called by Python scripts only
 app.get("/api/ml-data-internal", async (req, res) => {
   const userId = req.query.userId as string | undefined;
   if (!userId) {
@@ -187,9 +183,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/api/ml-data", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -201,8 +195,6 @@ app.get("/api/ml-data", async (req: any, res) => {
       .where(eq(tasks.userId, userId));
 
     const formatted = userTasks
-      // Only include completed tasks for pattern analysis — we want to know
-      // *when completions happen*, not when tasks were created
       .filter((t) => t.completedAt !== null)
       .map((t) => ({
         hour: new Date(t.completedAt!).getHours(),
@@ -222,15 +214,7 @@ app.get("/api/ml-data", async (req: any, res) => {
 });
 
 app.get("/api/predict", async (req: any, res) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://focus-flow-site.vercel.app",
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  const session = await auth.api.getSession({
-    headers: fromNodeHeaders(req.headers),
-  });
+  const session = await getSession(req);
   if (!session?.user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -258,9 +242,7 @@ app.get("/api/predict", async (req: any, res) => {
 
 app.post("/api/ml-train", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -282,9 +264,7 @@ app.post("/api/ml-train", async (req: any, res) => {
 
 app.get("/api/ml-insights", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -325,7 +305,6 @@ app.get("/api/ml-insights", async (req: any, res) => {
       },
     );
 
-    // Pass task data via stdin instead of HTTP
     child.stdin?.write(JSON.stringify(formatted));
     child.stdin?.end();
   } catch (err: any) {
@@ -335,9 +314,7 @@ app.get("/api/ml-insights", async (req: any, res) => {
 
 app.get("/api/user/export", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) {
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -469,9 +446,7 @@ app.get("/api/user/export", async (req: any, res) => {
 
 app.get("/api/user/sessions", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
     const sessions = await db
@@ -486,7 +461,8 @@ app.get("/api/user/sessions", async (req: any, res) => {
         userAgent: s.userAgent,
         createdAt: s.createdAt,
         expiresAt: s.expiresAt,
-        isCurrent: s.token === session.session.token,
+        // session.session is null when authenticated via JWT — skip isCurrent check
+        isCurrent: session.session ? s.token === session.session.token : false,
       })),
     );
   } catch (err: any) {
@@ -496,9 +472,7 @@ app.get("/api/user/sessions", async (req: any, res) => {
 
 app.delete("/api/user/sessions/:id", async (req: any, res) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
+    const session = await getSession(req);
     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
 
     const [target] = await db
@@ -515,19 +489,6 @@ app.delete("/api/user/sessions/:id", async (req: any, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// app.post("/api/ai-coach/insights", async (req: any, res) => {
-//   try {
-//     const session = await auth.api.getSession({
-//       headers: fromNodeHeaders(req.headers),
-//     });
-//     if (!session?.user) return res.status(401).json({ error: "Unauthorized" });
-
-//     res.json({ ok: true });
-//   } catch (err: any) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
 
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => console.log(`Server running on :${PORT}`));

@@ -1,4 +1,4 @@
-import { Router, Request } from "express";
+import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../db.js";
 import {
@@ -9,42 +9,14 @@ import {
 import { tasks } from "../db/schema.js";
 import { auth } from "../auth.js";
 import { fromNodeHeaders } from "better-auth/node";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { getSession } from "../auth-session.js";
 
 const router = Router();
-
-const JWKS = createRemoteJWKSet(
-  new URL(
-    `${process.env.BETTER_AUTH_URL ?? "http://localhost:3001"}/api/auth/jwks`,
-  ),
-);
-
-async function getSession(req: Request) {
-  const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith("Bearer ")) {
-    try {
-      const token = authHeader.slice(7);
-      const { payload } = await jwtVerify(token, JWKS);
-      return {
-        user: {
-          id: payload.sub as string,
-          email: payload.email as string,
-          name: payload.name as string,
-          image: (payload.image as string) ?? null,
-        },
-        session: null,
-      };
-    } catch (err) {
-      console.error("JWT verification failed:", err);
-      return null;
-    }
-  }
-  return auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
-}
 
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
+
   const [currentUser] = await db
     .select()
     .from(userTable)
