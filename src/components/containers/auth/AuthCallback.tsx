@@ -4,14 +4,6 @@ import { useUserStore } from "../../../stores/useUserStore";
 
 const REMEMBERED_USER_KEY = "focusflow:last_user";
 
-/**
- * Landing page for Google OAuth redirect.
- *
- * better-auth appends ?token=<jwt> when redirectMetadata: true is set.
- * In dev (http) the JWT plugin may not produce the token, but the session
- * cookie is always set — browser auth relies on cookies rather than local
- * storage persistence.
- */
 export default function AuthCallback() {
   const navigate = useNavigate();
   const didRun = useRef(false);
@@ -22,10 +14,20 @@ export default function AuthCallback() {
 
     (async () => {
       try {
-        // Ignore any JWT from the redirect URL in browser auth flows.
-        // Authentication is validated from the HttpOnly cookie on the next fetch.
+        // Fetch JWT token first so authFetch can use it as Bearer token
+        const tokenRes = await fetch(
+          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
+          { credentials: "include" },
+        );
+        if (tokenRes.ok) {
+          const { token } = await tokenRes.json();
+          console.log("[AuthCallback] token:", token);
+          if (token) localStorage.setItem("better-auth-token", token);
+        } else {
+          console.warn("[AuthCallback] token fetch failed:", tokenRes.status);
+        }
 
-        // Execute store fetch with the freshly set token
+        // Now fetch user — authFetch will send Bearer token in Authorization header
         await useUserStore.getState().fetch();
         const user = useUserStore.getState().user;
 

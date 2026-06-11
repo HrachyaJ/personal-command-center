@@ -8,6 +8,7 @@ export const authClient = createAuthClient({
     credentials: "include",
     onResponse(ctx) {
       const token = ctx.response.headers.get("set-auth-token");
+      console.log("auth response headers token:", token);
       if (token) localStorage.setItem("better-auth-token", token);
     },
   },
