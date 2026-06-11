@@ -15,17 +15,10 @@ export default function AuthCallback() {
     (async () => {
       try {
         // Fetch JWT token first so authFetch can use it as Bearer token
-        const tokenRes = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
-          { credentials: "include" },
-        );
-        if (tokenRes.ok) {
-          const { token } = await tokenRes.json();
-          console.log("[AuthCallback] token:", token);
-          if (token) localStorage.setItem("better-auth-token", token);
-        } else {
-          console.warn("[AuthCallback] token fetch failed:", tokenRes.status);
-        }
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        console.log("[AuthCallback] token:", token);
+        if (token) localStorage.setItem("better-auth-token", token);
 
         // Now fetch user — authFetch will send Bearer token in Authorization header
         await useUserStore.getState().fetch();

@@ -38,15 +38,17 @@ app.use(
 app.get("/api/auth/jwt-redirect", async (req: any, res) => {
   const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
-  const session = await auth.api.getSession({
+  const tokenResponse = await auth.api.getToken({
     headers: fromNodeHeaders(req.headers),
   });
 
-  if (!session?.user) {
+  const token = tokenResponse?.token;
+
+  if (!token) {
     return res.redirect(`${frontendUrl}/sign-in`);
   }
 
-  res.redirect(`${frontendUrl}/auth/callback/google`);
+  res.redirect(`${frontendUrl}/auth/callback/google?token=${token}`);
 });
 
 app.all("/api/auth/*path", toNodeHandler(auth));
