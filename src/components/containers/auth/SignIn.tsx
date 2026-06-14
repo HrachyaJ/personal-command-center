@@ -70,22 +70,26 @@ export default function SignIn() {
       return;
     }
 
-    // Fetch JWT token so authFetch can use it as Bearer on all subsequent requests
-    const tokenRes = await fetch(
-      `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
-      { credentials: "include" },
-    );
-    if (tokenRes.ok) {
-      const { token } = await tokenRes.json();
-      if (token) localStorage.setItem("better-auth-token", token);
+    // Exchange session token for a JWT so cross-domain requests work in prod
+    const sessionToken = (result.data as any)?.token;
+    if (sessionToken) {
+      const jwtRes = await fetch(
+        `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/get-jwt`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionToken }),
+        },
+      );
+      if (jwtRes.ok) {
+        const { token } = await jwtRes.json();
+        console.log("[SignIn] JWT:", token);
+        if (token) localStorage.setItem("better-auth-token", token);
+      }
     }
 
     await useUserStore.getState().fetch();
 
-    // The auth server uses an HttpOnly session cookie for browser auth,
-    // so we do not persist the JWT token in localStorage.
-
-    // Cache user info for the fast sign-in chip on next visit
     const user = useUserStore.getState().user;
 
     if (user) {

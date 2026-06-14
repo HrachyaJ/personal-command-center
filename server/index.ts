@@ -62,6 +62,24 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 
+app.post("/api/auth/get-jwt", async (req: any, res) => {
+  const { sessionToken } = req.body;
+  if (!sessionToken) return res.status(400).json({ error: "No token" });
+
+  try {
+    const tokenResponse = await auth.api.getToken({
+      headers: new Headers({ Authorization: `Bearer ${sessionToken}` }),
+    });
+    console.log("getToken response:", tokenResponse);
+    const token = tokenResponse?.token;
+    if (!token) return res.status(401).json({ error: "Could not issue JWT" });
+    res.json({ token });
+  } catch (err: any) {
+    console.error("get-jwt error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
   storage: multer.memoryStorage(),
