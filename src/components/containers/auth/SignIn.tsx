@@ -70,10 +70,20 @@ export default function SignIn() {
       return;
     }
 
-    // The auth server uses an HttpOnly session cookie for browser auth,
-    // so we do not persist the JWT token in localStorage.
+    // Fetch JWT token so authFetch can use it as Bearer on all subsequent requests
+    const tokenRes = await fetch(
+      `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/token`,
+      { credentials: "include" },
+    );
+    if (tokenRes.ok) {
+      const { token } = await tokenRes.json();
+      if (token) localStorage.setItem("better-auth-token", token);
+    }
 
     await useUserStore.getState().fetch();
+
+    // The auth server uses an HttpOnly session cookie for browser auth,
+    // so we do not persist the JWT token in localStorage.
 
     // Cache user info for the fast sign-in chip on next visit
     const user = useUserStore.getState().user;
@@ -81,15 +91,13 @@ export default function SignIn() {
     if (user) {
       localStorage.setItem(
         REMEMBERED_USER_KEY,
-        JSON.stringify({
-          email,
-          name: user.name,
-          image: user.image ?? null,
-        }),
+        JSON.stringify({ email, name: user.name, image: user.image ?? null }),
       );
+      navigate(from, { replace: true });
+    } else {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
     }
-
-    navigate(from, { replace: true });
   };
 
   const handleNotMe = () => {
