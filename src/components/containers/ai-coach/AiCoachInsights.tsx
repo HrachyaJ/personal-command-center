@@ -7,110 +7,74 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { insightColors, priorityColors } from "../../../lib/utils";
-import type { Insight, InsightType } from "../../../types/ai-coach";
+import type {
+  AiCoachInsight,
+  InsightType,
+} from "../../../types/ai-coach.types";
 import { TabsContent } from "../../ui/tabs";
 import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { useTranslation } from "../../../hooks/useTranslation";
-
-const insights: Insight[] = [
-  {
-    id: "1",
-    type: "pattern",
-    title: "You're a morning person",
-    description:
-      "87% of your completed tasks are created or worked on before 11 AM. Your focus drops sharply after 3 PM — consider front-loading your hardest work.",
-    priority: "high",
-    relatedTo: "Tasks",
-    actionLabel: "Reschedule tasks",
-  },
-  {
-    id: "2",
-    type: "warning",
-    title: "Sunday slump detected",
-    description:
-      "Your task completion rate on Sundays is 23% — the lowest of any day. Tasks added Sunday evening have a 78% chance of being abandoned.",
-    priority: "high",
-    relatedTo: "Tasks",
-    actionLabel: "View Sunday tasks",
-  },
-  {
-    id: "3",
-    type: "achievement",
-    title: "Goal momentum is strong",
-    description:
-      'Your "Read 12 books" goal is 3 weeks ahead of schedule. Based on your current pace, you\'ll complete it by September instead of December.',
-    priority: "medium",
-    relatedTo: "Goals",
-  },
-  {
-    id: "4",
-    type: "tip",
-    title: "Habit stacking opportunity",
-    description:
-      'You consistently complete "Morning run" but skip "Journaling" on the same days. Attaching journaling right after your run could boost its completion by ~40%.',
-    priority: "medium",
-    relatedTo: "Habits",
-    actionLabel: "Try habit stack",
-  },
-  {
-    id: "5",
-    type: "warning",
-    title: "Task overload on Mondays",
-    description:
-      "You add an average of 11 tasks on Mondays but only complete 4. This gap might be causing stress and a false sense of falling behind.",
-    priority: "medium",
-    relatedTo: "Tasks",
-    actionLabel: "Review Mondays",
-  },
-  {
-    id: "6",
-    type: "achievement",
-    title: "14-day habit streak",
-    description:
-      'You\'ve maintained your "Morning run" habit for 14 consecutive days — your longest streak ever. Keep it going!',
-    priority: "low",
-    relatedTo: "Habits",
-  },
-];
+import { Skeleton } from "../../ui/skeleton";
 
 interface AiCoachInsightsProps {
-  dismissedInsights: string[];
+  insights: AiCoachInsight[];
+  isLoading: boolean;
   onDismiss: (id: string) => void;
 }
 
-export const totalInsightsCount = insights.length;
+function InsightIcon({ type }: { type: InsightType }) {
+  switch (type) {
+    case "tip":
+      return <Lightbulb className="w-4 h-4" />;
+    case "warning":
+      return <AlertCircle className="w-4 h-4" />;
+    case "achievement":
+      return <CheckCircle2 className="w-4 h-4" />;
+    case "pattern":
+      return <BarChart3 className="w-4 h-4" />;
+  }
+}
+
+function InsightSkeleton() {
+  return (
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4">
+          <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-4/5" />
+            <Skeleton className="h-7 w-28 mt-3" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AiCoachInsights({
-  dismissedInsights,
+  insights,
+  isLoading,
   onDismiss,
 }: AiCoachInsightsProps) {
   const { t } = useTranslation();
-  const visibleInsights = insights.filter(
-    (i) => !dismissedInsights.includes(i.id),
-  );
 
-  const handleDismiss = (id: string) => {
-    onDismiss(id);
-  };
-
-  function InsightIcon({ type }: { type: InsightType }) {
-    switch (type) {
-      case "tip":
-        return <Lightbulb className="w-4 h-4" />;
-      case "warning":
-        return <AlertCircle className="w-4 h-4" />;
-      case "achievement":
-        return <CheckCircle2 className="w-4 h-4" />;
-      case "pattern":
-        return <BarChart3 className="w-4 h-4" />;
-    }
+  if (isLoading) {
+    return (
+      <TabsContent value="insights" className="space-y-3 mt-4">
+        {[1, 2, 3].map((n) => (
+          <InsightSkeleton key={n} />
+        ))}
+      </TabsContent>
+    );
   }
 
   return (
     <TabsContent value="insights" className="space-y-3 mt-4">
-      {visibleInsights.length === 0 ? (
+      {insights.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
             <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -120,7 +84,7 @@ export default function AiCoachInsights({
           </CardContent>
         </Card>
       ) : (
-        visibleInsights.map((insight) => {
+        insights.map((insight) => {
           const colors = insightColors(insight.type);
           return (
             <Card key={insight.id} className={`border-l-4 ${colors.border}`}>
@@ -133,9 +97,7 @@ export default function AiCoachInsights({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                      <h3 className="font-semibold text-sm">
-                        {t(`aiCoach.insights.${insight.id}.title`)}
-                      </h3>
+                      <h3 className="font-semibold text-sm">{insight.title}</h3>
                       <Badge className={`text-[10px] ${colors.badge}`}>
                         {t(`aiCoach.insights.type.${insight.type}`)}
                       </Badge>
@@ -152,7 +114,7 @@ export default function AiCoachInsights({
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {t(`aiCoach.insights.${insight.id}.description`)}
+                      {insight.description}
                     </p>
                     <div className="flex items-center gap-2 mt-3">
                       {insight.actionLabel && (
@@ -161,7 +123,7 @@ export default function AiCoachInsights({
                           variant="outline"
                           className="cursor-pointer h-7 text-xs gap-1"
                         >
-                          {t(`aiCoach.insights.${insight.id}.actionLabel`)}
+                          {insight.actionLabel}
                           <ChevronRight className="w-3 h-3" />
                         </Button>
                       )}
@@ -169,7 +131,7 @@ export default function AiCoachInsights({
                         size="sm"
                         variant="ghost"
                         className="cursor-pointer h-7 text-xs text-muted-foreground"
-                        onClick={() => handleDismiss(insight.id)}
+                        onClick={() => onDismiss(insight.id)}
                       >
                         {t("aiCoach.insights.dismiss")}
                       </Button>

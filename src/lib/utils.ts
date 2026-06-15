@@ -1,8 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TaskCategory, TaskPriority } from "../types/task.types";
-import type { HabitCategory } from "../types/habit.types";
-import type { InsightType, Priority } from "../types/ai-coach";
+import type { InsightType, Priority } from "../types/ai-coach.types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

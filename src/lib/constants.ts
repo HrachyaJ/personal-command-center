@@ -1,5 +1,5 @@
 import { BarChart3, Brain, CheckSquare, Home, Target } from "lucide-react";
-import type { Feature, Stat } from "../types/dashboard";
+import type { Feature, Stat } from "../types/dashboard.types";
 import { COLORS } from "./theme";
 
 export const TESTIMONIALS = [

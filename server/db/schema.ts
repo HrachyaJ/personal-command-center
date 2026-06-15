@@ -5,6 +5,8 @@ import {
   boolean,
   integer,
   timestamp,
+  pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { user } from "./auth-schema.js"; // Better Auth owns the user table
@@ -104,6 +106,131 @@ export const habitCompletionsRelations = relations(
     }),
   }),
 );
+
+// ── Enums ────────────────────────────────────────────────────────────────────
+
+export const insightTypeEnum = pgEnum("insight_type", [
+  "tip",
+  "warning",
+  "achievement",
+  "pattern",
+]);
+
+export const priorityEnum = pgEnum("priority", ["high", "medium", "low"]);
+
+export const relatedToEnum = pgEnum("related_to", [
+  "Tasks",
+  "Habits",
+  "Goals",
+  "Schedule",
+]);
+
+export const impactEnum = pgEnum("impact", ["high", "medium", "low"]);
+
+export const effortEnum = pgEnum("effort", ["easy", "moderate", "hard"]);
+
+// NOTE: renamed from categoryEnum → coachCategoryEnum to avoid collision
+// with any "category" column type you may add later
+export const coachCategoryEnum = pgEnum("coach_category", [
+  "Tasks",
+  "Habits",
+  "Goals",
+  "Schedule",
+]);
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+
+export const aiCoachInsights = pgTable(
+  "ai_coach_insights",
+  {
+    // varchar to match the id style used everywhere else in this schema
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    type: insightTypeEnum("type").notNull(),
+    priority: priorityEnum("priority").notNull(),
+    relatedTo: relatedToEnum("related_to").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    actionLabel: text("action_label"),
+
+    isDismissed: boolean("is_dismissed").notNull().default(false),
+    dismissedAt: timestamp("dismissed_at", { withTimezone: true }),
+
+    generatedAt: timestamp("generated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    index("ai_coach_insights_user_id_idx").on(t.userId),
+    index("ai_coach_insights_expires_at_idx").on(t.expiresAt),
+  ],
+);
+
+export const aiCoachRecommendations = pgTable(
+  "ai_coach_recommendations",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    category: coachCategoryEnum("category").notNull(),
+    impact: impactEnum("impact").notNull(),
+    effort: effortEnum("effort").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+
+    isApplied: boolean("is_applied").notNull().default(false),
+    appliedAt: timestamp("applied_at", { withTimezone: true }),
+
+    generatedAt: timestamp("generated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    index("ai_coach_recommendations_user_id_idx").on(t.userId),
+    index("ai_coach_recommendations_expires_at_idx").on(t.expiresAt),
+  ],
+);
+
+// ── AI Coach Relations ────────────────────────────────────────────────────────
+
+export const aiCoachInsightsRelations = relations(
+  aiCoachInsights,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [aiCoachInsights.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const aiCoachRecommendationsRelations = relations(
+  aiCoachRecommendations,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [aiCoachRecommendations.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export type AiCoachInsight = typeof aiCoachInsights.$inferSelect;
+export type NewAiCoachInsight = typeof aiCoachInsights.$inferInsert;
+export type AiCoachRecommendation = typeof aiCoachRecommendations.$inferSelect;
+export type NewAiCoachRecommendation =
+  typeof aiCoachRecommendations.$inferInsert;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type Task = typeof tasks.$inferSelect;

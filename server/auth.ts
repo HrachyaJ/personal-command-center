@@ -78,7 +78,7 @@ export const auth = betterAuth({
     bearer(),
     jwt({
       jwt: {
-        expirationTime: "7d",
+        expirationTime: "2h",
       },
       schema: {
         jwks: {

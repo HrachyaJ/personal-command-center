@@ -3,10 +3,11 @@ import cors from "cors";
 import multer from "multer";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
-import taskRoutes from "./routes/tasks.js";
-import goalRoutes from "./routes/goals.js";
-import habitRoutes from "./routes/habits.js";
-import userRouter from "./routes/user.js";
+import taskRoutes from "./routes/tasks.route.js";
+import goalRoutes from "./routes/goals.route.js";
+import habitRoutes from "./routes/habits.route.js";
+import userRouter from "./routes/user.route.js";
+import aiCoachRoutes from "./routes/ai-coach.route.js";
 import { db } from "./db.js";
 import { goals, habits, tasks } from "./db/schema.js";
 import { user as userTable } from "./db/auth-schema.js";
@@ -61,6 +62,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
+app.use("/api/ai-coach", aiCoachRoutes);
 
 app.post("/api/auth/get-jwt", async (req: any, res) => {
   const { sessionToken } = req.body;
@@ -167,6 +169,8 @@ app.delete("/api/user/avatar", async (req: any, res) => {
 
 // ── Internal ML data endpoint — no auth needed, called by Python scripts only
 app.get("/api/ml-data-internal", async (req, res) => {
+  if (req.headers["x-internal-secret"] !== process.env.INTERNAL_SECRET)
+    return res.status(403).json({ error: "Forbidden" });
   const userId = req.query.userId as string | undefined;
   if (!userId) {
     res.status(400).json({ error: "userId required" });

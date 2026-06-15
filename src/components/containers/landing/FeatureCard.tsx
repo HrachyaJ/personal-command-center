@@ -1,5 +1,5 @@
 import { useInView } from "../../../hooks/dashboard";
-import type { Feature } from "../../../types/dashboard";
+import type { Feature } from "../../../types/dashboard.types";
 
 export function FeatureCard({
   feature,

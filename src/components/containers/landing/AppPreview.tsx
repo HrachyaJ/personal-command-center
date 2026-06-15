@@ -58,7 +58,7 @@ export function AppPreview() {
             color: "rgba(0,0,0,0.3)",
           }}
         >
-          {t("app.title")}
+          FocusFlow
         </span>
       </div>
 
@@ -75,12 +75,7 @@ export function AppPreview() {
             background: "#f8faff",
           }}
         >
-          {[
-            t("landing.preview.sidebar.dashboard"),
-            t("landing.preview.sidebar.tasks"),
-            t("landing.preview.sidebar.habits"),
-            t("landing.preview.sidebar.goals"),
-          ].map((item, i) => (
+          {["Dashboard", "Tasks", "Habits", "Goals"].map((item, i) => (
             <div
               key={item}
               style={{
@@ -107,7 +102,7 @@ export function AppPreview() {
               marginBottom: "12px",
             }}
           >
-            {t("landing.preview.tasksTitle")}
+            Today's Tasks
           </div>
           <div
             style={{
@@ -160,7 +155,7 @@ export function AppPreview() {
               marginBottom: "10px",
             }}
           >
-            {t("landing.preview.habitsTitle")}
+            Habits
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {habits.map((h) => (
@@ -211,7 +206,7 @@ export function AppPreview() {
               }}
             >
               <span style={{ fontSize: "10px", color: "rgba(0,0,0,0.4)" }}>
-                {t("landing.preview.dailyProgress")}
+                Daily progress
               </span>
               <span
                 style={{ fontSize: "10px", color: "#2563eb", fontWeight: 600 }}
