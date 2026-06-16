@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { Router } from "express";
 import { and, eq, gt } from "drizzle-orm";
 import { db } from "../db.js";
@@ -12,9 +11,11 @@ import {
   type Goal,
 } from "../db/schema.js";
 import { getSession } from "../auth-session.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const router = Router();
-const anthropic = new Anthropic();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const TTL_HOURS = 24;
 
@@ -24,11 +25,6 @@ function expiresAt(): Date {
   return d;
 }
 
-/**
- * Claude is instructed to return raw JSON, but models occasionally wrap
- * output in ```json fences anyway. Strip those before parsing, and fall
- * back to `fallback` if the result still isn't valid JSON.
- */
 function safeParseJson<T>(raw: string, fallback: T): T {
   const cleaned = raw
     .trim()
@@ -61,7 +57,6 @@ function buildUserContext(
 
   const activeGoals = goals.filter((g) => g.status !== "completed");
 
-  // Day-of-week breakdown
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dayCounts: Record<string, { total: number; completed: number }> = {};
   tasks.forEach((t) => {
@@ -81,7 +76,6 @@ function buildUserContext(
     )
     .join(", ");
 
-  // Peak hour
   const hourCounts: Record<number, { total: number; completed: number }> = {};
   completedTasks.forEach((t) => {
     const h = new Date(t.completedAt!).getHours();
@@ -116,7 +110,7 @@ ${
 `.trim();
 }
 
-// ── AI generation ─────────────────────────────────────────────────────────────
+// ── Prompts ───────────────────────────────────────────────────────────────────
 
 const INSIGHTS_SYSTEM = `
 You are an expert productivity coach. Analyze the user's task, habit, and goal data and return a JSON object.
@@ -137,7 +131,7 @@ Schema:
 }
 
 Rules:
-- Generate 4–6 insights. Mix types.
+- Generate 4-6 insights. Mix types.
 - Be specific — reference actual numbers from the data.
 - If data is sparse, generate fewer insights rather than vague ones.
 `.trim();
@@ -160,23 +154,21 @@ Schema:
 }
 
 Rules:
-- Generate 3–5 recommendations.
+- Generate 3-5 recommendations.
 - Prioritize high-impact, low-effort wins first.
 - Base recommendations on actual patterns in the data.
 `.trim();
+
+// ── AI generation ─────────────────────────────────────────────────────────────
 
 async function generateInsights(
   contextText: string,
   userId: string,
 ): Promise<NewAiCoachInsight[]> {
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1500,
-    system: INSIGHTS_SYSTEM,
-    messages: [{ role: "user", content: contextText }],
-  });
-
-  const raw = msg.content.find((b) => b.type === "text")?.text ?? "{}";
+  const result = await model.generateContent(
+    INSIGHTS_SYSTEM + "\n\n" + contextText,
+  );
+  const raw = result.response.text();
   const parsed = safeParseJson<{
     insights: Pick<
       NewAiCoachInsight,
@@ -203,14 +195,10 @@ async function generateRecommendations(
   contextText: string,
   userId: string,
 ): Promise<NewAiCoachRecommendation[]> {
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1500,
-    system: RECS_SYSTEM,
-    messages: [{ role: "user", content: contextText }],
-  });
-
-  const raw = msg.content.find((b) => b.type === "text")?.text ?? "{}";
+  const result = await model.generateContent(
+    RECS_SYSTEM + "\n\n" + contextText,
+  );
+  const raw = result.response.text();
   const parsed = safeParseJson<{
     recommendations: Pick<
       NewAiCoachRecommendation,
@@ -230,9 +218,6 @@ async function generateRecommendations(
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-// POST /api/ai-coach
-// Body: { force?: boolean, habits, tasks, goals }
-// Returns cached rows if fresh; generates new ones otherwise.
 router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -284,7 +269,6 @@ router.post("/", async (req, res) => {
       }
     }
 
-    // Wipe stale rows
     await Promise.all([
       db.delete(aiCoachInsights).where(eq(aiCoachInsights.userId, userId)),
       db
@@ -318,7 +302,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PATCH /api/ai-coach/insights/:id/dismiss
 router.patch("/insights/:id/dismiss", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -338,7 +321,6 @@ router.patch("/insights/:id/dismiss", async (req, res) => {
   return res.json(updated);
 });
 
-// PATCH /api/ai-coach/recommendations/:id/apply
 router.patch("/recommendations/:id/apply", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
