@@ -14,6 +14,7 @@ import type {
   AiCoachInsight,
   AiCoachRecommendation,
 } from "../../../types/ai-coach.types";
+import { API_BASE, authFetch } from "../../../lib/utils";
 
 export default function AICoach() {
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export default function AICoach() {
     async (force = false) => {
       if (!user?.id || !habits || !tasks || !goals) return;
       try {
-        const res = await fetch("/api/ai-coach", {
+        const res = await authFetch(`${API_BASE}/api/ai-coach`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ force, habits, tasks, goals }),
@@ -82,7 +83,9 @@ export default function AICoach() {
       prev.map((i) => (i.id === id ? { ...i, isDismissed: true } : i)),
     );
     try {
-      await fetch(`/api/ai-coach/insights/${id}/dismiss`, { method: "PATCH" });
+      await authFetch(`${API_BASE}/api/ai-coach/insights/${id}/dismiss`, {
+        method: "PATCH",
+      });
     } catch {
       // Roll back on failure
       setInsights((prev) =>
@@ -96,7 +99,7 @@ export default function AICoach() {
       prev.map((r) => (r.id === id ? { ...r, isApplied: true } : r)),
     );
     try {
-      await fetch(`/api/ai-coach/recommendations/${id}/apply`, {
+      await authFetch(`${API_BASE}/api/ai-coach/recommendations/${id}/apply`, {
         method: "PATCH",
       });
     } catch {
