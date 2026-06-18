@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs";
-import { Lightbulb, Target, BarChart3 } from "lucide-react";
+import { Lightbulb, Target, BarChart3, Brain } from "lucide-react";
 import AiCoachInsights from "./AiCoachInsights";
 import AiCoachPatterns from "./AiCoachPatterns";
 import AiCoachRecommendations from "./AiCoachRecommendations";
@@ -15,10 +15,15 @@ import type {
   AiCoachRecommendation,
 } from "../../../types/ai-coach.types";
 import { API_BASE, authFetch } from "../../../lib/utils";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "../../ui/card";
+import { Button } from "../../ui/button";
+import AiCoachHeaderSkeleton from "../../shared/Skeletons";
 
 export default function AICoach() {
   const { t } = useTranslation();
   const { user } = useUserStore();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<
     "insights" | "patterns" | "recommendations"
@@ -39,6 +44,8 @@ export default function AICoach() {
 
   const visibleInsights = insights.filter((i) => !i.isDismissed);
 
+  const [insufficient, setInsufficient] = useState(false);
+
   // ── Load coach data ──────────────────────────────────────────────────────
 
   const loadCoachData = useCallback(
@@ -54,6 +61,7 @@ export default function AICoach() {
         const data = await res.json();
         setInsights(data.insights);
         setRecommendations(data.recommendations);
+        setInsufficient(data.insufficient ?? false); // ← add this line
         setError(null);
       } catch (e) {
         setError(
@@ -64,7 +72,13 @@ export default function AICoach() {
     [user?.id, habits, tasks, goals],
   );
 
+  const hasLoaded = useRef(false);
+
   useEffect(() => {
+    if (!user?.id || !habits || !tasks || !goals) return;
+    if (hasLoaded.current) return; // prevent re-runs
+    hasLoaded.current = true;
+
     setIsLoading(true);
     loadCoachData().finally(() => setIsLoading(false));
   }, [loadCoachData]);
@@ -73,6 +87,7 @@ export default function AICoach() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    hasLoaded.current = false; // allow one more call
     await loadCoachData(true);
     setIsRefreshing(false);
   };
@@ -113,12 +128,16 @@ export default function AICoach() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* {isLoading ? (
+        <AiCoachHeaderSkeleton />
+      ) : ( */}
       <AiCoachHeader
         habits={habits}
         tasks={tasks}
         goals={goals}
-        // isRefreshing={isRefreshing}
-        // onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        isLoading={isLoading}
       />
 
       {(error || hookError) && (
@@ -127,42 +146,80 @@ export default function AICoach() {
         </div>
       )}
 
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as typeof activeTab)}
-      >
-        <TabsList>
-          <TabsTrigger value="insights" className="cursor-pointer gap-1.5">
-            <Lightbulb className="w-3.5 h-3.5" />
-            {t("aiCoach.tabs.insights", { count: visibleInsights.length })}
-          </TabsTrigger>
-          <TabsTrigger value="patterns" className="cursor-pointer gap-1.5">
-            <BarChart3 className="w-3.5 h-3.5" />
-            {t("aiCoach.tabs.patterns")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="recommendations"
-            className="cursor-pointer gap-1.5"
-          >
-            <Target className="w-3.5 h-3.5" />
-            {t("aiCoach.tabs.recommendations")}
-          </TabsTrigger>
-        </TabsList>
+      {insufficient ? (
+        <Card>
+          <CardContent className="p-8 text-center space-y-3">
+            <Brain className="w-12 h-12 text-muted-foreground mx-auto" />
+            <p className="font-medium">Not enough data yet</p>
+            <p className="text-sm text-muted-foreground">
+              Add a few tasks, habits, or goals and come back — the AI coach
+              needs real activity to give you meaningful insights.
+            </p>
+            <div className="flex justify-center gap-2 pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate("/tasks")}
+              >
+                Add a Task
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate("/habits")}
+              >
+                Add a Habit
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate("/goals?create=true")}
+              >
+                Set a Goal
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+        >
+          <TabsList>
+            <TabsTrigger value="insights" className="cursor-pointer gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5" />
+              {t("aiCoach.tabs.insights", {
+                count: isLoading ? "..." : visibleInsights.length,
+              })}
+            </TabsTrigger>
+            <TabsTrigger value="patterns" className="cursor-pointer gap-1.5">
+              <BarChart3 className="w-3.5 h-3.5" />
+              {t("aiCoach.tabs.patterns")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="recommendations"
+              className="cursor-pointer gap-1.5"
+            >
+              <Target className="w-3.5 h-3.5" />
+              {t("aiCoach.tabs.recommendations")}
+            </TabsTrigger>
+          </TabsList>
 
-        <AiCoachInsights
-          insights={visibleInsights}
-          isLoading={isLoading}
-          onDismiss={handleDismiss}
-        />
+          <AiCoachInsights
+            insights={visibleInsights}
+            isLoading={isLoading}
+            onDismiss={handleDismiss}
+          />
 
-        <AiCoachPatterns tasks={tasks} />
+          <AiCoachPatterns tasks={tasks} />
 
-        <AiCoachRecommendations
-          recommendations={recommendations}
-          isLoading={isLoading}
-          onApply={handleApplyRecommendation}
-        />
-      </Tabs>
+          <AiCoachRecommendations
+            recommendations={recommendations}
+            isLoading={isLoading}
+            onApply={handleApplyRecommendation}
+          />
+        </Tabs>
+      )}
     </div>
   );
 }

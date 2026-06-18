@@ -16,7 +16,15 @@ import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { Skeleton } from "../../ui/skeleton";
+import { useNavigate } from "react-router-dom";
+import { Skeleton } from "../../shared/Skeletons";
+
+const RELATED_TO_ROUTE: Record<AiCoachInsight["relatedTo"], string> = {
+  Tasks: "/tasks",
+  Habits: "/habits",
+  Goals: "/goals?create=true", // ← add param
+  Schedule: "/tasks", // fallback
+};
 
 interface AiCoachInsightsProps {
   insights: AiCoachInsight[];
@@ -61,6 +69,7 @@ export default function AiCoachInsights({
   onDismiss,
 }: AiCoachInsightsProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -122,6 +131,9 @@ export default function AiCoachInsights({
                           size="sm"
                           variant="outline"
                           className="cursor-pointer h-7 text-xs gap-1"
+                          onClick={() =>
+                            navigate(RELATED_TO_ROUTE[insight.relatedTo])
+                          }
                         >
                           {insight.actionLabel}
                           <ChevronRight className="w-3 h-3" />

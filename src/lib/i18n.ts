@@ -246,7 +246,9 @@ const translations: Record<Locale, Record<string, string>> = {
       "Pick one routine to track each day and build consistency.",
     "dashboard.onboarding.primaryAction": "Start with Tasks",
     "dashboard.onboarding.secondaryAction": "Maybe later",
-    "dashboard.aiBadge": "AI Coach active",
+    "dashboard.aiBadge.thinking": "AI Coach thinking...",
+    "dashboard.aiBadge.ready": "AI Coach ready",
+    "dashboard.aiBadge.actions": "AI Coach notes: {count}",
 
     "aiCoach.title": "AI Coach",
     "aiCoach.subtitle": "Personalized insights based on your activity",
@@ -306,6 +308,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.insights.relatedTo.tasks": "Tasks",
     "aiCoach.insights.relatedTo.goals": "Goals",
     "aiCoach.insights.relatedTo.habits": "Habits",
+    "aiCoach.insights.relatedTo.schedule": "Schedule",
     "aiCoach.insights.1.title": "You're a morning person",
     "aiCoach.insights.1.description":
       "87% of your completed tasks are created or worked on before 11 AM. Your focus drops sharply after 3 PM — consider front-loading your hardest work.",
@@ -750,7 +753,9 @@ const translations: Record<Locale, Record<string, string>> = {
       "Выберите одну рутину для ежедневного отслеживания и выстраивайте стабильность.",
     "dashboard.onboarding.primaryAction": "Начать с задач",
     "dashboard.onboarding.secondaryAction": "Может позже",
-    "dashboard.aiBadge": "ИИ тренер доступен",
+    "dashboard.aiBadge.thinking": "ИИ тренер думает...",
+    "dashboard.aiBadge.ready": "ИИ тренер готов",
+    "dashboard.aiBadge.actions": "Посмотреть рекомендации: {count}",
 
     "aiCoach.title": "ИИ Тренер",
     "aiCoach.subtitle":
@@ -814,6 +819,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.insights.relatedTo.tasks": "Задачи",
     "aiCoach.insights.relatedTo.goals": "Цели",
     "aiCoach.insights.relatedTo.habits": "Привычки",
+    "aiCoach.insights.relatedTo.schedule": "Расписание",
     "aiCoach.insights.1.title": "Вы — утренний человек",
     "aiCoach.insights.1.description":
       "87% выполненных вами задач создаются или выполняются до 11 часов утра. Ваша концентрация резко падает после 15:00 — подумайте о том, чтобы выполнять самые важные задачи раньше.",

@@ -11,11 +11,10 @@ import {
   type Goal,
 } from "../db/schema.js";
 import { getSession } from "../auth-session.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
 const router = Router();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
 const TTL_HOURS = 24;
 
@@ -161,14 +160,27 @@ Rules:
 
 // ── AI generation ─────────────────────────────────────────────────────────────
 
+async function callGroq(
+  systemPrompt: string,
+  contextText: string,
+): Promise<string> {
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: contextText },
+    ],
+    max_tokens: 1024,
+    temperature: 0.7,
+  });
+  return completion.choices[0]?.message?.content ?? "";
+}
+
 async function generateInsights(
   contextText: string,
   userId: string,
 ): Promise<NewAiCoachInsight[]> {
-  const result = await model.generateContent(
-    INSIGHTS_SYSTEM + "\n\n" + contextText,
-  );
-  const raw = result.response.text();
+  const raw = await callGroq(INSIGHTS_SYSTEM, contextText);
   const parsed = safeParseJson<{
     insights: Pick<
       NewAiCoachInsight,
@@ -195,10 +207,7 @@ async function generateRecommendations(
   contextText: string,
   userId: string,
 ): Promise<NewAiCoachRecommendation[]> {
-  const result = await model.generateContent(
-    RECS_SYSTEM + "\n\n" + contextText,
-  );
-  const raw = result.response.text();
+  const raw = await callGroq(RECS_SYSTEM, contextText);
   const parsed = safeParseJson<{
     recommendations: Pick<
       NewAiCoachRecommendation,
@@ -224,9 +233,9 @@ router.post("/", async (req, res) => {
 
   const {
     force = false,
-    habits,
-    tasks,
-    goals,
+    habits = [],
+    tasks = [],
+    goals = [],
   }: {
     force?: boolean;
     habits: Habit[];
@@ -238,6 +247,7 @@ router.post("/", async (req, res) => {
     const now = new Date();
     const userId = session.user.id;
 
+    // 1. Look for existing valid cache first before ANYTHING else
     if (!force) {
       const [cachedInsights, cachedRecs] = await Promise.all([
         db
@@ -261,7 +271,8 @@ router.post("/", async (req, res) => {
           ),
       ]);
 
-      if (cachedInsights.length > 0 && cachedRecs.length > 0) {
+      // ✅ FIX: If we have ANY unexpired insights or recommendations saved, return them!
+      if (cachedInsights.length > 0 || cachedRecs.length > 0) {
         return res.json({
           insights: cachedInsights,
           recommendations: cachedRecs,
@@ -269,6 +280,19 @@ router.post("/", async (req, res) => {
       }
     }
 
+    // 2. Only check for data insufficiency IF we actually need to run an LLM cycle
+    const hasEnoughData =
+      tasks.length >= 3 || habits.length >= 1 || goals.length >= 1;
+
+    if (!hasEnoughData) {
+      return res.json({
+        insights: [],
+        recommendations: [],
+        insufficient: true,
+      });
+    }
+
+    // 3. Clear old records and run the LLM generation step...
     await Promise.all([
       db.delete(aiCoachInsights).where(eq(aiCoachInsights.userId, userId)),
       db
@@ -278,10 +302,9 @@ router.post("/", async (req, res) => {
 
     const context = buildUserContext(habits, tasks, goals);
 
-    const [newInsights, newRecs] = await Promise.all([
-      generateInsights(context, userId),
-      generateRecommendations(context, userId),
-    ]);
+    // Run sequentially to avoid hitting Groq's free tier rate limit
+    const newInsights = await generateInsights(context, userId);
+    const newRecs = await generateRecommendations(context, userId);
 
     const [insertedInsights, insertedRecs] = await Promise.all([
       newInsights.length > 0

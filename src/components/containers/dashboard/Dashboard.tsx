@@ -10,6 +10,9 @@ import {
   Calendar,
   Clock,
   Shield,
+  Sparkles,
+  AlertTriangle,
+  Brain,
 } from "lucide-react";
 import { useTasks } from "../../../hooks/task.hooks";
 import { useGoals } from "../../../hooks/goal.hooks";
@@ -43,6 +46,7 @@ import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import Insights from "../../shared/Insights";
 import { Badge } from "../../ui/badge";
+import { useAiCoach } from "../../../hooks/useAiCoach";
 
 const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
@@ -144,6 +148,49 @@ export default function Dashboard() {
       ? Math.round((completedGoalsCount / goals.length) * 100)
       : 0;
 
+  const {
+    insights: coachInsights,
+    recommendations: coachRecs,
+    isLoading: coachLoading,
+  } = useAiCoach();
+
+  const getAiBadgeConfig = () => {
+    if (coachLoading) {
+      return {
+        text: t("dashboard.aiBadge.thinking", {
+          defaultValue: "Coach Thinking",
+        }),
+        className:
+          "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 animate-pulse",
+        icon: <Sparkles className="w-3 h-3 mr-1 animate-spin" />,
+      };
+    }
+
+    const totalActions = coachInsights.length + coachRecs.length;
+
+    if (totalActions > 0) {
+      return {
+        text: t("dashboard.aiBadge.actions", {
+          count: totalActions,
+          defaultValue: `${totalActions} Advisor Notes`,
+        }),
+        className:
+          "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60 font-medium animate-bounce-subtle",
+        icon: (
+          <Brain className="w-3.5 h-3.5 mr-1 text-indigo-500 dark:text-indigo-400" />
+        ),
+      };
+    }
+
+    return {
+      text: t("dashboard.aiBadge.ready", { defaultValue: "AI Coach Ready" }),
+      className:
+        "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
+      icon: <Shield className="w-3 h-3 mr-1" />,
+    };
+  };
+  const aiBadge = getAiBadgeConfig();
+
   // ── Derived: Habits ───────────────────────────────────────────────────────
 
   const statCards: StatCardProps[] = [
@@ -225,9 +272,12 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             {/* Hide badge on very small screens */}
-            <Badge className="hidden sm:flex bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
-              <Shield className="w-3 h-3 mr-1" />
-              {t("dashboard.aiBadge")}
+            <Badge
+              onClick={() => navigate("/ai-coach")}
+              className={`hidden sm:flex border cursor-pointer transition-all hover:opacity-85 active:scale-95 ${aiBadge.className}`}
+            >
+              {aiBadge.icon}
+              {aiBadge.text}
             </Badge>
             <Button
               variant="ghost"

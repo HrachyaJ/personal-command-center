@@ -27,6 +27,7 @@ import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { useSearchParams } from "react-router-dom";
 
 export default function Goals() {
   const {
@@ -41,7 +42,7 @@ export default function Goals() {
   } = useGoals();
 
   const stats = getStats();
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"active" | "completed" | "paused">(
     "active",
@@ -59,6 +60,14 @@ export default function Goals() {
   const { t } = useTranslation();
 
   const pageNeedsOnboarding = !loading && stats.total === 0 && !onboardingSeen;
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setIsAddDialogOpen(true);
+      setSearchParams({}, { replace: true }); // clean the URL after opening
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
 
   useEffect(() => {
     if (pageNeedsOnboarding) {

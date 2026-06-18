@@ -5,7 +5,15 @@ import { effortColors, impactColors } from "../../../lib/utils";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { useNavigate } from "react-router-dom";
 import type { AiCoachRecommendation } from "../../../types/ai-coach.types";
+
+const CATEGORY_TO_ROUTE: Record<AiCoachRecommendation["category"], string> = {
+  Tasks: "/tasks",
+  Habits: "/habits",
+  Goals: "/goals",
+  Schedule: "/tasks",
+};
 
 interface AiCoachRecommendationsProps {
   recommendations: AiCoachRecommendation[];
@@ -19,6 +27,7 @@ export default function AiCoachRecommendations({
   onApply,
 }: AiCoachRecommendationsProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -84,7 +93,10 @@ export default function AiCoachRecommendations({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onApply(rec.id)}
+                  onClick={async () => {
+                    await onApply(rec.id);
+                    navigate(CATEGORY_TO_ROUTE[rec.category]);
+                  }}
                   className="cursor-pointer shrink-0 gap-1 text-xs"
                 >
                   {t("aiCoach.recommendations.tryThis")}
