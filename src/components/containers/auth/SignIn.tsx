@@ -70,24 +70,8 @@ export default function SignIn() {
       return;
     }
 
-    // Exchange session token for a JWT so cross-domain requests work in prod
-    const sessionToken = (result.data as any)?.token;
-    if (sessionToken) {
-      const jwtRes = await fetch(
-        `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/get-jwt`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionToken }),
-        },
-      );
-      if (jwtRes.ok) {
-        const { token } = await jwtRes.json();
-        console.log("[SignIn] JWT:", token);
-        if (token) localStorage.setItem("better-auth-token", token);
-      }
-    }
-
+    // signIn.email already set the httpOnly session cookie — no separate
+    // token exchange needed. Just confirm the session is live and go.
     await useUserStore.getState().fetch();
 
     const user = useUserStore.getState().user;
