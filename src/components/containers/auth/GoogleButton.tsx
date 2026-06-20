@@ -7,11 +7,12 @@ export function GoogleButton() {
       onClick={() =>
         authClient.signIn.social({
           provider: "google",
-          callbackURL: `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/auth/jwt-redirect`,
-          // fetchOptions: {
-          //   // Browser auth should rely on the HttpOnly session cookie.
-          //   // Do not persist JWT tokens in localStorage.
-          // },
+          // Better Auth handles the full OAuth round trip itself (it talks
+          // to Google via its own /api/auth/callback/google route) and
+          // sets the session cookie before redirecting here — no custom
+          // backend redirect or token handoff needed.
+          callbackURL: `${window.location.origin}/dashboard`,
+          errorCallbackURL: `${window.location.origin}/sign-in`,
         })
       }
       style={{

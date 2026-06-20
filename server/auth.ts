@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db.js";
-import { bearer, jwt } from "better-auth/plugins";
 import * as authSchema from "./db/auth-schema.js";
 import { sql } from "drizzle-orm";
 
@@ -74,17 +73,10 @@ export const auth = betterAuth({
     "http://localhost:5173",
     "https://focus-flow-site.vercel.app",
   ],
-  plugins: [
-    bearer(),
-    jwt({
-      jwt: {
-        expirationTime: "2h",
-      },
-      schema: {
-        jwks: {
-          modelName: "jwks",
-        },
-      },
-    }),
-  ],
+  // No plugins needed: we authenticate purely via the httpOnly session
+  // cookie. The bearer()/jwt() plugins were here to support a parallel
+  // localStorage-token flow that turned out to be dead code (the custom
+  // /api/auth/get-jwt route was shadowed by this handler's own catch-all
+  // and never actually ran) — removed rather than fixed, since the cookie
+  // already does the whole job across the Vercel/Render origins.
 });

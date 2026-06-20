@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
+import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import taskRoutes from "./routes/tasks.route.js";
 import goalRoutes from "./routes/goals.route.js";
@@ -33,28 +33,17 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "https://focus-flow-site.vercel.app"],
     credentials: true,
-    exposedHeaders: ["set-cookie", "Authorization"],
+    exposedHeaders: ["set-cookie"],
   }),
 );
 
-// jwt-redirect: uses auth.api.getToken directly — this runs before the JWT exists
-// so we can't use getSession here
-app.get("/api/auth/jwt-redirect", async (req: any, res) => {
-  const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
-
-  const tokenResponse = await auth.api.getToken({
-    headers: fromNodeHeaders(req.headers),
-  });
-
-  const token = tokenResponse?.token;
-
-  if (!token) {
-    return res.redirect(`${frontendUrl}/sign-in`);
-  }
-
-  res.redirect(`${frontendUrl}/auth/callback/google?token=${token}`);
-});
-
+// All Better Auth routes (sign-in, sign-up, sign-out, OAuth callbacks,
+// session handling) are handled entirely by this catch-all. Auth state
+// lives in the httpOnly session cookie that Better Auth sets and reads
+// automatically — there is no separate JWT/bearer-token flow. Google
+// OAuth's callbackURL (set on the frontend's signIn.social call) sends
+// the browser straight back to the frontend with the cookie already set;
+// no custom redirect route is needed here.
 app.all("/api/auth/*path", toNodeHandler(auth));
 app.use(express.json());
 
@@ -63,24 +52,6 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 app.use("/api/ai-coach", aiCoachRoutes);
-
-app.post("/api/auth/get-jwt", async (req: any, res) => {
-  const { sessionToken } = req.body;
-  if (!sessionToken) return res.status(400).json({ error: "No token" });
-
-  try {
-    const tokenResponse = await auth.api.getToken({
-      headers: new Headers({ Authorization: `Bearer ${sessionToken}` }),
-    });
-    console.log("getToken response:", tokenResponse);
-    const token = tokenResponse?.token;
-    if (!token) return res.status(401).json({ error: "Could not issue JWT" });
-    res.json({ token });
-  } catch (err: any) {
-    console.error("get-jwt error:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
@@ -483,7 +454,6 @@ app.get("/api/user/sessions", async (req: any, res) => {
         userAgent: s.userAgent,
         createdAt: s.createdAt,
         expiresAt: s.expiresAt,
-        // session.session is null when authenticated via JWT — skip isCurrent check
         isCurrent: session.session ? s.token === session.session.token : false,
       })),
     );

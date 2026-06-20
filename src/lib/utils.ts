@@ -171,13 +171,11 @@ export const getStatusColor = (status: string) => {
 };
 
 export function authFetch(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("better-auth-token");
   return fetch(url, {
     ...options,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
