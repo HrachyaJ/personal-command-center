@@ -86,6 +86,7 @@ export default function AICoach() {
   // ── Actions ──────────────────────────────────────────────────────────────
 
   const handleRefresh = async () => {
+    if (insufficient) return; // belt-and-suspenders: never let refresh hit the LLM with sparse data
     setIsRefreshing(true);
     hasLoaded.current = false; // allow one more call
     await loadCoachData(true);
@@ -128,9 +129,6 @@ export default function AICoach() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* {isLoading ? (
-        <AiCoachHeaderSkeleton />
-      ) : ( */}
       <AiCoachHeader
         habits={habits}
         tasks={tasks}
@@ -138,6 +136,7 @@ export default function AICoach() {
         isRefreshing={isRefreshing}
         onRefresh={handleRefresh}
         isLoading={isLoading}
+        insufficient={insufficient}
       />
 
       {(error || hookError) && (

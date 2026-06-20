@@ -26,7 +26,7 @@ export default function Habits() {
     totalHabits,
     completedToday,
     completionRate,
-    longestCurrentStreak,
+    longestStreak,
     loading,
     error,
   } = useHabits();
@@ -158,7 +158,7 @@ export default function Habits() {
               color="text-green-600"
             />
             <StatCard
-              value={longestCurrentStreak}
+              value={longestStreak}
               label={t("habits.stats.bestStreak")}
               color="text-purple-600"
             />

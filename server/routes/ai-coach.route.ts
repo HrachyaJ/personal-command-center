@@ -247,7 +247,21 @@ router.post("/", async (req, res) => {
     const now = new Date();
     const userId = session.user.id;
 
-    // 1. Look for existing valid cache first before ANYTHING else
+    // 1. Insufficiency check FIRST and unconditionally — `force` (refresh button)
+    //    must never bypass this, since generating from sparse data wastes the
+    //    Groq call and produces low-quality, generic output.
+    const hasEnoughData =
+      tasks.length >= 3 || habits.length >= 1 || goals.length >= 1;
+
+    if (!hasEnoughData) {
+      return res.json({
+        insights: [],
+        recommendations: [],
+        insufficient: true,
+      });
+    }
+
+    // 2. Look for existing valid cache before calling the LLM
     if (!force) {
       const [cachedInsights, cachedRecs] = await Promise.all([
         db
@@ -278,18 +292,6 @@ router.post("/", async (req, res) => {
           recommendations: cachedRecs,
         });
       }
-    }
-
-    // 2. Only check for data insufficiency IF we actually need to run an LLM cycle
-    const hasEnoughData =
-      tasks.length >= 3 || habits.length >= 1 || goals.length >= 1;
-
-    if (!hasEnoughData) {
-      return res.json({
-        insights: [],
-        recommendations: [],
-        insufficient: true,
-      });
     }
 
     // 3. Clear old records and run the LLM generation step...

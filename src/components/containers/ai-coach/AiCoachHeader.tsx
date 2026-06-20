@@ -28,6 +28,7 @@ interface AiCoachHeaderProps {
   isRefreshing: boolean;
   onRefresh: () => void;
   isLoading: boolean;
+  insufficient: boolean;
 }
 
 export default function AiCoachHeader({
@@ -37,6 +38,7 @@ export default function AiCoachHeader({
   isRefreshing,
   onRefresh,
   isLoading,
+  insufficient,
 }: AiCoachHeaderProps) {
   const { t } = useTranslation();
   const { scores, stats } = computeScores(habits, tasks, goals);
@@ -57,7 +59,10 @@ export default function AiCoachHeader({
           variant="outline"
           size="sm"
           onClick={onRefresh}
-          disabled={isLoading || isRefreshing}
+          disabled={isLoading || isRefreshing || insufficient}
+          title={
+            insufficient ? t("aiCoach.button.refreshDisabledHint") : undefined
+          }
           className="cursor-pointer gap-2"
         >
           <RefreshCw

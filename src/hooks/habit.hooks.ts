@@ -139,8 +139,18 @@ export function useHabits() {
     return habit.completedDates?.includes(getTodayISO()) ?? false;
   }
 
+  // Highest *current* (active) streak across all habits — resets to 0/low
+  // whenever a habit's streak breaks. Used for "what's hot right now" UI.
   const longestCurrentStreak = habits.reduce(
     (max, h) => Math.max(max, h.streak ?? 0),
+    0,
+  );
+
+  // Highest *all-time* streak ever achieved across all habits — does not
+  // reset when a streak breaks. This is what "Best Streak" should usually
+  // mean, and matches the calculation used in the AI Coach tab.
+  const longestStreak = habits.reduce(
+    (max, h) => Math.max(max, h.longestStreak ?? 0),
     0,
   );
 
@@ -176,5 +186,6 @@ export function useHabits() {
     completedToday,
     completionRate,
     longestCurrentStreak,
+    longestStreak,
   };
 }
