@@ -38,7 +38,12 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
     cookieOptions: {
-      sameSite: isProd ? "none" : "lax",
+      // Requests now go through a Vercel rewrite (/api/* -> Render), so the
+      // browser sees same-site requests even though Render serves them.
+      // "lax" works correctly here and avoids Chrome's third-party cookie
+      // partitioning, which silently drops SameSite=None cookies on
+      // cross-site requests regardless of Secure/credentials settings.
+      sameSite: "lax",
       secure: isProd,
       httpOnly: true,
     },
@@ -50,7 +55,7 @@ export const auth = betterAuth({
     defaultCookieAttributes: {
       secure: isProd,
       httpOnly: true,
-      sameSite: isProd ? "none" : "lax",
+      sameSite: "lax",
       partitioned: false,
     },
     redirectMetadata: true,
