@@ -5,13 +5,18 @@ import type {
   HabitCategory,
   HabitFrequency,
 } from "../types/habit.types";
-import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
+import {
+  API_BASE,
+  authFetch,
+  authFetchJson,
+  authFetchOrThrow,
+} from "../lib/utils";
 
 function getErrorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
 
-const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/habits`;
+const API = `${API_BASE}/api/habits`;
 
 function getTodayISO(): string {
   const d = new Date();

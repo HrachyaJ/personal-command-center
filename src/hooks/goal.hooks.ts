@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import type { Goal } from "../types/goal.types";
-import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
+import {
+  API_BASE,
+  authFetch,
+  authFetchJson,
+  authFetchOrThrow,
+} from "../lib/utils";
 
 function getErrorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
 }
 
-const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/goals`;
+const API = `${API_BASE}/api/goals`;
 
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);

@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Task, TaskFormData } from "../types/task.types";
-import { authFetch, authFetchJson, authFetchOrThrow } from "../lib/utils";
+import {
+  API_BASE,
+  authFetch,
+  authFetchJson,
+  authFetchOrThrow,
+} from "../lib/utils";
 import { useTranslation } from "./useTranslation";
 
-const API = `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/api/tasks`;
+const API = `${API_BASE}/api/tasks`;
 
 function getErrorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback;
