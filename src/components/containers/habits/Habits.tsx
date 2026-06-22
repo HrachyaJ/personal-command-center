@@ -41,13 +41,18 @@ export default function Habits() {
     useOnboardingSeen("habits");
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
-  const pageNeedsOnboarding = !loading && totalHabits === 0 && !onboardingSeen;
-
   useEffect(() => {
-    if (pageNeedsOnboarding) {
-      setIsOnboardingOpen(true);
+    if (loading || onboardingSeen) return;
+
+    if (totalHabits > 0) {
+      // User already has data (e.g. seeded/legacy habits) — they're not new,
+      // so retire the flag silently instead of waiting for an empty state.
+      markOnboardingSeen();
+      return;
     }
-  }, [pageNeedsOnboarding]);
+
+    setIsOnboardingOpen(true);
+  }, [loading, totalHabits, onboardingSeen]);
 
   const handleOnboardingOpenChange = (open: boolean) => {
     setIsOnboardingOpen(open);

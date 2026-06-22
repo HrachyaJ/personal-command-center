@@ -59,8 +59,6 @@ export default function Goals() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const { t } = useTranslation();
 
-  const pageNeedsOnboarding = !loading && stats.total === 0 && !onboardingSeen;
-
   useEffect(() => {
     if (searchParams.get("create") === "true") {
       setIsAddDialogOpen(true);
@@ -70,10 +68,17 @@ export default function Goals() {
   }, []);
 
   useEffect(() => {
-    if (pageNeedsOnboarding) {
-      setIsOnboardingOpen(true);
+    if (loading || onboardingSeen) return;
+
+    if (stats.total > 0) {
+      // User already has data (e.g. seeded/legacy goals) — they're not new,
+      // so retire the flag silently instead of waiting for an empty state.
+      markOnboardingSeen();
+      return;
     }
-  }, [pageNeedsOnboarding]);
+
+    setIsOnboardingOpen(true);
+  }, [loading, stats.total, onboardingSeen]);
 
   const handleOnboardingOpenChange = (open: boolean) => {
     setIsOnboardingOpen(open);

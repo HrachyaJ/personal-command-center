@@ -35,14 +35,20 @@ const Tasks = () => {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const { t } = useTranslation();
 
-  const pageNeedsOnboarding =
-    !loading && tasks.length === 0 && activeTab === "active" && !onboardingSeen;
-
   useEffect(() => {
-    if (pageNeedsOnboarding) {
+    if (loading || onboardingSeen) return;
+
+    if (tasks.length > 0) {
+      // User already has data (e.g. seeded/legacy tasks) — they're not new,
+      // so retire the flag silently instead of waiting for an empty state.
+      markOnboardingSeen();
+      return;
+    }
+
+    if (activeTab === "active") {
       setIsOnboardingOpen(true);
     }
-  }, [pageNeedsOnboarding]);
+  }, [loading, tasks.length, activeTab, onboardingSeen]);
 
   const handleOnboardingOpenChange = (open: boolean) => {
     setIsOnboardingOpen(open);
