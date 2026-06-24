@@ -37,10 +37,11 @@ export default function AICoach() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { habits, error: habitsError } = useHabits();
-  const { tasks, error: tasksError } = useTasks();
-  const { goals, error: goalsError } = useGoals();
+  const { habits, error: habitsError, loading: habitsLoading } = useHabits();
+  const { tasks, error: tasksError, loading: tasksLoading } = useTasks();
+  const { goals, error: goalsError, loading: goalsLoading } = useGoals();
   const hookError = habitsError || tasksError || goalsError;
+  const dataLoading = habitsLoading || tasksLoading || goalsLoading;
 
   const visibleInsights = insights.filter((i) => !i.isDismissed);
 
@@ -75,13 +76,13 @@ export default function AICoach() {
   const hasLoaded = useRef(false);
 
   useEffect(() => {
-    if (!user?.id || !habits || !tasks || !goals) return;
+    if (!user?.id || dataLoading) return;
     if (hasLoaded.current) return; // prevent re-runs
-    hasLoaded.current = true;
 
+    hasLoaded.current = true;
     setIsLoading(true);
     loadCoachData().finally(() => setIsLoading(false));
-  }, [loadCoachData]);
+  }, [user?.id, dataLoading, loadCoachData]);
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
