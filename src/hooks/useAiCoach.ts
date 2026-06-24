@@ -11,9 +11,10 @@ import type {
 
 export function useAiCoach() {
   const { user } = useUserStore();
-  const { habits } = useHabits();
-  const { tasks } = useTasks();
-  const { goals } = useGoals();
+  const { habits, loading: habitsLoading } = useHabits();
+  const { tasks, loading: tasksLoading } = useTasks();
+  const { goals, loading: goalsLoading } = useGoals();
+  const dataLoading = habitsLoading || tasksLoading || goalsLoading;
 
   const [insights, setInsights] = useState<AiCoachInsight[]>([]);
   const [recommendations, setRecommendations] = useState<
@@ -47,13 +48,13 @@ export function useAiCoach() {
   const hasLoaded = useRef(false);
 
   useEffect(() => {
-    if (!user?.id || !habits || !tasks || !goals) return;
+    if (!user?.id || dataLoading) return;
     if (hasLoaded.current) return;
-    hasLoaded.current = true;
 
+    hasLoaded.current = true;
     setIsLoading(true);
     loadCoachData().finally(() => setIsLoading(false));
-  }, [loadCoachData]);
+  }, [user?.id, dataLoading, loadCoachData]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
