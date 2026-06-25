@@ -6,6 +6,7 @@ import { Separator } from "../../ui/separator";
 import { toast } from "sonner";
 import { translate } from "../../../lib/i18n";
 import { useLocaleStore } from "../../../stores/useLocaleStore";
+import { PushNotificationToggle } from "../../shared/PushNotifcationToggle";
 
 export function NotificationsTab() {
   const locale = useLocaleStore((s) => s.locale);
@@ -33,6 +34,13 @@ export function NotificationsTab() {
 
   return (
     <div className="space-y-6">
+      {/* ── Daily Push Briefing ─────────────────────────────────────────── */}
+      <Section title="Daily Briefing">
+        <PushNotificationToggle />
+      </Section>
+
+      <Separator />
+
       <Section title={t("settings.notifications.remindersSection")}>
         <Row
           label={t("settings.notifications.taskReminders")}

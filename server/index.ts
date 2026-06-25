@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
@@ -8,6 +9,7 @@ import goalRoutes from "./routes/goals.route.js";
 import habitRoutes from "./routes/habits.route.js";
 import userRouter from "./routes/user.route.js";
 import aiCoachRoutes from "./routes/ai-coach.route.js";
+import pushRouter from "./routes/push.route.js";
 import { db } from "./db.js";
 import { goals, habits, tasks } from "./db/schema.js";
 import { user as userTable } from "./db/auth-schema.js";
@@ -52,6 +54,7 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/user", userRouter);
 app.use("/api/ai-coach", aiCoachRoutes);
+app.use("/api/push", pushRouter);
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({
