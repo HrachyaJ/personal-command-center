@@ -138,7 +138,6 @@ router.post("/send", async (req, res) => {
 
     const results = await Promise.allSettled(
       allSubs.map(async (sub) => {
-        // 1. Reconstruct the standard web-push subscription object from your flat columns
         const subData = {
           endpoint: sub.endpoint,
           keys: {
@@ -147,27 +146,22 @@ router.post("/send", async (req, res) => {
           },
         };
 
-        // 2. Fetch your live data briefing
         const briefing = await buildBriefing(sub.userId);
 
-        // 3. Since we aren't saving the platform flag to the DB yet,
-        // let's infer it safely, or check if it's an iOS endpoint
-        const isIOS =
-          sub.endpoint.includes("apple.com") ||
-          sub.endpoint.includes("notify.windows.com");
-        // Note: Apple's push service endpoints always contain "apple.com"
+        // Detect Apple Web Push subscriptions
+        const isIOS = sub.endpoint.includes("web.push.apple.com");
 
-        // 4. Dynamically adjust the title based on the endpoint origin
-        if (isIOS) {
-          briefing.title = "Morning Briefing ☀️"; // iOS adds "focusflow" automatically
-        } else {
-          briefing.title = "FocusFlow - Morning Briefing ☀️"; // Desktop gets manual text
-        }
+        briefing.title = isIOS
+          ? "Morning Briefing ☀️"
+          : "FocusFlow - Morning Briefing ☀️";
+
+        console.log(
+          `[push] endpoint=${sub.endpoint.slice(0, 60)}... ios=${isIOS}`,
+        );
 
         const payload = JSON.stringify(briefing);
 
         try {
-          // 5. Send using the clean reconstructed web-push credentials
           await webpush.sendNotification(subData, payload);
         } catch (err: any) {
           console.error(
@@ -175,11 +169,13 @@ router.post("/send", async (req, res) => {
             err.statusCode,
             err.body || err.message,
           );
+
           if (err.statusCode === 410) {
             await db
               .delete(pushSubscriptions)
               .where(eq(pushSubscriptions.id, sub.id));
           }
+
           throw err;
         }
       }),
