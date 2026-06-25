@@ -30,16 +30,23 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clientList) => {
-        // If app is already open, focus it
+      .then(async (clientList) => {
         for (const client of clientList) {
           if (client.url.includes(self.location.origin) && "focus" in client) {
-            client.focus();
-            client.navigate(url);
-            return;
+            try {
+              await client.focus();
+              if ("navigate" in client) {
+                await client.navigate(url);
+              }
+              return;
+            } catch (err) {
+              // focus/navigate can throw on some clients (e.g. mid-navigation
+              // or non-navigable worker-controlled clients) — fall through
+              // to opening a fresh window instead of failing silently.
+              break;
+            }
           }
         }
-        // Otherwise open a new window
         if (clients.openWindow) return clients.openWindow(url);
       }),
   );

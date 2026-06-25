@@ -244,8 +244,9 @@ export const pushSubscriptions = pgTable(
       .defaultNow(),
   },
   (t) => [
-    uniqueIndex("push_subscriptions_user_id_idx").on(t.userId),
-    // Unique per user+endpoint so upsert works cleanly
+    index("push_subscriptions_user_id_idx").on(t.userId), // plain index for lookups, not unique
+    // Unique per user+endpoint so upsert works cleanly and a user can
+    // still have multiple devices/browsers subscribed simultaneously.
     uniqueIndex("push_subscriptions_user_endpoint_idx").on(
       t.userId,
       t.endpoint,

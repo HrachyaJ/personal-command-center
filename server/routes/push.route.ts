@@ -1,27 +1,32 @@
 // server/routes/push.route.ts
 import { Router } from "express";
+import crypto from "crypto";
 import webpush from "web-push";
 import { db } from "../db.js";
-import { pushSubscriptions } from "../db/schema.js";
+import { pushSubscriptions, tasks, habits, goals } from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
 import { getSession } from "../auth-session.js";
 
+// Set once at module load — not inside a request handler — so it's
+// guaranteed to be configured before any send, including cron-triggered
+// sends on a fresh server instance.
+webpush.setVapidDetails(
+  process.env.VAPID_MAILTO!,
+  process.env.VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!,
+);
+
 const router = Router();
+
+function timingSafeEqual(a: string, b: string) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 // POST /api/push/subscribe
 router.post("/subscribe", async (req, res) => {
-  console.log("VAPID CHECK:", {
-    pub: process.env.VAPID_PUBLIC_KEY?.slice(0, 15),
-    priv: process.env.VAPID_PRIVATE_KEY?.slice(0, 15),
-    mail: process.env.VAPID_MAILTO,
-  });
-
-  webpush.setVapidDetails(
-    process.env.VAPID_MAILTO!,
-    process.env.VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!,
-  );
-
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
@@ -33,7 +38,9 @@ router.post("/subscribe", async (req, res) => {
   const userId = session.user.id;
 
   try {
-    // Upsert — replace if endpoint already exists for this user
+    // Upsert — if the endpoint already exists, refresh the keys instead of
+    // silently keeping stale ones (browsers can reissue keys for the same
+    // endpoint on resubscribe, which would otherwise break future sends).
     await db
       .insert(pushSubscriptions)
       .values({
@@ -43,7 +50,14 @@ router.post("/subscribe", async (req, res) => {
         auth: keys.auth,
         expirationTime: expirationTime ? new Date(expirationTime) : null,
       })
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: [pushSubscriptions.userId, pushSubscriptions.endpoint],
+        set: {
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+          expirationTime: expirationTime ? new Date(expirationTime) : null,
+        },
+      });
 
     return res.json({ ok: true });
   } catch (e) {
@@ -72,11 +86,53 @@ router.post("/unsubscribe", async (req, res) => {
   return res.json({ ok: true });
 });
 
+// Build a short, personalized briefing line from a user's live data.
+async function buildBriefing(userId: string) {
+  const [userTasks, userHabits, userGoals] = await Promise.all([
+    db.select().from(tasks).where(eq(tasks.userId, userId)),
+    db.select().from(habits).where(eq(habits.userId, userId)),
+    db.select().from(goals).where(eq(goals.userId, userId)),
+  ]);
+
+  const dueToday = userTasks.filter((t) => !t.completed && t.dueDate).length;
+  const activeStreaks = userHabits.filter((h) => (h.streak ?? 0) > 0).length;
+  const inProgressGoals = userGoals.filter(
+    (g) => g.status === "in_progress" || g.status === "active",
+  ).length;
+
+  const parts: string[] = [];
+  if (dueToday > 0)
+    parts.push(`${dueToday} task${dueToday === 1 ? "" : "s"} due`);
+  if (activeStreaks > 0)
+    parts.push(
+      `${activeStreaks} habit streak${activeStreaks === 1 ? "" : "s"} to keep alive`,
+    );
+  if (inProgressGoals > 0)
+    parts.push(
+      `${inProgressGoals} goal${inProgressGoals === 1 ? "" : "s"} in progress`,
+    );
+
+  const body =
+    parts.length > 0
+      ? `You have ${parts.join(" and ")}. Check your AI Coach insights for today.`
+      : "Check your habits, tasks, and AI Coach insights for today.";
+
+  return {
+    title: "FocusFlow — Morning Briefing ☀️",
+    body,
+    url: "/dashboard",
+  };
+}
+
 // POST /api/push/send — internal use by cron job
 // Protected by CRON_SECRET header
 router.post("/send", async (req, res) => {
   const secret = req.headers["x-cron-secret"];
-  if (secret !== process.env.CRON_SECRET) {
+  if (
+    typeof secret !== "string" ||
+    !process.env.CRON_SECRET ||
+    !timingSafeEqual(secret, process.env.CRON_SECRET)
+  ) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -85,11 +141,8 @@ router.post("/send", async (req, res) => {
 
     const results = await Promise.allSettled(
       allSubs.map(async (sub) => {
-        const payload = JSON.stringify({
-          title: "FocusFlow — Morning Briefing ☀️",
-          body: "Check your habits, tasks, and AI Coach insights for today.",
-          url: "/dashboard",
-        });
+        const briefing = await buildBriefing(sub.userId);
+        const payload = JSON.stringify(briefing);
 
         try {
           await webpush.sendNotification(
