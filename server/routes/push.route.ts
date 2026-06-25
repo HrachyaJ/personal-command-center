@@ -118,7 +118,7 @@ async function buildBriefing(userId: string) {
       : "Check your habits, tasks, and AI Coach insights for today.";
 
   return {
-    title: "FocusFlow — Morning Briefing ☀️",
+    title: "Morning Briefing ☀️",
     body,
     url: "/dashboard",
   };
@@ -128,37 +128,53 @@ async function buildBriefing(userId: string) {
 // Protected by CRON_SECRET header
 router.post("/send", async (req, res) => {
   const secret = req.headers["x-cron-secret"];
-  if (
-    typeof secret !== "string" ||
-    !process.env.CRON_SECRET ||
-    !timingSafeEqual(secret, process.env.CRON_SECRET)
-  ) {
+  if (typeof secret !== "string" || secret !== process.env.CRON_SECRET) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
+    // REPLACE your current allSubs.map block with this clean version:
     const allSubs = await db.select().from(pushSubscriptions);
 
     const results = await Promise.allSettled(
       allSubs.map(async (sub) => {
+        // 1. Reconstruct the standard web-push subscription object from your flat columns
+        const subData = {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        };
+
+        // 2. Fetch your live data briefing
         const briefing = await buildBriefing(sub.userId);
+
+        // 3. Since we aren't saving the platform flag to the DB yet,
+        // let's infer it safely, or check if it's an iOS endpoint
+        const isIOS =
+          sub.endpoint.includes("apple.com") ||
+          sub.endpoint.includes("notify.windows.com");
+        // Note: Apple's push service endpoints always contain "apple.com"
+
+        // 4. Dynamically adjust the title based on the endpoint origin
+        if (isIOS) {
+          briefing.title = "Morning Briefing ☀️"; // iOS adds "focusflow" automatically
+        } else {
+          briefing.title = "FocusFlow - Morning Briefing ☀️"; // Desktop gets manual text
+        }
+
         const payload = JSON.stringify(briefing);
 
         try {
-          await webpush.sendNotification(
-            {
-              endpoint: sub.endpoint,
-              keys: { p256dh: sub.p256dh, auth: sub.auth },
-            },
-            payload,
-          );
+          // 5. Send using the clean reconstructed web-push credentials
+          await webpush.sendNotification(subData, payload);
         } catch (err: any) {
           console.error(
             "❌ WEB-PUSH ERROR DETAILS:",
             err.statusCode,
             err.body || err.message,
           );
-          // 410 Gone = subscription expired, clean it up
           if (err.statusCode === 410) {
             await db
               .delete(pushSubscriptions)
