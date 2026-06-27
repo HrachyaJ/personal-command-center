@@ -229,7 +229,6 @@ function Sidebar() {
       {/* ── Mobile Bottom Nav ───────────────────────────────────────────────── */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-t border-border"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         data-testid="mobile-bottom-nav"
       >
         <ul className="flex items-stretch h-16">
