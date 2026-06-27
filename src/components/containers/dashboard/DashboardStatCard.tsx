@@ -21,17 +21,23 @@ export function DashboardStatCard({
 }: StatCardProps) {
   return (
     <Card data-testid={testId}>
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-semibold mt-1">{value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
+      <CardContent className="p-3 sm:p-5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground leading-tight">
+              {title}
+            </p>
+            <p className="text-xl sm:text-2xl font-semibold mt-1 leading-none">
+              {value}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-tight truncate">
+              {subtext}
+            </p>
           </div>
           <div
-            className={`w-10 h-10 sm:w-12 sm:h-12 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
+            className={`w-9 h-9 sm:w-11 sm:h-11 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
           >
-            <Icon className={`w-5 h-5 ${iconColor}`} />
+            <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColor}`} />
           </div>
         </div>
       </CardContent>
