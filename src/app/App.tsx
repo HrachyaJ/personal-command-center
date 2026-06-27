@@ -85,7 +85,7 @@ function AppLayout() {
       >
         {showSidebar && <Sidebar />}
         <main
-          className={`flex-1 bg-background ${!showSidebar ? "w-full" : ""}`}
+          className={`flex-1 min-w-0 bg-background ${!showSidebar ? "w-full" : ""}`}
         >
           <Routes>
             {/* Public routes */}

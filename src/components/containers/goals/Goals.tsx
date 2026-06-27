@@ -309,16 +309,16 @@ export default function Goals() {
           setActiveTab(value as "active" | "completed" | "paused")
         }
       >
-        <TabsList>
+        <TabsList className="bg-muted rounded-xl p-1 h-auto gap-1">
           <TabsTrigger
             value="active"
-            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:font-semibold"
           >
             {t("goals.tabs.active", { count: loading ? "…" : stats.active })}
           </TabsTrigger>
           <TabsTrigger
             value="completed"
-            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:font-semibold"
           >
             {t("goals.tabs.completed", {
               count: loading ? "…" : stats.completed,
@@ -326,7 +326,7 @@ export default function Goals() {
           </TabsTrigger>
           <TabsTrigger
             value="paused"
-            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm"
+            className="cursor-pointer flex-1 sm:flex-none text-xs sm:text-sm rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:font-semibold"
           >
             {t("goals.tabs.paused", { count: loading ? "…" : stats.paused })}
           </TabsTrigger>

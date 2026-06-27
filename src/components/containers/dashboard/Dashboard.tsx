@@ -258,7 +258,7 @@ export default function Dashboard() {
             ) : (
               <>
                 <h2
-                  className="text-xl sm:text-2xl font-semibold truncate"
+                  className="text-lg sm:text-2xl font-semibold leading-tight break-words sm:truncate"
                   data-testid="greeting"
                 >
                   {getTimeOfDayGreeting(t)}, {user?.name}

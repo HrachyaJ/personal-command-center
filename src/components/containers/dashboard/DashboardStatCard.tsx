@@ -20,7 +20,10 @@ export function DashboardStatCard({
   testId,
 }: StatCardProps) {
   return (
-    <Card data-testid={testId}>
+    <Card
+      data-testid={testId}
+      className="shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-transform duration-150"
+    >
       <CardContent className="p-3 sm:p-5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
@@ -34,9 +37,7 @@ export function DashboardStatCard({
               {subtext}
             </p>
           </div>
-          <div
-            className={`w-9 h-9 sm:w-11 sm:h-11 ${iconBg} rounded-lg flex items-center justify-center shrink-0`}
-          >
+          <div className="w-9 h-9 sm:w-11 sm:h-11 bg-muted rounded-lg flex items-center justify-center shrink-0">
             <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColor}`} />
           </div>
         </div>

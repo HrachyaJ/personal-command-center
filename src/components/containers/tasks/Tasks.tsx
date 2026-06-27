@@ -152,10 +152,10 @@ const Tasks = () => {
         onValueChange={(v) => setActiveTab(v as "active" | "completed")}
       >
         {/* Tabs outside the card */}
-        <TabsList className="mb-3">
+        <TabsList className="mb-3 bg-muted rounded-xl p-1 h-auto gap-1">
           <TabsTrigger
             value="active"
-            className="cursor-pointer text-xs sm:text-sm"
+            className="cursor-pointer text-xs sm:text-sm rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:font-semibold"
           >
             {t("tasks.tabs.active", {
               count: loading ? "…" : activeTasks.length,
@@ -163,7 +163,7 @@ const Tasks = () => {
           </TabsTrigger>
           <TabsTrigger
             value="completed"
-            className="cursor-pointer text-xs sm:text-sm"
+            className="cursor-pointer text-xs sm:text-sm rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:font-semibold"
           >
             {t("tasks.tabs.completed", {
               count: loading ? "…" : completedTasks.length,

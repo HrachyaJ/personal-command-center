@@ -63,20 +63,30 @@
 }
 
 /* ── iPhone safe areas ───────────────────────────────────────────────────── */
-/* Respects notch, Dynamic Island, and home indicator */
 body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
 
-/* Bottom nav sits above the home indicator */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
 /* Remove tap highlight flash on iOS */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Critical: prevent horizontal overflow on mobile */
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ── iOS-feel base font size bump ────────────────────────────────────────── */
+/* Only on mobile — desktop stays the same */
+@media (max-width: 640px) {
+  html {
+    font-size: 17px; /* iOS default is 17px, Tailwind defaults to 16px */
+  }
 }
 
 /* ── CSS Variables ───────────────────────────────────────────────────────── */
@@ -105,7 +115,7 @@ body {
   --border: hsl(210, 40%, 93%);
   --input: hsl(210, 40%, 96%);
   --ring: hsl(217, 91%, 60%);
-  --radius: 8px;
+  --radius: 14px;
 
   --chart-1: hsl(217, 91%, 60%);
   --chart-2: hsl(159, 78%, 36%);
