@@ -190,7 +190,7 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
           className="cursor-pointer shrink-0"
         >
           <PlusIcon size={16} />
-          {t("tasks.addButton")}
+          <span className="hidden sm:inline">{t("tasks.addButton")}</span>
         </Button>
       </div>
 

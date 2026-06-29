@@ -129,7 +129,7 @@ export default function AICoach() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 pb-20 lg:pb-6">
       <AiCoachHeader
         habits={habits}
         tasks={tasks}

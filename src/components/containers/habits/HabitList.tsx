@@ -60,7 +60,7 @@ export default function HabitList({
         return (
           <div
             key={habit.id}
-            className={`flex items-center gap-4 py-4 px-1 group transition-colors ${
+            className={`flex items-center gap-4 py-4 px-3 group transition-colors ${
               done ? "bg-green-500/10" : "hover:bg-muted/60"
             }`}
           >

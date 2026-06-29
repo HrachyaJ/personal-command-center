@@ -15,6 +15,7 @@ import { StatCard } from "../../shared/StatCard";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { Button } from "../../ui/button";
 
 export default function Habits() {
   const {
@@ -172,7 +173,7 @@ export default function Habits() {
       </div>
 
       {/* Main content — stacked on mobile, side-by-side on lg+ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 pb-15 lg:pb-0">
         {/* Habits list — full width on mobile, 2/3 on lg */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl shadow-sm self-start pb-2">
           {/* Add habit bar */}
@@ -187,9 +188,9 @@ export default function Habits() {
                   onFocus={() => setShowForm(true)}
                   className="flex-1 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none"
                 />
-                <button
+                <Button
                   onClick={() => setShowForm(true)}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer shrink-0"
                 >
                   <svg
                     className="w-4 h-4"
@@ -207,7 +208,7 @@ export default function Habits() {
                   <span className="hidden sm:inline">
                     {t("habits.addButton")}
                   </span>
-                </button>
+                </Button>
               </>
             ) : (
               <div className="flex-1 space-y-3">
@@ -276,7 +277,7 @@ export default function Habits() {
           </div>
 
           {/* List */}
-          <div className="px-3 sm:px-4">
+          <div>
             {loading ? (
               <HabitListSkeleton />
             ) : (
@@ -395,6 +396,7 @@ export default function Habits() {
                 {t("habits.topStreaks.noHabits")}
               </p>
             ) : (
+              // TODO: make sure it shows the top streak of all not not just current top streak
               <div className="space-y-2">
                 {[...habits]
                   .sort((a, b) => b.streak - a.streak)
