@@ -12,7 +12,7 @@ export function NavItem({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left cursor-pointer
+      className={`flex items-center gap-2 sm:gap-3 px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors text-left cursor-pointer shrink-0 whitespace-nowrap sm:whitespace-normal sm:w-full
         ${
           active
             ? "bg-primary/10 text-primary"

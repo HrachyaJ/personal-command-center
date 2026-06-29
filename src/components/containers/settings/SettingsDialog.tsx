@@ -41,11 +41,11 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden">
-        <div className="flex h-130">
-          {/* Sidebar */}
-          <div className="w-48 shrink-0 border-r bg-muted p-3 flex flex-col gap-1">
-            <DialogHeader className="px-1 pb-3">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-5xl p-0 gap-0 overflow-hidden rounded-xl">
+        <div className="flex flex-col sm:flex-row h-[80vh] sm:h-130">
+          {/* Sidebar / mobile tab row */}
+          <div className="w-full sm:w-48 shrink-0 border-b sm:border-b-0 sm:border-r bg-muted p-3 flex flex-row sm:flex-col gap-1 overflow-x-auto sm:overflow-x-visible">
+            <DialogHeader className="hidden sm:block px-1 pb-3">
               <DialogTitle className="text-sm font-semibold">
                 Settings
               </DialogTitle>
@@ -62,7 +62,7 @@ export function SettingsDialog({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-w-0">
             {tab === "appearance" && <AppearanceTab />}
             {tab === "account" && <AccountTab />}
             {tab === "notifications" && <NotificationsTab />}

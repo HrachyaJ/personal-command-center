@@ -8,7 +8,7 @@ export function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{label}</p>
         {description && (
