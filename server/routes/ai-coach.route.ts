@@ -6,11 +6,12 @@ import {
   aiCoachRecommendations,
   type NewAiCoachInsight,
   type NewAiCoachRecommendation,
-  type Habit,
-  type Task,
-  type Goal,
 } from "../db/schema.js";
+import { type Habit } from "../types/habit.types.js";
+import { type Task } from "../types/task.types.js";
+import { type Goal } from "../types/goal.types.js";
 import { getSession } from "../auth-session.js";
+import { buildBehaviorProfile } from "../services/behaviorProfile.js";
 import Groq from "groq-sdk";
 
 const router = Router();
@@ -41,79 +42,199 @@ function safeParseJson<T>(raw: string, fallback: T): T {
   }
 }
 
+const ALLOWED_INSIGHT_TYPES = [
+  "tip",
+  "warning",
+  "achievement",
+  "pattern",
+] as const;
+const ALLOWED_INSIGHT_PRIORITIES = ["high", "medium", "low"] as const;
+const ALLOWED_RELATED_TO = ["Tasks", "Habits", "Goals", "Schedule"] as const;
+const ALLOWED_RECOMMENDATION_CATEGORIES = [
+  "Tasks",
+  "Habits",
+  "Goals",
+  "Schedule",
+] as const;
+const ALLOWED_IMPACTS = ["high", "medium", "low"] as const;
+const ALLOWED_EFFORTS = ["easy", "moderate", "hard"] as const;
+
+type ParsedInsight = Pick<
+  NewAiCoachInsight,
+  "type" | "priority" | "relatedTo" | "title" | "description" | "actionLabel"
+>;
+
+type ParsedRecommendation = Pick<
+  NewAiCoachRecommendation,
+  "category" | "impact" | "effort" | "title" | "description"
+>;
+
+function normalizeInsight(raw: Partial<ParsedInsight>): ParsedInsight {
+  return {
+    type: ALLOWED_INSIGHT_TYPES.includes(raw.type as any)
+      ? (raw.type as ParsedInsight["type"])
+      : "tip",
+    priority: ALLOWED_INSIGHT_PRIORITIES.includes(raw.priority as any)
+      ? (raw.priority as ParsedInsight["priority"])
+      : "medium",
+    relatedTo: ALLOWED_RELATED_TO.includes(raw.relatedTo as any)
+      ? (raw.relatedTo as ParsedInsight["relatedTo"])
+      : "Tasks",
+    title: typeof raw.title === "string" ? raw.title : "AI coach insight",
+    description:
+      typeof raw.description === "string"
+        ? raw.description
+        : "Review this trend and consider what to improve.",
+    actionLabel:
+      raw.actionLabel === null || raw.actionLabel === undefined
+        ? null
+        : String(raw.actionLabel),
+  };
+}
+
+function normalizeRecommendation(
+  raw: Partial<ParsedRecommendation>,
+): ParsedRecommendation {
+  return {
+    category: ALLOWED_RECOMMENDATION_CATEGORIES.includes(raw.category as any)
+      ? (raw.category as ParsedRecommendation["category"])
+      : "Tasks",
+    impact: ALLOWED_IMPACTS.includes(raw.impact as any)
+      ? (raw.impact as ParsedRecommendation["impact"])
+      : "medium",
+    effort: ALLOWED_EFFORTS.includes(raw.effort as any)
+      ? (raw.effort as ParsedRecommendation["effort"])
+      : "moderate",
+    title:
+      typeof raw.title === "string" ? raw.title : "AI coach recommendation",
+    description:
+      typeof raw.description === "string"
+        ? raw.description
+        : "Try this action to improve your routine.",
+  };
+}
+
 // ── Context builder ───────────────────────────────────────────────────────────
 
 function buildUserContext(
   habits: Habit[],
   tasks: Task[],
   goals: Goal[],
+  profile: ReturnType<typeof buildBehaviorProfile>,
 ): string {
-  const completedTasks = tasks.filter((t) => t.completedAt);
-  const completionRate =
-    tasks.length > 0
-      ? Math.round((completedTasks.length / tasks.length) * 100)
-      : 0;
+  const recentGoals =
+    goals
+      .slice(-5)
+      .map(
+        (goal) =>
+          `- "${goal.title}" — ${goal.currentValue ?? 0}/${goal.targetValue} ${goal.unit}` +
+          (goal.deadline
+            ? `, due ${new Date(goal.deadline).toDateString()}`
+            : ""),
+      )
+      .join("\n") || "- none";
 
-  const activeGoals = goals.filter((g) => g.status !== "completed");
+  const recentHabits =
+    habits
+      .slice(-5)
+      .map(
+        (habit) =>
+          `- "${habit.name}" [${habit.category}] — streak: ${habit.streak ?? 0}d, longest: ${habit.longestStreak ?? 0}d`,
+      )
+      .join("\n") || "- none";
 
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const dayCounts: Record<string, { total: number; completed: number }> = {};
-  tasks.forEach((t) => {
-    const day = dayNames[new Date(t.createdAt!).getDay()];
-    if (!dayCounts[day]) dayCounts[day] = { total: 0, completed: 0 };
-    dayCounts[day].total++;
-  });
-  completedTasks.forEach((t) => {
-    const day = dayNames[new Date(t.completedAt!).getDay()];
-    if (!dayCounts[day]) dayCounts[day] = { total: 0, completed: 0 };
-    dayCounts[day].completed++;
-  });
-  const dayBreakdown = Object.entries(dayCounts)
-    .map(
-      ([d, v]) =>
-        `${d}: ${v.completed}/${v.total} (${v.total > 0 ? Math.round((v.completed / v.total) * 100) : 0}%)`,
-    )
-    .join(", ");
-
-  const hourCounts: Record<number, { total: number; completed: number }> = {};
-  completedTasks.forEach((t) => {
-    const h = new Date(t.completedAt!).getHours();
-    if (!hourCounts[h]) hourCounts[h] = { total: 0, completed: 0 };
-    hourCounts[h].completed++;
-  });
-  const peakEntry = Object.entries(hourCounts).sort(
-    (a, b) => b[1].completed - a[1].completed,
-  )[0];
-  const peakHour = peakEntry ? `${peakEntry[0]}:00` : "unknown";
+  const recentTasks =
+    tasks
+      .slice(-5)
+      .map(
+        (task) =>
+          `- "${task.title}" [${task.category}] (${task.priority}) — ${
+            task.completedAt ? "completed" : "pending"
+          }`,
+      )
+      .join("\n") || "- none";
 
   return `
-User productivity data summary:
+BEHAVIOR PROFILE
 
-TASKS (${tasks.length} total, ${completedTasks.length} completed — ${completionRate}% rate):
-- Day breakdown: ${dayBreakdown || "no data"}
-- Peak completion hour: ${peakHour}
+Task completion rate:
+${profile.taskCompletionRate}%
 
-HABITS (${habits.length} active):
-${habits.map((h) => `- "${h.name}" [${h.category}] — streak: ${h.streak ?? 0}d, longest: ${h.longestStreak ?? 0}d`).join("\n") || "- none"}
+Avg tasks per day:
+${profile.avgTasksPerDay}
 
-GOALS (${activeGoals.length} active):
+Current streak:
+${profile.currentStreak}
+
+Longest streak:
+${profile.longestStreak}
+
+Habit consistency:
+${profile.habitConsistency}%
+
+Focus score:
+${profile.focusScore}
+
+Consistency score:
+${profile.consistencyScore}
+
+Strongest day:
+${profile.strongestDay}
+
+Weakest day:
+${profile.weakestDay}
+
+Strongest time block:
+${profile.strongestTimeBlock}
+
+Weakest time block:
+${profile.weakestTimeBlock}
+
+Overcommitment risk:
+${profile.overcommitmentRisk}
+
+Active goals:
+${profile.activeGoals}
+
+Goals with progress:
+${profile.goalsWithProgress}
+
+Momentum:
+${profile.momentum}
+
+Weekly trend:
+${profile.weeklyTrend}
+
+Neglected goals:
 ${
-  activeGoals
+  profile.neglectedGoals
+    .slice(0, 5)
     .map(
-      (g) =>
-        `- "${g.title}" — ${g.currentValue ?? 0}/${g.targetValue} ${g.unit}` +
-        (g.deadline ? `, due ${new Date(g.deadline).toDateString()}` : ""),
+      (g) => `${g.goalTitle} (${g.daysWithoutProgress} days without progress)`,
     )
-    .join("\n") || "- none"
+    .join(", ") || "none"
 }
+
+RECENT GOALS:
+${recentGoals}
+
+RECENT HABITS:
+${recentHabits}
+
+RECENT TASKS:
+${recentTasks}
 `.trim();
 }
 
 // ── Prompts ───────────────────────────────────────────────────────────────────
 
 const INSIGHTS_SYSTEM = `
-You are an expert productivity coach. Analyze the user's task, habit, and goal data and return a JSON object.
-Return ONLY valid JSON — no markdown, no code fences, no explanation.
+You are a behavioral analyst and productivity coach.
+
+Your job is NOT to repeat statistics.
+Your job is to identify patterns, trends, risks, opportunities, and behavioral observations.
+
+Return ONLY valid JSON.
 
 Schema:
 {
@@ -130,9 +251,44 @@ Schema:
 }
 
 Rules:
-- Generate 4-6 insights. Mix types.
-- Be specific — reference actual numbers from the data.
-- If data is sparse, generate fewer insights rather than vague ones.
+
+- Generate 3-5 high quality insights.
+- Prefer fewer insights over generic insights.
+- Never restate raw statistics that are already visible in the UI.
+- Never say things like:
+  - "You completed X tasks"
+  - "Your streak is X days"
+  - "You have Y goals"
+  - "Your deadline is on Z date"
+- Only mention numbers when comparing, predicting, or explaining behavior.
+
+Generate insights in one of these categories:
+
+1. Patterns
+   Example:
+   "Most of your completed work happens before noon."
+
+2. Risks
+   Example:
+   "You are actively pursuing multiple goals but progress is concentrated in only one."
+
+3. Trends
+   Example:
+   "Your consistency is improving week over week."
+
+4. Opportunities
+   Example:
+   "Your strongest productivity window appears to be mornings."
+
+5. Behavioral observations
+   Example:
+   "You tend to maintain learning habits more consistently than fitness habits."
+
+Good insights reveal something the user may not notice themselves.
+
+Bad insights repeat information already displayed elsewhere in the product.
+
+If there is insufficient data to support an insight, do not invent one.
 `.trim();
 
 const RECS_SYSTEM = `
@@ -195,7 +351,7 @@ async function generateInsights(
 
   const now = new Date();
   return (parsed.insights ?? []).map((i) => ({
-    ...i,
+    ...normalizeInsight(i),
     userId,
     isDismissed: false,
     generatedAt: now,
@@ -217,7 +373,7 @@ async function generateRecommendations(
 
   const now = new Date();
   return (parsed.recommendations ?? []).map((r) => ({
-    ...r,
+    ...normalizeRecommendation(r),
     userId,
     isApplied: false,
     generatedAt: now,
@@ -302,7 +458,8 @@ router.post("/", async (req, res) => {
         .where(eq(aiCoachRecommendations.userId, userId)),
     ]);
 
-    const context = buildUserContext(habits, tasks, goals);
+    const profile = buildBehaviorProfile(habits, tasks, goals);
+    const context = buildUserContext(habits, tasks, goals, profile);
 
     // Run sequentially to avoid hitting Groq's free tier rate limit
     const newInsights = await generateInsights(context, userId);

@@ -38,11 +38,9 @@ export const auth = betterAuth({
       maxAge: 60 * 60 * 24 * 7,
     },
     cookieOptions: {
-      // Requests now go through a Vercel rewrite (/api/* -> Render), so the
-      // browser sees same-site requests even though Render serves them.
-      // "lax" works correctly here and avoids Chrome's third-party cookie
-      // partitioning, which silently drops SameSite=None cookies on
-      // cross-site requests regardless of Secure/credentials settings.
+      // In local dev we proxy /api through Vite, so auth requests are
+      // same-origin from the browser. Lax is the correct value for non-secure
+      // local cookies and allows form/XHR POST flows.
       sameSite: "lax",
       secure: isProd,
       httpOnly: true,
@@ -76,6 +74,7 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
     "https://focus-flow-site.vercel.app",
   ],
   // No plugins needed: we authenticate purely via the httpOnly session

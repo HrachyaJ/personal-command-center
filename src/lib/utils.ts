@@ -13,9 +13,9 @@ export function cn(...inputs: ClassValue[]) {
 // first-party/same-site, which Chrome's third-party cookie partitioning
 // otherwise blocks. In local dev there's no rewrite, so we fall back to
 // hitting the local backend directly.
-export const API_BASE =
-  import.meta.env.VITE_API_URL ??
-  (import.meta.env.DEV ? "http://localhost:3001" : "");
+export const API_BASE = import.meta.env.DEV
+  ? ""
+  : (import.meta.env.VITE_API_URL ?? "");
 
 // For the future the dynamic subtitle could be enhanced to pull from a larger set of phrases or even use an AI service to generate personalized messages based on user data and time of day.
 export function getDynamicMotivationalSubtitle(

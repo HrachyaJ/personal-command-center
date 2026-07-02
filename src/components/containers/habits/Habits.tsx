@@ -396,10 +396,9 @@ export default function Habits() {
                 {t("habits.topStreaks.noHabits")}
               </p>
             ) : (
-              // TODO: make sure it shows the top streak of all not not just current top streak
               <div className="space-y-2">
                 {[...habits]
-                  .sort((a, b) => b.streak - a.streak)
+                  .sort((a, b) => b.longestStreak - a.longestStreak)
                   .slice(0, 4)
                   .map((h) => (
                     <div
@@ -410,9 +409,9 @@ export default function Habits() {
                         {h.name}
                       </span>
                       <span
-                        className={`text-xs font-semibold shrink-0 ${h.streak > 0 ? "text-orange-500" : "text-muted-foreground"}`}
+                        className={`text-xs font-semibold shrink-0 ${h.longestStreak > 0 ? "text-orange-500" : "text-muted-foreground"}`}
                       >
-                        {h.streak > 0 ? `🔥 ${h.streak}` : "—"}
+                        {h.longestStreak > 0 ? `🔥 ${h.longestStreak}` : "—"}
                       </span>
                     </div>
                   ))}

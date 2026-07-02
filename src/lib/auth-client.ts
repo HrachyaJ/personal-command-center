@@ -11,9 +11,7 @@ import { createAuthClient } from "better-auth/react";
 // the API runs separately on :3001 — so we point straight at the API via
 // VITE_API_URL instead of letting requests fall through to the Vite dev
 // server and 404.
-const baseURL =
-  import.meta.env.VITE_API_URL ??
-  (import.meta.env.DEV ? "http://localhost:3001" : "");
+const baseURL = import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL ?? "");
 
 export const authClient = createAuthClient({
   baseURL,
