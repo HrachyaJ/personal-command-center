@@ -129,7 +129,7 @@ export default function AICoach() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6 space-y-6 pb-20 lg:pb-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 lg:pb-6">
       <AiCoachHeader
         habits={habits}
         tasks={tasks}
@@ -185,25 +185,33 @@ export default function AICoach() {
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as typeof activeTab)}
         >
-          <TabsList>
-            <TabsTrigger value="insights" className="cursor-pointer gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5" />
-              {t("aiCoach.tabs.insights", {
-                count: isLoading ? "..." : visibleInsights.length,
-              })}
-            </TabsTrigger>
-            <TabsTrigger value="patterns" className="cursor-pointer gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5" />
-              {t("aiCoach.tabs.patterns")}
-            </TabsTrigger>
-            <TabsTrigger
-              value="recommendations"
-              className="cursor-pointer gap-1.5"
-            >
-              <Target className="w-3.5 h-3.5" />
-              {t("aiCoach.tabs.recommendations")}
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList className="flex-nowrap">
+              <TabsTrigger
+                value="insights"
+                className="cursor-pointer gap-1.5 shrink-0 text-xs sm:text-sm"
+              >
+                <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                {t("aiCoach.tabs.insights", {
+                  count: isLoading ? "..." : visibleInsights.length,
+                })}
+              </TabsTrigger>
+              <TabsTrigger
+                value="patterns"
+                className="cursor-pointer gap-1.5 shrink-0 text-xs sm:text-sm"
+              >
+                <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                {t("aiCoach.tabs.patterns")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="recommendations"
+                className="cursor-pointer gap-1.5 shrink-0 text-xs sm:text-sm"
+              >
+                <Target className="w-3.5 h-3.5 shrink-0" />
+                {t("aiCoach.tabs.recommendations")}
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <AiCoachInsights
             insights={visibleInsights}

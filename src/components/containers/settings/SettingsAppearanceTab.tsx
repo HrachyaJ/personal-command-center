@@ -71,7 +71,7 @@ export function AppearanceTab() {
             value={locale}
             onValueChange={(value) => setLocale(value as Locale)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-28 sm:w-36">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

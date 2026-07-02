@@ -8,14 +8,16 @@ export function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-      <div className="min-w-0">
+    <div className="flex items-center justify-between gap-3 sm:gap-4">
+      <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-foreground">{label}</p>
         {description && (
-          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+            {description}
+          </p>
         )}
       </div>
-      <div className="shrink-0">{children}</div>
+      <div className="shrink-0 max-w-[45%] sm:max-w-none">{children}</div>
     </div>
   );
 }

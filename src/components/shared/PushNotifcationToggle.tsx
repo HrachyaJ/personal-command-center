@@ -47,13 +47,13 @@ export function PushNotificationToggle() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4 rounded-xl border border-border p-4">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 min-w-0">
           {isSubscribed ? (
             <BellRing className="w-5 h-5 text-primary mt-0.5 shrink-0" />
           ) : (
             <Bell className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
           )}
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-medium">
               {isSubscribed
                 ? "Daily briefing enabled"

@@ -174,7 +174,7 @@ export default function LandingPage() {
                 justifyContent: "center",
               }}
             >
-              <Brain size={16} color="#fff" />
+              <Brain size={22} color="#fff" />
             </div>
             <span
               style={{

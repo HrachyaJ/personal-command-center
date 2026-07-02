@@ -48,7 +48,7 @@ export default function AiCoachHeader({
       {/* Static header block: Never reloads or flashes */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
             {t("aiCoach.title")}
           </h1>
           <p className="text-muted-foreground text-sm mt-0.5">
@@ -169,7 +169,7 @@ export default function AiCoachHeader({
           </Card>
 
           {/* Stat tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {[
               {
                 label: t("aiCoach.stats.currentStreak"),
@@ -206,7 +206,7 @@ export default function AiCoachHeader({
               },
             ].map(({ label, value, sub, icon, color }) => (
               <Card key={label}>
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground font-medium">
