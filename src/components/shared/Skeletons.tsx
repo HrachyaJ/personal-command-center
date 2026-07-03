@@ -168,7 +168,7 @@ function HabitListSkeleton() {
   return (
     <div className="py-2 space-y-1">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-2 py-3">
+        <div key={i} className="flex items-center gap-3 px-3 py-3">
           <Skeleton className="w-5 h-5 rounded-full shrink-0" />
           <Skeleton
             className={`h-4 ${i % 3 === 0 ? "w-2/3" : i % 3 === 1 ? "w-1/2" : "w-3/5"}`}

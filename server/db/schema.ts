@@ -239,6 +239,19 @@ export const pushSubscriptions = pgTable(
     p256dh: text("p256dh").notNull(),
     auth: text("auth").notNull(),
     expirationTime: timestamp("expiration_time", { withTimezone: true }),
+    // IANA timezone captured client-side at subscribe time (e.g. "America/New_York").
+    // Falls back to "UTC" if the browser somehow can't provide one.
+    timezone: text("timezone").notNull().default("UTC"),
+    // Local hour (0-23) the daily briefing should be sent. Defaults to 8am
+    // local time; not yet user-configurable in the UI but the column is
+    // ready for it.
+    preferredHour: integer("preferred_hour").notNull().default(8),
+    // Last time a daily briefing was actually sent to this subscription.
+    // Used to guard against double-sends if the hourly cron overlaps or
+    // reruns within the same local-hour window.
+    lastBriefingSentAt: timestamp("last_briefing_sent_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
