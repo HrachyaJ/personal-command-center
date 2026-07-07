@@ -502,6 +502,22 @@ const translations: Record<Locale, Record<string, string>> = {
     "settings.privacy.deleteAccountConfirm": "Delete account",
 
     "common.cancel": "Cancel",
+
+    "settings.notifications.taskLeadTime": "Lead time",
+    "settings.notifications.taskLeadTimeDesc":
+      "How far in advance to send the reminder",
+    "settings.notifications.habitReminderHour": "Reminder time",
+    "settings.notifications.habitReminderHourDesc":
+      "What time to send your daily habit reminder",
+    "settings.notifications.goalReminders": "Goal reminders",
+    "settings.notifications.goalRemindersDesc":
+      "Daily check-in to keep your goals on track",
+    "settings.notifications.goalReminderHour": "Reminder time",
+    "settings.notifications.goalReminderHourDesc":
+      "What time to send your daily goal check-in",
+    "settings.notifications.loadFailed": "Failed to load notification settings",
+    "settings.notifications.updated": "{feature} updated",
+    "settings.notifications.updateFailed": "Failed to update {feature}",
   },
   ru: {
     "app.title": "FocusFlow",
@@ -1009,6 +1025,23 @@ const translations: Record<Locale, Record<string, string>> = {
     "settings.privacy.deleteAccountConfirm": "Удалить аккаунт",
 
     "common.cancel": "Отмена",
+
+    "settings.notifications.taskLeadTime": "Время предупреждения",
+    "settings.notifications.taskLeadTimeDesc":
+      "За сколько времени отправлять напоминание",
+    "settings.notifications.habitReminderHour": "Время напоминания",
+    "settings.notifications.habitReminderHourDesc":
+      "Во сколько отправлять ежедневное напоминание о привычках",
+    "settings.notifications.goalReminders": "Напоминания о целях",
+    "settings.notifications.goalRemindersDesc":
+      "Ежедневная проверка прогресса по вашим целям",
+    "settings.notifications.goalReminderHour": "Время напоминания",
+    "settings.notifications.goalReminderHourDesc":
+      "Во сколько отправлять ежедневную проверку целей",
+    "settings.notifications.loadFailed":
+      "Не удалось загрузить настройки уведомлений",
+    "settings.notifications.updated": "{feature} обновлено",
+    "settings.notifications.updateFailed": "Не удалось обновить {feature}",
   },
 };
 

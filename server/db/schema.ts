@@ -239,19 +239,6 @@ export const pushSubscriptions = pgTable(
     p256dh: text("p256dh").notNull(),
     auth: text("auth").notNull(),
     expirationTime: timestamp("expiration_time", { withTimezone: true }),
-    // IANA timezone captured client-side at subscribe time (e.g. "America/New_York").
-    // Falls back to "UTC" if the browser somehow can't provide one.
-    timezone: text("timezone").notNull().default("UTC"),
-    // Local hour (0-23) the daily briefing should be sent. Defaults to 8am
-    // local time; not yet user-configurable in the UI but the column is
-    // ready for it.
-    preferredHour: integer("preferred_hour").notNull().default(8),
-    // Last time a daily briefing was actually sent to this subscription.
-    // Used to guard against double-sends if the hourly cron overlaps or
-    // reruns within the same local-hour window.
-    lastBriefingSentAt: timestamp("last_briefing_sent_at", {
-      withTimezone: true,
-    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -279,6 +266,96 @@ export const pushSubscriptionsRelations = relations(
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type NewPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+// ─── Reminders (task/habit/goal) ──────────────────────────────────────────────
+// These two tables already existed in the database, defined outside Drizzle's
+// tracked schema. Added here verbatim to match what's live — do not change
+// column defaults/constraints without a matching migration, since real data
+// depends on this shape (user_notification_prefs currently has 1 row).
+
+export const reminderTypeEnum = pgEnum("reminder_type", [
+  "task_due",
+  "goal_due",
+  "habit_incomplete",
+]);
+
+// Per-user notification preferences. Note: timezone lives here (user-level),
+// not on push_subscriptions — a user's reminder timing shouldn't depend on
+// which device happened to send it.
+export const userNotificationPrefs = pgTable("user_notification_prefs", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  timezone: text("timezone").notNull().default("UTC"),
+  goalsReminderHour: integer("goals_reminder_hour").notNull().default(20),
+  habitsReminderHour: integer("habits_reminder_hour").notNull().default(20),
+  taskDefaultLeadMinutes: integer("task_default_lead_minutes")
+    .notNull()
+    .default(60),
+  taskRemindersEnabled: boolean("task_reminders_enabled")
+    .notNull()
+    .default(true),
+  habitRemindersEnabled: boolean("habit_reminders_enabled")
+    .notNull()
+    .default(true),
+  goalRemindersEnabled: boolean("goal_reminders_enabled")
+    .notNull()
+    .default(true),
+  weeklyDigestEnabled: boolean("weekly_digest_enabled")
+    .notNull()
+    .default(false),
+});
+
+// Dedup ledger — a (userId, type, entityId, bucketKey) row existing means
+// that reminder has already been sent and should not be sent again. A cron
+// can run as often as it wants; this is what makes repeated runs safe.
+export const sentReminders = pgTable(
+  "sent_reminders",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    type: reminderTypeEnum("type").notNull(),
+    entityId: text("entity_id").notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+    bucketKey: text("bucket_key").notNull(),
+  },
+  (t) => [
+    index("sent_reminders_user_id_idx").on(t.userId),
+    uniqueIndex("sent_reminders_unique_idx").on(
+      t.userId,
+      t.type,
+      t.entityId,
+      t.bucketKey,
+    ),
+  ],
+);
+
+export const userNotificationPrefsRelations = relations(
+  userNotificationPrefs,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [userNotificationPrefs.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const sentRemindersRelations = relations(sentReminders, ({ one }) => ({
+  user: one(user, {
+    fields: [sentReminders.userId],
+    references: [user.id],
+  }),
+}));
+
+export type UserNotificationPrefs = typeof userNotificationPrefs.$inferSelect;
+export type NewUserNotificationPrefs =
+  typeof userNotificationPrefs.$inferInsert;
+export type SentReminder = typeof sentReminders.$inferSelect;
+export type NewSentReminder = typeof sentReminders.$inferInsert;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
