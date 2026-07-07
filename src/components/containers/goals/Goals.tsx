@@ -47,6 +47,25 @@ export default function Goals() {
   const [activeTab, setActiveTab] = useState<"active" | "completed" | "paused">(
     "active",
   );
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+
+  // Wraps deleteGoal so the card shows a skeleton while the delete request
+  // is in flight, rather than freezing the button or vanishing the card
+  // instantly. Assumes deleteGoal resolves once the server call (and local
+  // state removal) completes — check goal.hooks.ts if this needs
+  // adjusting to actually await the request.
+  const handleDeleteGoal = async (id: string) => {
+    setDeletingIds((prev) => new Set(prev).add(id));
+    try {
+      await deleteGoal(id);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
   const [newGoal, setNewGoal] = useState({
     title: "",
     description: "",
@@ -359,7 +378,8 @@ export default function Goals() {
                 goal={goal}
                 onUpdateProgress={updateProgress}
                 onCompleteGoal={completeGoal}
-                onDeleteGoal={deleteGoal}
+                onDeleteGoal={handleDeleteGoal}
+                isDeleting={deletingIds.has(goal.id)}
               />
             ))
           )}

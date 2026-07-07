@@ -19,7 +19,7 @@ import AICoach from "../components/containers/ai-coach/AI-Coach";
 import { useThemeStore } from "../stores/useThemeStore";
 import { useUserStore } from "../stores/useUserStore";
 import Sidebar from "../components/shared/Sidebar";
-import { useDensityStore } from "../stores/useDensityStore";
+import { useApplyDensity } from "../hooks/useApplyDensity"; // Imported the layout applier hook
 import { Toaster } from "../components/ui/sonner";
 import { API_BASE, SIDEBAR_ROUTES } from "../lib/utils";
 import { useTranslation } from "../hooks/useTranslation";
@@ -28,6 +28,9 @@ function AppLayout() {
   const location = useLocation();
   const { theme } = useThemeStore();
   const initialPathname = useRef(location.pathname);
+
+  // Executes root-level rem scaling and cross-tab storage syncing
+  useApplyDensity();
 
   useEffect(() => {
     const isCallback = initialPathname.current === "/auth/callback/google";
@@ -76,13 +79,10 @@ function AppLayout() {
     (r) => location.pathname.replace(/\/$/, "") === r,
   );
 
-  const { density } = useDensityStore();
-
   return (
     <>
-      <div
-        className={`flex min-h-screen ${density === "compact" ? "density-compact" : ""}`}
-      >
+      {/* Cleaned up the density-compact class since font scaling works dynamically at the root element level */}
+      <div className="flex min-h-screen">
         {showSidebar && <Sidebar />}
         <main
           className={`flex-1 min-w-0 bg-background ${!showSidebar ? "w-full" : ""}`}

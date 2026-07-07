@@ -29,7 +29,26 @@ const Tasks = () => {
   } = useTasks();
 
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const stats = getStats();
+
+  // Wraps removeTask so the row can show a skeleton while the delete
+  // request is in flight, instead of either freezing or vanishing
+  // instantly on click. Assumes removeTask resolves once the server call
+  // (and local state removal) completes — check task.hooks.ts if this
+  // needs to be adjusted to actually await the request.
+  const handleDeleteTask = async (id: string) => {
+    setDeletingIds((prev) => new Set(prev).add(id));
+    try {
+      await removeTask(id);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
   const { seen: onboardingSeen, markSeen: markOnboardingSeen } =
     useOnboardingSeen("tasks");
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
@@ -195,11 +214,12 @@ const Tasks = () => {
               ) : (
                 <TaskList
                   tasks={visibleTasks}
-                  onDelete={removeTask}
+                  onDelete={handleDeleteTask}
                   onToggle={toggleTask}
                   onClearCompleted={clearCompleted}
                   onCountCompleted={countCompleted}
                   onEdit={editTask}
+                  deletingIds={deletingIds}
                 />
               )}
             </TabsContent>

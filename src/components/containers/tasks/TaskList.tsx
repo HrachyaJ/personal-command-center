@@ -6,6 +6,7 @@ export default function TaskList({
   onDelete,
   onToggle,
   onEdit,
+  deletingIds,
 }: {
   tasks: Task[];
   onDelete: (id: Task["id"]) => void;
@@ -13,6 +14,7 @@ export default function TaskList({
   onClearCompleted: () => void;
   onCountCompleted: () => number;
   onEdit: (id: Task["id"], data: Partial<TaskFormData>) => void;
+  deletingIds?: Set<string>;
 }) {
   // Sort: incomplete first, then by priority (high → medium → low → none), then by due date
   const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
@@ -38,6 +40,7 @@ export default function TaskList({
           onDelete={onDelete}
           onToggle={onToggle}
           onEdit={onEdit}
+          isDeleting={deletingIds?.has(task.id) ?? false}
         />
       ))}
     </ul>

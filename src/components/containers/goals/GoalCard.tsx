@@ -14,6 +14,7 @@ interface GoalCardProps {
   onUpdateProgress: (id: string, value: number) => void;
   onCompleteGoal: (id: string) => void;
   onDeleteGoal: (id: string) => void;
+  isDeleting?: boolean;
 }
 
 export const GoalCard = ({
@@ -21,6 +22,7 @@ export const GoalCard = ({
   onUpdateProgress,
   onCompleteGoal,
   onDeleteGoal,
+  isDeleting = false,
 }: GoalCardProps) => {
   const { t } = useTranslation();
   const [progressInput, setProgressInput] = useState("");
@@ -35,6 +37,31 @@ export const GoalCard = ({
       onUpdateProgress(goal.id, value);
       setProgressInput("");
     }
+  }
+
+  if (isDeleting) {
+    return (
+      <Card>
+        <CardContent className="p-4 sm:p-6">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="h-4 w-40 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-56 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-5 w-16 bg-muted animate-pulse rounded-full shrink-0" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <div className="h-3 w-20 bg-muted animate-pulse rounded" />
+                <div className="h-3 w-8 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-2 w-full bg-muted animate-pulse rounded-full" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

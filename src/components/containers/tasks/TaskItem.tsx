@@ -41,11 +41,13 @@ export default function TaskItem({
   onDelete,
   onEdit,
   onToggle,
+  isDeleting = false,
 }: {
   task: Task;
   onDelete: (id: Task["id"]) => void;
   onToggle: (id: Task["id"]) => void;
   onEdit: (id: Task["id"], data: Partial<TaskFormData>) => void;
+  isDeleting?: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<TaskFormData>({
@@ -86,6 +88,20 @@ export default function TaskItem({
   }
 
   const overdue = isOverdue(task.dueDate, task.completed);
+
+  if (isDeleting) {
+    return (
+      <li className="rounded-lg border border-border bg-card">
+        <div className="flex items-center gap-3 px-3 py-3">
+          <div className="w-4 h-4 rounded bg-muted animate-pulse shrink-0" />
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="h-3.5 w-40 bg-muted animate-pulse rounded" />
+            <div className="h-2.5 w-24 bg-muted animate-pulse rounded" />
+          </div>
+        </div>
+      </li>
+    );
+  }
 
   return (
     <li

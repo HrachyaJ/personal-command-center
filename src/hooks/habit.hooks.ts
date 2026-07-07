@@ -102,7 +102,7 @@ export function useHabits() {
       const alreadyDone = habit.completedDates?.includes(today);
 
       if (alreadyDone) {
-        await authFetchOrThrow(
+        const updated = await authFetchJson<Habit>(
           `${API}/${id}/complete`,
           {
             method: "DELETE",
@@ -111,16 +111,7 @@ export function useHabits() {
           },
           "Failed to undo habit completion.",
         );
-        setHabits((prev) =>
-          prev.map((h) =>
-            h.id === id
-              ? {
-                  ...h,
-                  completedDates: h.completedDates.filter((d) => d !== today),
-                }
-              : h,
-          ),
-        );
+        setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
       } else {
         const updated = await authFetchJson<Habit>(
           `${API}/${id}/complete`,
