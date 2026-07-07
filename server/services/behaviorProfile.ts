@@ -1,6 +1,6 @@
-import { Goal } from "server/types/goal.types.js";
-import { Habit } from "server/types/habit.types.js";
-import { Task } from "server/types/task.types.js";
+import { Goal } from "../types/goal.types.js";
+import { Habit } from "../types/habit.types.js";
+import { Task } from "../types/task.types.js";
 
 export interface NeglectedGoal {
   goalTitle: string;
