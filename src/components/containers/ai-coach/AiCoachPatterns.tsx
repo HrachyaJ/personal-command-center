@@ -29,7 +29,7 @@ const JS_DAY_TO_INDEX: Record<number, number> = {
   0: 6,
 };
 
-function computePatterns(tasks: Task[]) {
+export function computePatterns(tasks: Task[]) {
   const completedTasks = tasks.filter((t) => t.completedAt);
 
   // ── Time of day ──

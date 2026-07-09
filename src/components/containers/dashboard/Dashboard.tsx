@@ -11,7 +11,6 @@ import {
   Clock,
   Shield,
   Sparkles,
-  AlertTriangle,
   Brain,
 } from "lucide-react";
 import { useTasks } from "../../../hooks/task.hooks";
@@ -44,9 +43,11 @@ import { useUserStore } from "../../../stores/useUserStore";
 import { useOnboardingSeen } from "../../../hooks/onboarding.hooks";
 import { OnboardingDialog } from "../../shared/OnboardingPanel";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
-import Insights from "../../shared/Insights";
 import { Badge } from "../../ui/badge";
 import { useAiCoach } from "../../../hooks/useAiCoach";
+import { computeScores } from "../../../hooks/useProductivityReport";
+import DashboardInsights from "./DashboardInsights";
+import DashboardPatterns from "./DashboardPatterns";
 
 const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
@@ -64,6 +65,7 @@ export default function Dashboard() {
     loading: goalsLoading,
   } = useGoals();
   const {
+    habits,
     isCompletedToday,
     completedToday,
     totalHabits,
@@ -75,6 +77,7 @@ export default function Dashboard() {
   } = useHabits();
   const { user, loading: userLoading } = useUserStore();
   const { t } = useTranslation();
+  const { scores, stats } = computeScores(habits, tasks, goals);
 
   const isLoading =
     tasksLoading || goalsLoading || habitsLoading || userLoading;
@@ -208,8 +211,8 @@ export default function Dashboard() {
     },
     {
       title: t("dashboard.stats.productivityScore"),
-      value: `${taskCompletionRate}%`,
-      subtext: getMomentumLabel(taskCompletionRate, t),
+      value: `${scores.overall}%`,
+      subtext: getMomentumLabel(scores.overall, t),
       icon: Flame,
       iconColor: "text-purple-600",
       iconBg: "bg-purple-100",
@@ -258,7 +261,7 @@ export default function Dashboard() {
             ) : (
               <>
                 <h2
-                  className="text-lg sm:text-2xl font-semibold leading-tight break-words sm:truncate"
+                  className="text-lg sm:text-2xl font-semibold leading-tight wrap-break-words sm:truncate"
                   data-testid="greeting"
                 >
                   {getTimeOfDayGreeting(t)}, {user?.name}
@@ -333,6 +336,22 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left: Tasks + Goals ───────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            {/* AI Insights */}
+            <DashboardSectionCard title={t("dashboard.section.aiInsights")}>
+              <ErrorBoundary
+                fallback={
+                  <p className="text-sm text-destructive">
+                    {t("dashboard.aiInsights.unavailable")}
+                  </p>
+                }
+              >
+                <DashboardInsights
+                  insights={coachInsights}
+                  isLoading={coachLoading}
+                />
+              </ErrorBoundary>
+            </DashboardSectionCard>
+
             {/* Today's Tasks */}
             <DashboardSectionCard title={t("dashboard.section.tasks")}>
               {isLoading ? (
@@ -545,18 +564,6 @@ export default function Dashboard() {
               )}
             </DashboardSectionCard>
 
-            <DashboardSectionCard title={t("dashboard.section.aiInsights")}>
-              <ErrorBoundary
-                fallback={
-                  <p className="text-sm text-destructive">
-                    {t("dashboard.aiInsights.unavailable")}
-                  </p>
-                }
-              >
-                <Insights />
-              </ErrorBoundary>
-            </DashboardSectionCard>
-
             {/* Overall Progress */}
             <DashboardSectionCard
               title={t("dashboard.section.overallProgress")}
@@ -597,6 +604,24 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
+            </DashboardSectionCard>
+
+            <DashboardSectionCard
+              title={t("dashboard.section.productivityPatterns")}
+            >
+              <ErrorBoundary
+                fallback={
+                  <p className="text-sm text-destructive">
+                    {t("dashboard.patterns.unavailable")}
+                  </p>
+                }
+              >
+                <DashboardPatterns
+                  tasks={tasks}
+                  stats={stats}
+                  isLoading={isLoading}
+                />
+              </ErrorBoundary>
             </DashboardSectionCard>
           </div>
         </div>
