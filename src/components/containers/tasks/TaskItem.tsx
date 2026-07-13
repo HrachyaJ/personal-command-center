@@ -35,6 +35,7 @@ import {
   isOverdue,
   PRIORITY_STYLES,
 } from "../../../lib/utils";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export default function TaskItem({
   task,
@@ -49,6 +50,7 @@ export default function TaskItem({
   onEdit: (id: Task["id"], data: Partial<TaskFormData>) => void;
   isDeleting?: boolean;
 }) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<TaskFormData>({
     title: task.title,
@@ -145,7 +147,7 @@ export default function TaskItem({
                   <span
                     className={`w-1.5 h-1.5 rounded-full mr-1 inline-block ${PRIORITY_STYLES[task.priority].dot}`}
                   />
-                  {task.priority}
+                  {t(`tasks.priority.${task.priority}`)}
                 </Badge>
               )}
               {task.category && (
@@ -153,7 +155,8 @@ export default function TaskItem({
                   variant="outline"
                   className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground"
                 >
-                  {CATEGORY_ICONS[task.category]} {task.category}
+                  {CATEGORY_ICONS[task.category]}{" "}
+                  {t(`tasks.category.${task.category}`)}
                 </Badge>
               )}
               {task.dueDate && (
@@ -161,14 +164,14 @@ export default function TaskItem({
                   className={`flex items-center gap-0.5 text-[10px] ${overdue ? "text-red-500 font-medium" : "text-muted-foreground"}`}
                 >
                   <Calendar size={10} />
-                  {overdue ? "Overdue · " : "Due "}
+                  {overdue ? `${t("tasks.overdue")} · ` : `${t("tasks.due")} `}
                   {formatDate(task.dueDate)}
                 </span>
               )}
               {task.scheduledFor && (
                 <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                   <Clock size={10} />
-                  Scheduled {formatDate(task.scheduledFor)}
+                  {t("tasks.scheduled")} {formatDate(task.scheduledFor)}
                 </span>
               )}
               {task.estimatedMinutes && (
@@ -179,7 +182,9 @@ export default function TaskItem({
               {task.isRecurring && (
                 <span className="flex items-center gap-0.5 text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0">
                   <RefreshCw size={10} />
-                  {task.recurrenceRule ?? "recurring"}
+                  {task.recurrenceRule
+                    ? t(`tasks.recurrence.${task.recurrenceRule}`)
+                    : t("tasks.isRecurring")}
                 </span>
               )}
             </div>
@@ -196,7 +201,7 @@ export default function TaskItem({
                 variant="default"
                 className="cursor-pointer h-7 px-2 text-xs gap-1"
               >
-                <Save size={12} /> Save
+                <Save size={12} /> {t("tasks.save")}
               </Button>
               <Button
                 onClick={cancelEditing}
@@ -204,7 +209,7 @@ export default function TaskItem({
                 variant="outline"
                 className="cursor-pointer h-7 px-2 text-xs gap-1"
               >
-                <X size={12} /> Cancel
+                <X size={12} /> {t("tasks.cancel")}
               </Button>
             </>
           ) : (
@@ -238,7 +243,7 @@ export default function TaskItem({
               {/* Priority */}
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  Priority
+                  {t("tasks.priority.label")}
                 </Label>
                 <Select
                   value={editData.priority ?? ""}
@@ -252,19 +257,19 @@ export default function TaskItem({
                       value="low"
                       className="cursor-pointer text-xs text-muted-foreground"
                     >
-                      Low
+                      {t("tasks.priority.low")}
                     </SelectItem>
                     <SelectItem
                       value="medium"
                       className="cursor-pointer text-xs text-amber-600"
                     >
-                      Medium
+                      {t("tasks.priority.medium")}
                     </SelectItem>
                     <SelectItem
                       value="high"
                       className="cursor-pointer text-xs text-red-600"
                     >
-                      High
+                      {t("tasks.priority.high")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -273,7 +278,7 @@ export default function TaskItem({
               {/* Category */}
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  Category
+                  {t("tasks.categoryLabel")}
                 </Label>
                 <Select
                   value={editData.category ?? "none"}
@@ -284,37 +289,37 @@ export default function TaskItem({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="work" className="cursor-pointer text-xs">
-                      💼 Work
+                      💼 {t("tasks.category.work")}
                     </SelectItem>
                     <SelectItem
                       value="health"
                       className="cursor-pointer text-xs"
                     >
-                      🏃 Health
+                      🏃 {t("tasks.category.health")}
                     </SelectItem>
                     <SelectItem
                       value="personal"
                       className="cursor-pointer text-xs"
                     >
-                      🏠 Personal
+                      🏠 {t("tasks.category.personal")}
                     </SelectItem>
                     <SelectItem
                       value="learning"
                       className="cursor-pointer text-xs"
                     >
-                      📚 Learning
+                      📚 {t("tasks.category.learning")}
                     </SelectItem>
                     <SelectItem
                       value="finance"
                       className="cursor-pointer text-xs"
                     >
-                      💰 Finance
+                      💰 {t("tasks.category.finance")}
                     </SelectItem>
                     <SelectItem
                       value="other"
                       className="cursor-pointer text-xs"
                     >
-                      📌 Other
+                      📌 {t("tasks.category.other")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -323,12 +328,12 @@ export default function TaskItem({
               {/* Est. minutes */}
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  Est. minutes
+                  {t("tasks.estimatedMinutes")}
                 </Label>
                 <Input
                   type="number"
                   min={1}
-                  placeholder="e.g. 30"
+                  placeholder={t("tasks.estimatedMinutes.placeholder")}
                   value={editData.estimatedMinutes ?? ""}
                   onChange={(e) =>
                     set(
@@ -345,7 +350,7 @@ export default function TaskItem({
               {/* Due date */}
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  Due date
+                  {t("tasks.dueDate")}
                 </Label>
                 <Input
                   type="date"
@@ -358,7 +363,7 @@ export default function TaskItem({
               {/* Scheduled for */}
               <div className="space-y-1">
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                  Schedule for
+                  {t("tasks.scheduledFor")}
                 </Label>
                 <Input
                   type="date"
@@ -385,7 +390,7 @@ export default function TaskItem({
                   htmlFor={`recurring-${task.id}`}
                   className="text-xs text-muted-foreground cursor-pointer"
                 >
-                  Recurring
+                  {t("tasks.isRecurring")}
                 </Label>
               </div>
               {editData.isRecurring && (
@@ -394,32 +399,34 @@ export default function TaskItem({
                   onValueChange={(v) => set("recurrenceRule", v || null)}
                 >
                   <SelectTrigger className="w-32.5 h-7 text-xs bg-card border-border cursor-pointer">
-                    <SelectValue placeholder="Frequency" />
+                    <SelectValue
+                      placeholder={t("tasks.recurrence.frequency")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem
                       value="daily"
                       className="cursor-pointer text-xs"
                     >
-                      Daily
+                      {t("tasks.recurrence.daily")}
                     </SelectItem>
                     <SelectItem
                       value="weekdays"
                       className="cursor-pointer text-xs"
                     >
-                      Weekdays
+                      {t("tasks.recurrence.weekdays")}
                     </SelectItem>
                     <SelectItem
                       value="weekly"
                       className="cursor-pointer text-xs"
                     >
-                      Weekly
+                      {t("tasks.recurrence.weekly")}
                     </SelectItem>
                     <SelectItem
                       value="monthly"
                       className="cursor-pointer text-xs"
                     >
-                      Monthly
+                      {t("tasks.recurrence.monthly")}
                     </SelectItem>
                   </SelectContent>
                 </Select>

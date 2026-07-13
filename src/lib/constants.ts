@@ -61,14 +61,14 @@ export const STATS: Stat[] = [
   { value: "4.9★", label: "User rating" },
 ];
 
-export const tasks = [
+export const example_tasks = [
   "Design system audit",
   "Write Q2 OKRs",
   "Review PRs",
   "Team sync",
 ];
 
-export const habits = [
+export const example_habits = [
   { name: "Morning run", done: true, streak: 14 },
   { name: "Read 30 min", done: true, streak: 7 },
   { name: "Meditate", done: false, streak: 3 },

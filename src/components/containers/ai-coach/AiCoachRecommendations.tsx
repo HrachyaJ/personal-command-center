@@ -50,7 +50,7 @@ export default function AiCoachRecommendations({
           <CardContent className="p-8 text-center">
             <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
-              All caught up! No new recommendations right now.
+              {t("aiCoach.recommendations.emptyMessage")}
             </p>
           </CardContent>
         </Card>
@@ -62,7 +62,11 @@ export default function AiCoachRecommendations({
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-semibold text-sm">{rec.title}</h3>
-                    <Badge className="text-[10px]">{rec.category}</Badge>
+                    <Badge className="text-[10px]">
+                      {t(
+                        `aiCoach.recommendations.category.${rec.category.toLowerCase()}`,
+                      )}
+                    </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {rec.description}
@@ -70,22 +74,22 @@ export default function AiCoachRecommendations({
                   <div className="flex flex-wrap gap-2 pt-1">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-muted-foreground">
-                        Impact
+                        {t("aiCoach.recommendations.labels.impact")}
                       </span>
                       <Badge
                         className={`text-[10px] ${impactColors(rec.impact)}`}
                       >
-                        {rec.impact}
+                        {t(`aiCoach.recommendations.impact.${rec.impact}`)}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs text-muted-foreground">
-                        Effort
+                        {t("aiCoach.recommendations.labels.effort")}
                       </span>
                       <Badge
                         className={`text-[10px] ${effortColors(rec.effort)}`}
                       >
-                        {rec.effort}
+                        {t(`aiCoach.recommendations.effort.${rec.effort}`)}
                       </Badge>
                     </div>
                   </div>

@@ -114,6 +114,11 @@ const translations: Record<Locale, Record<string, string>> = {
     "tasks.recurrence.monthly": "Monthly",
     "tasks.recurrence.frequency": "Frequency",
     "tasks.estimatedMinutes.placeholder": "e.g. 30",
+    "tasks.save": "Save",
+    "tasks.cancel": "Cancel",
+    "tasks.overdue": "Overdue",
+    "tasks.due": "Due",
+    "tasks.scheduled": "Scheduled",
     "habits.list.confirmDelete": "Delete",
     "habits.list.cancelDelete": "Cancel",
 
@@ -264,6 +269,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.title": "AI Coach",
     "aiCoach.subtitle": "Personalized insights based on your activity",
     "aiCoach.button.refresh": "Refresh",
+    "aiCoach.button.refreshDisabledHint":
+      "Add a few more tasks, habits, or goals before refreshing",
     "aiCoach.productivityScore": "Productivity Score",
     "aiCoach.trend.vsLastWeek": "vs last week",
     "aiCoach.scoreLabel.tasks": "Tasks",
@@ -289,6 +296,16 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.recommendations.impact.low": "Low",
     "aiCoach.recommendations.effort.easy": "Easy",
     "aiCoach.recommendations.effort.moderate": "Moderate",
+    "aiCoach.recommendations.effort.hard": "Hard",
+    "aiCoach.recommendations.emptyMessage":
+      "All caught up! No new recommendations right now.",
+    "aiCoach.errors.loadFailed": "Failed to load AI Coach data",
+    "aiCoach.insufficient.title": "Not enough data yet",
+    "aiCoach.insufficient.description":
+      "Add a few tasks, habits, or goals and come back — the AI coach needs real activity to give you meaningful insights.",
+    "aiCoach.insufficient.addTask": "Add a Task",
+    "aiCoach.insufficient.addHabit": "Add a Habit",
+    "aiCoach.insufficient.setGoal": "Set a Goal",
     "aiCoach.recommendations.category.tasks": "Tasks",
     "aiCoach.recommendations.category.schedule": "Schedule",
     "aiCoach.recommendations.category.goals": "Goals",
@@ -643,6 +660,11 @@ const translations: Record<Locale, Record<string, string>> = {
     "tasks.recurrence.monthly": "Ежемесячно",
     "tasks.recurrence.frequency": "Частота",
     "tasks.estimatedMinutes.placeholder": "Например, 30",
+    "tasks.save": "Сохранить",
+    "tasks.cancel": "Отмена",
+    "tasks.overdue": "Просрочено",
+    "tasks.due": "Срок",
+    "tasks.scheduled": "Запланировано",
 
     "habits.header": "Привычки",
     "habits.subtitle": "Формируйте систематичность шаг за шагом.",
@@ -799,6 +821,8 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.subtitle":
       "Персонализированные рекомендации на основе вашей активности",
     "aiCoach.button.refresh": "Обновить",
+    "aiCoach.button.refreshDisabledHint":
+      "Добавьте больше задач, привычек или целей перед обновлением",
     "aiCoach.productivityScore": "Уровень продуктивности",
     "aiCoach.trend.vsLastWeek": "по сравнению с прошлой неделей",
     "aiCoach.scoreLabel.tasks": "Задачи",
@@ -824,6 +848,16 @@ const translations: Record<Locale, Record<string, string>> = {
     "aiCoach.recommendations.impact.low": "Низкое",
     "aiCoach.recommendations.effort.easy": "Легко",
     "aiCoach.recommendations.effort.moderate": "Средне",
+    "aiCoach.recommendations.effort.hard": "Сложно",
+    "aiCoach.recommendations.emptyMessage":
+      "Все выполнено! Пока нет новых рекомендаций.",
+    "aiCoach.errors.loadFailed": "Не удалось загрузить данные ИИ Тренера",
+    "aiCoach.insufficient.title": "Пока недостаточно данных",
+    "aiCoach.insufficient.description":
+      "Добавьте несколько задач, привычек или целей и возвращайтесь — ИИ Тренеру нужна реальная активность, чтобы дать полезные советы.",
+    "aiCoach.insufficient.addTask": "Добавить задачу",
+    "aiCoach.insufficient.addHabit": "Добавить привычку",
+    "aiCoach.insufficient.setGoal": "Поставить цель",
     "aiCoach.recommendations.category.tasks": "Задачи",
     "aiCoach.recommendations.category.schedule": "Расписание",
     "aiCoach.recommendations.category.goals": "Цели",

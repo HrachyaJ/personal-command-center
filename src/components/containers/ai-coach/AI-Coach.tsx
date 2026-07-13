@@ -18,7 +18,6 @@ import { API_BASE, authFetch } from "../../../lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "../../ui/card";
 import { Button } from "../../ui/button";
-import AiCoachHeaderSkeleton from "../../shared/Skeletons";
 
 export default function AICoach() {
   const { t } = useTranslation();
@@ -62,15 +61,15 @@ export default function AICoach() {
         const data = await res.json();
         setInsights(data.insights);
         setRecommendations(data.recommendations);
-        setInsufficient(data.insufficient ?? false); // ← add this line
+        setInsufficient(data.insufficient ?? false);
         setError(null);
       } catch (e) {
         setError(
-          e instanceof Error ? e.message : "Failed to load AI Coach data",
+          e instanceof Error ? e.message : t("aiCoach.errors.loadFailed"),
         );
       }
     },
-    [user?.id, habits, tasks, goals],
+    [user?.id, habits, tasks, goals, t],
   );
 
   const hasLoaded = useRef(false);
@@ -150,10 +149,9 @@ export default function AICoach() {
         <Card>
           <CardContent className="p-8 text-center space-y-3">
             <Brain className="w-12 h-12 text-muted-foreground mx-auto" />
-            <p className="font-medium">Not enough data yet</p>
+            <p className="font-medium">{t("aiCoach.insufficient.title")}</p>
             <p className="text-sm text-muted-foreground">
-              Add a few tasks, habits, or goals and come back — the AI coach
-              needs real activity to give you meaningful insights.
+              {t("aiCoach.insufficient.description")}
             </p>
             <div className="flex justify-center gap-2 pt-2">
               <Button
@@ -161,21 +159,21 @@ export default function AICoach() {
                 variant="outline"
                 onClick={() => navigate("/tasks")}
               >
-                Add a Task
+                {t("aiCoach.insufficient.addTask")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => navigate("/habits")}
               >
-                Add a Habit
+                {t("aiCoach.insufficient.addHabit")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => navigate("/goals?create=true")}
               >
-                Set a Goal
+                {t("aiCoach.insufficient.setGoal")}
               </Button>
             </div>
           </CardContent>

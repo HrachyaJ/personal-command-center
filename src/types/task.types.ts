@@ -28,7 +28,7 @@ export interface Task {
 
   // Recurrence
   isRecurring: boolean;
-  recurrenceRule: string | null;
+  recurrenceRule: string | null; // if its recurring then it must have a rule
 }
 
 // What the user fills in when creating/editing a task

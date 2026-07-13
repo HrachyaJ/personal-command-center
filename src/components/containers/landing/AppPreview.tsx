@@ -1,5 +1,5 @@
-import { habits, tasks } from "../../../lib/constants";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { example_habits, example_tasks } from "../../../lib/constants";
 
 export function AppPreview() {
   const { t } = useTranslation();
@@ -112,7 +112,7 @@ export function AppPreview() {
               marginBottom: "16px",
             }}
           >
-            {tasks.map((task, i) => (
+            {example_tasks.map((task, i) => (
               <div
                 key={task}
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
@@ -158,7 +158,7 @@ export function AppPreview() {
             Habits
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {habits.map((h) => (
+            {example_habits.map((h) => (
               <div
                 key={h.name}
                 style={{

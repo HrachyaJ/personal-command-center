@@ -22,7 +22,7 @@ import { Skeleton } from "../../shared/Skeletons";
 const RELATED_TO_ROUTE: Record<AiCoachInsight["relatedTo"], string> = {
   Tasks: "/tasks",
   Habits: "/habits",
-  Goals: "/goals?create=true", // ← add param
+  Goals: "/goals?create=true",
   Schedule: "/tasks", // fallback
 };
 

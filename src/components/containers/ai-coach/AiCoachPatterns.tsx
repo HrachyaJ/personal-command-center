@@ -13,11 +13,19 @@ const TIME_BUCKETS = [
   { key: "9", label: "aiCoach.patterns.timeBucket.9to12", min: 9, max: 12 },
   { key: "12", label: "aiCoach.patterns.timeBucket.12to3", min: 12, max: 15 },
   { key: "15", label: "aiCoach.patterns.timeBucket.3to6", min: 15, max: 18 },
-  { key: "18", label: "aiCoach.patterns.timeBucket.6to9", min: 18, max: 21 },
+  { key: "18", label: "aiCoach.patterns.timeBucket.6to9pm", min: 18, max: 21 },
   { key: "21", label: "aiCoach.patterns.timeBucket.9pm", min: 21, max: 24 },
 ];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// Tailwind's JIT scanner needs literal class names in source — a template
+// literal like `grid-cols-${n}` won't be picked up in production builds.
+const WEAK_DAYS_GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+};
 // JS getDay(): 0=Sun,1=Mon,...,6=Sat — remap to Mon-first
 const JS_DAY_TO_INDEX: Record<number, number> = {
   1: 0,
@@ -55,7 +63,7 @@ export function computePatterns(tasks: Task[]) {
   const bestTimeOfDay = TIME_BUCKETS.map((b) => {
     const { completed, total } = bucketCounts[b.key];
     const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { label: b.label, completionRate: rate };
+    return { key: b.key, label: b.label, completionRate: rate };
   });
 
   // ── Day of week ──
@@ -108,8 +116,8 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
               {t("aiCoach.patterns.noPatternsMessage")}
             </p>
           ) : (
-            bestTimeOfDay.map(({ label, completionRate }) => (
-              <div key={label} className="space-y-1">
+            bestTimeOfDay.map(({ key, label, completionRate }) => (
+              <div key={key} className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t(label)}</span>
                   <span
@@ -160,14 +168,16 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
           ) : (
             <>
               <div
-                className={`grid gap-3 grid-cols-${Math.min(weakDays.length, 3)}`}
+                className={`grid gap-3 ${WEAK_DAYS_GRID_COLS[Math.min(weakDays.length, 3)]}`}
               >
                 {weakDays.map(({ label, completionRate }) => (
                   <div
                     key={label}
                     className="rounded-xl border bg-muted/30 p-4 text-center space-y-1"
                   >
-                    <p className="font-semibold text-sm">{label}</p>
+                    <p className="font-semibold text-sm">
+                      {t(`aiCoach.patterns.day.${label.toLowerCase()}`)}
+                    </p>
                     <p className="text-2xl font-bold text-red-500">
                       {completionRate}%
                     </p>
@@ -216,7 +226,9 @@ export default function AiCoachPatterns({ tasks }: AiCoachPatternsProps) {
                       <div
                         className={`h-10 rounded-md ${opacity} transition-all`}
                         title={t("aiCoach.patterns.heatmapTooltip", {
-                          label: t(label),
+                          label: t(
+                            `aiCoach.patterns.day.${label.toLowerCase()}`,
+                          ),
                           rate: completionRate,
                         })}
                       />
