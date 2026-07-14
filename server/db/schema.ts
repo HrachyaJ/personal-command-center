@@ -26,8 +26,6 @@ export const tasks = pgTable("tasks", {
   category: text("category"),
   estimatedMinutes: integer("estimated_minutes"),
   completedAt: timestamp("completed_at"),
-  isRecurring: boolean("is_recurring").default(false),
-  recurrenceRule: text("recurrence_rule"),
 });
 
 // ─── Goals ────────────────────────────────────────────────────────────────────

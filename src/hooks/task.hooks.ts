@@ -57,8 +57,6 @@ export function useTasks() {
             priority: data.priority,
             category: data.category,
             estimatedMinutes: data.estimatedMinutes,
-            isRecurring: data.isRecurring,
-            recurrenceRule: data.recurrenceRule,
           }),
         },
         "Failed to add task.",

@@ -6,6 +6,16 @@ import { getSession } from "../auth-session.js";
 
 const router = Router();
 
+const VALID_PRIORITIES = new Set(["low", "medium", "high"]);
+const VALID_CATEGORIES = new Set([
+  "work",
+  "health",
+  "personal",
+  "learning",
+  "finance",
+  "other",
+]);
+
 router.get("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -23,19 +33,15 @@ router.post("/", async (req, res) => {
   const session = await getSession(req);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
 
-  const {
-    title,
-    dueDate,
-    scheduledFor,
-    priority,
-    category,
-    estimatedMinutes,
-    isRecurring,
-    recurrenceRule,
-  } = req.body;
+  const { title, dueDate, scheduledFor, priority, category, estimatedMinutes } =
+    req.body;
 
   if (!title?.trim())
     return res.status(400).json({ error: "Title is required" });
+  if (priority !== undefined && !VALID_PRIORITIES.has(priority))
+    return res.status(400).json({ error: "Invalid priority" });
+  if (category !== undefined && !VALID_CATEGORIES.has(category))
+    return res.status(400).json({ error: "Invalid category" });
 
   const [task] = await db
     .insert(tasks)
@@ -52,8 +58,6 @@ router.post("/", async (req, res) => {
       ...(priority !== undefined && { priority }),
       ...(category !== undefined && { category }),
       ...(estimatedMinutes !== undefined && { estimatedMinutes }),
-      ...(isRecurring !== undefined && { isRecurring }),
-      ...(recurrenceRule !== undefined && { recurrenceRule }),
     })
     .returning();
 
@@ -73,9 +77,12 @@ router.patch("/:id", async (req, res) => {
     priority,
     category,
     estimatedMinutes,
-    isRecurring,
-    recurrenceRule,
   } = req.body;
+
+  if (priority !== undefined && !VALID_PRIORITIES.has(priority))
+    return res.status(400).json({ error: "Invalid priority" });
+  if (category !== undefined && !VALID_CATEGORIES.has(category))
+    return res.status(400).json({ error: "Invalid category" });
 
   const [task] = await db
     .update(tasks)
@@ -94,8 +101,6 @@ router.patch("/:id", async (req, res) => {
       ...(priority !== undefined && { priority }),
       ...(category !== undefined && { category }),
       ...(estimatedMinutes !== undefined && { estimatedMinutes }),
-      ...(isRecurring !== undefined && { isRecurring }),
-      ...(recurrenceRule !== undefined && { recurrenceRule }),
     })
     .where(and(eq(tasks.id, req.params.id), eq(tasks.userId, session.user.id)))
     .returning();

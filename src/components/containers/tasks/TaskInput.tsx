@@ -29,35 +29,6 @@ interface TaskInputProps {
   onAdd: (data: TaskFormData) => void;
 }
 
-function Toggle({
-  id,
-  checked,
-  onChange,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      id={id}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-        checked ? "bg-blue-600" : "bg-secondary"
-      }`}
-    >
-      <span
-        className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-card shadow-lg transition-transform duration-200 ${
-          checked ? "translate-x-4" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
-
 const EMPTY_FORM: TaskFormData = {
   title: "",
   dueDate: null,
@@ -65,8 +36,6 @@ const EMPTY_FORM: TaskFormData = {
   priority: "low",
   category: "other",
   estimatedMinutes: null,
-  isRecurring: false,
-  recurrenceRule: null,
 };
 
 function runPrediction(form: TaskFormData) {
@@ -77,7 +46,6 @@ function runPrediction(form: TaskFormData) {
     category: form.category ?? "other",
     estimatedMinutes: String(form.estimatedMinutes ?? 0),
     has_dueDate: form.dueDate ? "1" : "0",
-    isRecurring: form.isRecurring ? "1" : "0",
   });
 
   fetch(`${API_BASE}/api/predict?${params.toString()}`)
@@ -274,50 +242,6 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
                 className="bg-card border-border text-xs h-8"
               />
             </div>
-          </div>
-
-          <div className="flex items-center gap-6 pt-2 px-0.5">
-            <div className="flex items-center gap-2">
-              <Toggle
-                id="recurring"
-                checked={form.isRecurring}
-                onChange={(v) => {
-                  set("isRecurring", v);
-                  if (!v) set("recurrenceRule", null);
-                }}
-              />
-              <Label
-                htmlFor="recurring"
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {t("tasks.isRecurring")}
-              </Label>
-            </div>
-
-            {form.isRecurring && (
-              <Select
-                value={form.recurrenceRule ?? ""}
-                onValueChange={(v) => set("recurrenceRule", v || null)}
-              >
-                <SelectTrigger className="w-32.5 bg-card border-border text-xs h-8 cursor-pointer">
-                  <SelectValue placeholder={t("tasks.recurrence.frequency")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily" className="cursor-pointer">
-                    {t("tasks.recurrence.daily")}
-                  </SelectItem>
-                  <SelectItem value="weekdays" className="cursor-pointer">
-                    {t("tasks.recurrence.weekdays")}
-                  </SelectItem>
-                  <SelectItem value="weekly" className="cursor-pointer">
-                    {t("tasks.recurrence.weekly")}
-                  </SelectItem>
-                  <SelectItem value="monthly" className="cursor-pointer">
-                    {t("tasks.recurrence.monthly")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
           </div>
         </CollapsibleContent>
       </Collapsible>

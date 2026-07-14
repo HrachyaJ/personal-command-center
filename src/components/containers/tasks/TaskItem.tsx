@@ -4,15 +4,7 @@ import type {
   TaskCategory,
   TaskPriority,
 } from "../../../types/task.types";
-import {
-  Edit,
-  Trash2,
-  Calendar,
-  Clock,
-  RefreshCw,
-  Save,
-  X,
-} from "lucide-react";
+import { Edit, Trash2, Calendar, Clock, Save, X } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Checkbox } from "../../ui/checkbox";
 import { Input } from "../../ui/input";
@@ -26,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { Switch } from "../../ui/switch";
 import { Collapsible, CollapsibleContent } from "../../ui/collapsible";
 import { useState } from "react";
 import {
@@ -59,8 +50,6 @@ export default function TaskItem({
     priority: task.priority,
     category: task.category,
     estimatedMinutes: task.estimatedMinutes,
-    isRecurring: task.isRecurring,
-    recurrenceRule: task.recurrenceRule,
   });
 
   function set<K extends keyof TaskFormData>(key: K, value: TaskFormData[K]) {
@@ -83,8 +72,6 @@ export default function TaskItem({
       priority: task.priority,
       category: task.category,
       estimatedMinutes: task.estimatedMinutes,
-      isRecurring: task.isRecurring,
-      recurrenceRule: task.recurrenceRule,
     });
     setIsEditing(false);
   }
@@ -177,14 +164,6 @@ export default function TaskItem({
               {task.estimatedMinutes && (
                 <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                   <Clock size={10} />~{task.estimatedMinutes}m
-                </span>
-              )}
-              {task.isRecurring && (
-                <span className="flex items-center gap-0.5 text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0">
-                  <RefreshCw size={10} />
-                  {task.recurrenceRule
-                    ? t(`tasks.recurrence.${task.recurrenceRule}`)
-                    : t("tasks.isRecurring")}
                 </span>
               )}
             </div>
@@ -372,65 +351,6 @@ export default function TaskItem({
                   className="h-7 text-xs bg-card border-border"
                 />
               </div>
-            </div>
-
-            {/* Recurring */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  id={`recurring-${task.id}`}
-                  checked={editData.isRecurring}
-                  onCheckedChange={(v) => {
-                    set("isRecurring", v);
-                    if (!v) set("recurrenceRule", null);
-                  }}
-                  className="[&_span]:shadow-sm data-unchecked:bg-secondary data-unchecked:border-border data-checked:bg-blue-600"
-                />
-                <Label
-                  htmlFor={`recurring-${task.id}`}
-                  className="text-xs text-muted-foreground cursor-pointer"
-                >
-                  {t("tasks.isRecurring")}
-                </Label>
-              </div>
-              {editData.isRecurring && (
-                <Select
-                  value={editData.recurrenceRule ?? ""}
-                  onValueChange={(v) => set("recurrenceRule", v || null)}
-                >
-                  <SelectTrigger className="w-32.5 h-7 text-xs bg-card border-border cursor-pointer">
-                    <SelectValue
-                      placeholder={t("tasks.recurrence.frequency")}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem
-                      value="daily"
-                      className="cursor-pointer text-xs"
-                    >
-                      {t("tasks.recurrence.daily")}
-                    </SelectItem>
-                    <SelectItem
-                      value="weekdays"
-                      className="cursor-pointer text-xs"
-                    >
-                      {t("tasks.recurrence.weekdays")}
-                    </SelectItem>
-                    <SelectItem
-                      value="weekly"
-                      className="cursor-pointer text-xs"
-                    >
-                      {t("tasks.recurrence.weekly")}
-                    </SelectItem>
-                    <SelectItem
-                      value="monthly"
-                      className="cursor-pointer text-xs"
-                    >
-                      {t("tasks.recurrence.monthly")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
             </div>
           </div>
         </CollapsibleContent>
