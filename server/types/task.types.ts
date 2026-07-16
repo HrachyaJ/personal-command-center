@@ -25,10 +25,6 @@ export interface Task {
 
   // Completion tracking
   completedAt: string | null;
-
-  // Recurrence
-  isRecurring: boolean;
-  recurrenceRule: string | null;
 }
 
 // What the user fills in when creating/editing a task
@@ -39,6 +35,4 @@ export interface TaskFormData {
   priority: TaskPriority;
   category: TaskCategory;
   estimatedMinutes: number | null;
-  isRecurring: boolean;
-  recurrenceRule: string | null;
 }

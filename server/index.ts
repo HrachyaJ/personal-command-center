@@ -169,7 +169,6 @@ app.get("/api/ml-data-internal", async (req, res) => {
         category: t.category ?? "other",
         estimated_minutes: t.estimatedMinutes ?? 0,
         has_due_date: t.dueDate ? 1 : 0,
-        is_recurring: t.isRecurring ? 1 : 0,
         completed: t.completed ? 1 : 0,
       }));
 
@@ -203,7 +202,6 @@ app.get("/api/ml-data", async (req: any, res) => {
         category: t.category ?? "other",
         estimated_minutes: t.estimatedMinutes ?? 0,
         has_due_date: t.dueDate ? 1 : 0,
-        is_recurring: t.isRecurring ? 1 : 0,
         completed: t.completed ? 1 : 0,
       }));
 
@@ -226,9 +224,8 @@ app.get("/api/predict", async (req: any, res) => {
   const category = req.query.category ?? "other";
   const estMinutes = req.query.estimatedMinutes ?? "0";
   const hasDueDate = req.query.has_dueDate ?? "0";
-  const isRecurring = req.query.isRecurring ?? "0";
 
-  const cmd = `python3 ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate} ${isRecurring}`;
+  const cmd = `python3 ml/predict.py ${hour} ${day} ${priority} ${category} ${estMinutes} ${hasDueDate}`;
 
   const env = { ...process.env, ML_USER_ID: session.user.id };
 
@@ -285,7 +282,6 @@ app.get("/api/ml-insights", async (req: any, res) => {
         category: t.category ?? "other",
         estimated_minutes: t.estimatedMinutes ?? 0,
         has_due_date: t.dueDate ? 1 : 0,
-        is_recurring: t.isRecurring ? 1 : 0,
         completed: t.completed ? 1 : 0,
       }));
 
