@@ -135,10 +135,13 @@ export default function HabitList({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={async () => {
-                      setDeletingId(habit.id);
                       setConfirmDelete(null);
-                      await onRemove(habit.id);
-                      setDeletingId(null);
+                      setDeletingId(habit.id);
+                      try {
+                        await onRemove(habit.id);
+                      } finally {
+                        setDeletingId(null);
+                      }
                     }}
                     className="text-xs text-red-500 hover:text-red-700 font-medium"
                   >

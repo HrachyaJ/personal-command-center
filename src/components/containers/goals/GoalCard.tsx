@@ -27,9 +27,10 @@ export const GoalCard = ({
   const { t } = useTranslation();
   const [progressInput, setProgressInput] = useState("");
 
-  const progressPercentage = Math.round(
-    (goal.currentValue / goal.targetValue) * 100,
-  );
+  const progressPercentage =
+    goal.targetValue > 0
+      ? Math.round((goal.currentValue / goal.targetValue) * 100)
+      : 0;
 
   function submitProgress() {
     const value = parseInt(progressInput, 10);

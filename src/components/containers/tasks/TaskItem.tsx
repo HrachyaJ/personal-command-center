@@ -56,6 +56,18 @@ export default function TaskItem({
     setEditData((prev) => ({ ...prev, [key]: value }));
   }
 
+  function startEditing() {
+    setEditData({
+      title: task.title,
+      dueDate: task.dueDate,
+      scheduledFor: task.scheduledFor,
+      priority: task.priority,
+      category: task.category,
+      estimatedMinutes: task.estimatedMinutes,
+    });
+    setIsEditing(true);
+  }
+
   function saveChanges() {
     if (!editData.title.trim()) return;
     if (!editData.priority) return;
@@ -194,7 +206,7 @@ export default function TaskItem({
           ) : (
             <>
               <Button
-                onClick={() => setIsEditing(true)}
+                onClick={startEditing}
                 variant="ghost"
                 size="sm"
                 className="cursor-pointer h-7 w-7 p-0 text-muted-foreground hover:text-foreground"

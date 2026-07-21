@@ -363,12 +363,14 @@ export default function Goals() {
                 <p className="text-muted-foreground mb-4 text-sm">
                   {t(`goals.empty.${activeTab}`)}
                 </p>
-                <Button
-                  className="cursor-pointer"
-                  onClick={() => setIsAddDialogOpen(true)}
-                >
-                  {t("goals.empty.createFirstGoal")}
-                </Button>
+                {activeTab === "active" && (
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => setIsAddDialogOpen(true)}
+                  >
+                    {t("goals.empty.createFirstGoal")}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
