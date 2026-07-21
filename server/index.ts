@@ -9,6 +9,7 @@ import goalRoutes from "./routes/goals.route.js";
 import habitRoutes from "./routes/habits.route.js";
 import userRouter from "./routes/user.route.js";
 import aiCoachRoutes from "./routes/ai-coach.route.js";
+import feedbackRouter from "./routes/feedback.route.js";
 import pushRouter from "./routes/push.route.js";
 import notificationPrefsRouter from "./routes/notification-prefs.route.js";
 import remindersRouter from "./routes/reminders.route.js";
@@ -59,6 +60,7 @@ app.use("/api/ai-coach", aiCoachRoutes);
 app.use("/api/push", pushRouter);
 app.use("/api/notifications/preferences", notificationPrefsRouter);
 app.use("/api/reminders", remindersRouter);
+app.use("/api/feedback", feedbackRouter);
 
 // ── Avatar upload ──────────────────────────────────────────────────────────────
 const avatarUpload = multer({

@@ -265,6 +265,60 @@ export const pushSubscriptionsRelations = relations(
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type NewPushSubscription = typeof pushSubscriptions.$inferInsert;
 
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+
+export const feedbackTypeEnum = pgEnum("feedback_type", [
+  "bug",
+  "feature",
+  "general",
+]);
+
+export const feedbackStatusEnum = pgEnum("feedback_status", [
+  "new",
+  "triaged",
+  "resolved",
+  "wont_fix",
+]);
+
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    type: feedbackTypeEnum("type").notNull(),
+    message: text("message").notNull(),
+    status: feedbackStatusEnum("status").notNull().default("new"),
+
+    // Captured server-side (not trusted from the client body) for triage
+    // context and lightweight abuse detection.
+    path: text("path"),
+    userAgent: text("user_agent"),
+    ipAddress: text("ip_address"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("feedback_user_id_idx").on(t.userId),
+    index("feedback_status_idx").on(t.status),
+    index("feedback_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  user: one(user, { fields: [feedback.userId], references: [user.id] }),
+}));
+
+export type Feedback = typeof feedback.$inferSelect;
+export type NewFeedback = typeof feedback.$inferInsert;
+
 // ─── Reminders (task/habit/goal) ──────────────────────────────────────────────
 // These two tables already existed in the database, defined outside Drizzle's
 // tracked schema. Added here verbatim to match what's live — do not change

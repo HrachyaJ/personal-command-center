@@ -10,6 +10,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "settings.account": "Account",
     "settings.notifications": "Notifications",
     "settings.privacy": "Privacy & Security",
+    "settings.feedback": "Feedback",
     "settings.themeTitle": "Theme",
     "settings.layoutTitle": "Layout",
     "settings.languageTitle": "Language",
@@ -54,6 +55,29 @@ const translations: Record<Locale, Record<string, string>> = {
       "New password must be at least 8 characters",
     "settings.account.passwordIncorrect": "Current password is incorrect",
     "settings.account.passwordUpdated": "Password updated",
+
+    "settings.feedback.section": "Send feedback",
+    "settings.feedback.intro":
+      "Found a bug or have an idea? Let us know — we read every message.",
+    "settings.feedback.typeLabel": "What's this about?",
+    "settings.feedback.type.bug": "Report a bug",
+    "settings.feedback.type.feature": "Feature idea",
+    "settings.feedback.type.general": "General feedback",
+    "settings.feedback.messageLabel": "Message",
+    "settings.feedback.messagePlaceholder":
+      "Tell us what happened, or what you'd like to see...",
+    "settings.feedback.overLimit": "{count} characters over the limit",
+    "settings.feedback.replyHint":
+      "We'll reply to {email} if we need more details.",
+    "settings.feedback.sendButton": "Send feedback",
+    "settings.feedback.sending": "Sending...",
+    "settings.feedback.sent": "Sent",
+    "settings.feedback.submitSuccess": "Thanks! Your feedback has been sent.",
+    "settings.feedback.submitError":
+      "Failed to send feedback. Please try again.",
+    "settings.feedback.otherWaysSection": "Other ways to reach us",
+    "settings.feedback.otherWaysDesc":
+      "For account or billing issues, email support@focusflow.app.",
 
     "settings.sessions.title": "Active Sessions",
     "settings.sessions.empty": "No active sessions found.",
@@ -554,6 +578,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "settings.account": "Аккаунт",
     "settings.notifications": "Уведомления",
     "settings.privacy": "Безопасность",
+    "settings.feedback": "Обратная связь",
     "settings.themeTitle": "Тема",
     "settings.layoutTitle": "Макет",
     "settings.languageTitle": "Язык",
@@ -600,6 +625,29 @@ const translations: Record<Locale, Record<string, string>> = {
       "Новый пароль должен содержать не менее 8 символов",
     "settings.account.passwordIncorrect": "Текущий пароль неверен",
     "settings.account.passwordUpdated": "Пароль обновлён",
+
+    "settings.feedback.section": "Отправить отзыв",
+    "settings.feedback.intro":
+      "Нашли баг или есть идея? Расскажите нам — мы читаем каждое сообщение.",
+    "settings.feedback.typeLabel": "О чём хотите сообщить?",
+    "settings.feedback.type.bug": "Сообщить об ошибке",
+    "settings.feedback.type.feature": "Идея функции",
+    "settings.feedback.type.general": "Общий отзыв",
+    "settings.feedback.messageLabel": "Сообщение",
+    "settings.feedback.messagePlaceholder":
+      "Расскажите, что произошло, или что бы вы хотели видеть...",
+    "settings.feedback.overLimit": "Превышение лимита на {count} символов",
+    "settings.feedback.replyHint":
+      "Мы ответим на {email}, если понадобятся детали.",
+    "settings.feedback.sendButton": "Отправить отзыв",
+    "settings.feedback.sending": "Отправка...",
+    "settings.feedback.sent": "Отправлено",
+    "settings.feedback.submitSuccess": "Спасибо! Ваш отзыв отправлен.",
+    "settings.feedback.submitError":
+      "Не удалось отправить отзыв. Попробуйте ещё раз.",
+    "settings.feedback.otherWaysSection": "Другие способы связи",
+    "settings.feedback.otherWaysDesc":
+      "По вопросам аккаунта или оплаты пишите на support@focusflow.app.",
 
     "settings.sessions.title": "Активные сессии",
     "settings.sessions.empty": "Активных сессий не найдено.",

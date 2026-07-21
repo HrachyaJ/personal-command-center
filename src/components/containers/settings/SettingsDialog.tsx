@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "../../ui/dialog";
-import { Sun, User, Lock, Bell, X } from "lucide-react";
+import { Sun, User, Lock, Bell, MessageCircle, X } from "lucide-react";
 import { NavItem } from "./SettingsNavItem";
 import { AppearanceTab, type Tab } from "./SettingsAppearanceTab";
 import { AccountTab } from "./SettingsAccountTab";
 import { NotificationsTab } from "./SettingsNotificationsTab";
 import { PrivacyTab } from "./SettingsPrivacyTab";
+import { FeedbackTab } from "./SettingsFeedbackTab";
 import { useTranslation } from "../../../hooks/useTranslation";
 
 interface SettingsDialogProps {
@@ -31,6 +32,7 @@ export function SettingsDialog({
     { id: "account", icon: User, label: t("settings.account") },
     { id: "notifications", icon: Bell, label: t("settings.notifications") },
     { id: "privacy", icon: Lock, label: t("settings.privacy") },
+    { id: "feedback", icon: MessageCircle, label: t("settings.feedback") },
   ];
 
   return (
@@ -73,6 +75,7 @@ export function SettingsDialog({
             {tab === "account" && <AccountTab />}
             {tab === "notifications" && <NotificationsTab />}
             {tab === "privacy" && <PrivacyTab />}
+            {tab === "feedback" && <FeedbackTab />}
           </div>
         </div>
       </DialogContent>

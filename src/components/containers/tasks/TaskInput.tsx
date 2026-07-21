@@ -38,45 +38,45 @@ const EMPTY_FORM: TaskFormData = {
   estimatedMinutes: null,
 };
 
-function runPrediction(form: TaskFormData) {
-  const params = new URLSearchParams({
-    hour: String(new Date().getHours()),
-    day: String(new Date().getDay()),
-    priority: form.priority ?? "low",
-    category: form.category ?? "other",
-    estimatedMinutes: String(form.estimatedMinutes ?? 0),
-    has_dueDate: form.dueDate ? "1" : "0",
-  });
+// function runPrediction(form: TaskFormData) {
+//   const params = new URLSearchParams({
+//     hour: String(new Date().getHours()),
+//     day: String(new Date().getDay()),
+//     priority: form.priority ?? "low",
+//     category: form.category ?? "other",
+//     estimatedMinutes: String(form.estimatedMinutes ?? 0),
+//     has_dueDate: form.dueDate ? "1" : "0",
+//   });
 
-  fetch(`${API_BASE}/api/predict?${params.toString()}`)
-    .then((r) => r.text())
-    .then((text) => {
-      const prob = parseFloat(text);
-      if (isNaN(prob)) return;
-      if (prob > 0.75) {
-        toast.success(
-          `High completion probability: ${(prob * 100).toFixed(1)}%`,
-          { description: "Great time to add this task!" },
-        );
-      } else if (prob >= 0.3) {
-        toast.info(
-          `Moderate completion probability: ${(prob * 100).toFixed(1)}%`,
-          { description: "Consider scheduling it in the morning." },
-        );
-      } else {
-        toast.warning(
-          `Low completion probability: ${(prob * 100).toFixed(1)}%`,
-          {
-            description:
-              "Try setting a deadline or breaking it into smaller tasks.",
-          },
-        );
-      }
-    })
-    .catch(() => {
-      toast.error("Task prediction unavailable right now.");
-    });
-}
+//   fetch(`${API_BASE}/api/predict?${params.toString()}`)
+//     .then((r) => r.text())
+//     .then((text) => {
+//       const prob = parseFloat(text);
+//       if (isNaN(prob)) return;
+//       if (prob > 0.75) {
+//         toast.success(
+//           `High completion probability: ${(prob * 100).toFixed(1)}%`,
+//           { description: "Great time to add this task!" },
+//         );
+//       } else if (prob >= 0.3) {
+//         toast.info(
+//           `Moderate completion probability: ${(prob * 100).toFixed(1)}%`,
+//           { description: "Consider scheduling it in the morning." },
+//         );
+//       } else {
+//         toast.warning(
+//           `Low completion probability: ${(prob * 100).toFixed(1)}%`,
+//           {
+//             description:
+//               "Try setting a deadline or breaking it into smaller tasks.",
+//           },
+//         );
+//       }
+//     })
+//     .catch(() => {
+//       toast.error("Task prediction unavailable right now.");
+//     });
+// }
 
 export default function TaskInput({ onAdd }: TaskInputProps) {
   const [form, setForm] = useState<TaskFormData>(EMPTY_FORM);

@@ -26,6 +26,7 @@ export const GoalCard = ({
 }: GoalCardProps) => {
   const { t } = useTranslation();
   const [progressInput, setProgressInput] = useState("");
+  const parsedProgress = parseInt(progressInput, 10);
 
   const progressPercentage =
     goal.targetValue > 0
@@ -141,7 +142,9 @@ export const GoalCard = ({
                 size="sm"
                 variant="outline"
                 onClick={submitProgress}
-                disabled={!progressInput || parseInt(progressInput, 10) <= 0}
+                disabled={
+                  !progressInput || isNaN(parsedProgress) || parsedProgress <= 0
+                }
                 className="cursor-pointer h-8 px-2"
                 aria-label={t("goals.goalCard.addProgressAria")}
               >

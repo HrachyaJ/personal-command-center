@@ -15,6 +15,13 @@
       "when": 1784025002654,
       "tag": "0001_bizarre_spirit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784636505986,
+      "tag": "0002_careful_nemesis",
+      "breakpoints": true
     }
   ]
 }

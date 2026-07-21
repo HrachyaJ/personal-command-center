@@ -16,7 +16,12 @@ import { useTranslation } from "../../../hooks/useTranslation";
 import type { Locale } from "../../../lib/i18n";
 import { LOCALES } from "../../../lib/i18n";
 
-export type Tab = "appearance" | "account" | "notifications" | "privacy";
+export type Tab =
+  | "appearance"
+  | "account"
+  | "notifications"
+  | "privacy"
+  | "feedback";
 
 export function AppearanceTab() {
   const { theme, setTheme } = useThemeStore();
