@@ -25,7 +25,6 @@ const Tasks = () => {
     editTask,
     getStats,
     loading,
-    error,
   } = useTasks();
 
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
@@ -143,12 +142,6 @@ const Tasks = () => {
           onClick: () => handleOnboardingOpenChange(false),
         }}
       />
-
-      {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
-          {error}
-        </div>
-      ) : null}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">

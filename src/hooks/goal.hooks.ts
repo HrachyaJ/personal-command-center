@@ -17,12 +17,10 @@ const API = `${API_BASE}/api/goals`;
 export function useGoals() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGoals() {
       try {
-        setError(null);
         const data = await authFetchJson<Goal[]>(
           API,
           {},
@@ -31,7 +29,6 @@ export function useGoals() {
         setGoals(data);
       } catch (err) {
         const message = getErrorMessage(err, "Failed to load goals.");
-        setError(message);
         toast.error(message);
       } finally {
         setLoading(false);
@@ -48,7 +45,6 @@ export function useGoals() {
     deadline?: string;
   }) {
     try {
-      setError(null);
       const newGoal = await authFetchJson<Goal>(
         API,
         {
@@ -62,14 +58,12 @@ export function useGoals() {
       return newGoal;
     } catch (err) {
       const message = getErrorMessage(err, "Failed to add goal.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function updateGoal(goalId: string, updates: Partial<Goal>) {
     try {
-      setError(null);
       const updated = await authFetchJson<Goal>(
         `${API}/${goalId}`,
         {
@@ -82,14 +76,12 @@ export function useGoals() {
       setGoals((prev) => prev.map((g) => (g.id === goalId ? updated : g)));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to update goal.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function deleteGoal(goalId: string) {
     try {
-      setError(null);
       await authFetchOrThrow(
         `${API}/${goalId}`,
         { method: "DELETE" },
@@ -98,7 +90,6 @@ export function useGoals() {
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to delete goal.");
-      setError(message);
       toast.error(message);
     }
   }
@@ -150,7 +141,6 @@ export function useGoals() {
   return {
     goals,
     loading,
-    error,
     addGoal,
     updateGoal,
     deleteGoal,

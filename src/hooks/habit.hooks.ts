@@ -26,13 +26,11 @@ function getTodayISO(): string {
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchHabits() {
       try {
         setLoading(true);
-        setError(null);
         const data = await authFetchJson<Habit[]>(
           API,
           {},
@@ -41,7 +39,6 @@ export function useHabits() {
         setHabits(data);
       } catch (err) {
         const message = getErrorMessage(err, "Failed to load habits.");
-        setError(message);
         toast.error(message);
       } finally {
         setLoading(false);
@@ -58,7 +55,6 @@ export function useHabits() {
     color?: string;
   }) {
     try {
-      setError(null);
       const newHabit = await authFetchJson<Habit>(
         API,
         {
@@ -71,14 +67,12 @@ export function useHabits() {
       setHabits((prev) => [...prev, newHabit]);
     } catch (err) {
       const message = getErrorMessage(err, "Failed to add habit.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function removeHabit(id: string) {
     try {
-      setError(null);
       await authFetchOrThrow(
         `${API}/${id}`,
         { method: "DELETE" },
@@ -87,14 +81,12 @@ export function useHabits() {
       setHabits((prev) => prev.filter((h) => h.id !== id));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to remove habit.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function toggleHabitToday(id: string) {
     try {
-      setError(null);
       const today = getTodayISO();
       const habit = habits.find((h) => h.id === id);
       if (!habit) return;
@@ -126,7 +118,6 @@ export function useHabits() {
       }
     } catch (err) {
       const message = getErrorMessage(err, "Failed to update habit.");
-      setError(message);
       toast.error(message);
     }
   }
@@ -172,7 +163,6 @@ export function useHabits() {
   return {
     habits,
     loading,
-    error,
     todaysHabits,
     addHabit,
     removeHabit,

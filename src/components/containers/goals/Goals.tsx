@@ -38,7 +38,6 @@ export default function Goals() {
     getGoalsByStatus,
     getStats,
     loading,
-    error,
   } = useGoals();
 
   const stats = getStats();
@@ -253,12 +252,6 @@ export default function Goals() {
           </DialogContent>
         </Dialog>
       </div>
-
-      {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
-          {error}
-        </div>
-      ) : null}
 
       <OnboardingDialog
         open={isOnboardingOpen}

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -91,10 +91,11 @@ body,
 
 /* ── CSS Variables ───────────────────────────────────────────────────────── */
 :root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono:
-    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    "Geist Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
 
   --background: hsl(210, 40%, 98%);
   --foreground: hsl(210, 40%, 8%);
@@ -193,4 +194,15 @@ body,
     font-family: var(--font-sans);
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Stat numbers ─────────────────────────────────────────────────────────
+   Applies Geist Mono with tabular figures to headline metrics (e.g. the
+   "6", "65%", "0/4" numbers on StatCard). Keeps digits aligned and gives
+   them a slightly more "measured/engineered" feel than the body sans. */
+.font-stat {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
 }

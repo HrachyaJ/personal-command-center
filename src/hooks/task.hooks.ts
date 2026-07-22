@@ -18,13 +18,11 @@ function getErrorMessage(err: unknown, fallback: string) {
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
     async function fetchTasks() {
       try {
-        setError(null);
         const data = await authFetchJson<Task[]>(
           API,
           {},
@@ -33,7 +31,6 @@ export function useTasks() {
         setTasks(data);
       } catch (err) {
         const message = getErrorMessage(err, "Failed to load tasks.");
-        setError(message);
         toast.error(message);
       } finally {
         setLoading(false);
@@ -44,7 +41,6 @@ export function useTasks() {
 
   async function addTask(data: TaskFormData) {
     try {
-      setError(null);
       const newTask = await authFetchJson<Task>(
         API,
         {
@@ -64,14 +60,12 @@ export function useTasks() {
       setTasks((prev) => [...prev, newTask]);
     } catch (err) {
       const message = getErrorMessage(err, "Failed to add task.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function removeTask(id: Task["id"]) {
     try {
-      setError(null);
       await authFetchOrThrow(
         `${API}/${id}`,
         { method: "DELETE" },
@@ -80,7 +74,6 @@ export function useTasks() {
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to remove task.");
-      setError(message);
       toast.error(message);
     }
   }
@@ -95,7 +88,6 @@ export function useTasks() {
     };
 
     try {
-      setError(null);
       const updated = await authFetchJson<Task>(
         `${API}/${id}`,
         {
@@ -108,14 +100,12 @@ export function useTasks() {
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to update task.");
-      setError(message);
       toast.error(message);
     }
   }
 
   async function editTask(id: Task["id"], data: Partial<TaskFormData>) {
     try {
-      setError(null);
       const updated = await authFetchJson<Task>(
         `${API}/${id}`,
         {
@@ -128,7 +118,6 @@ export function useTasks() {
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
       const message = getErrorMessage(err, "Failed to edit task.");
-      setError(message);
       toast.error(message);
     }
   }
@@ -136,7 +125,6 @@ export function useTasks() {
   async function clearCompleted() {
     const completed = tasks.filter((t) => t.completed);
     try {
-      setError(null);
       const results = await Promise.allSettled(
         completed.map((t) =>
           authFetchOrThrow(
@@ -155,12 +143,10 @@ export function useTasks() {
       const failed = results.some((result) => result.status === "rejected");
       if (failed) {
         const message = "Failed to clear some completed tasks.";
-        setError(message);
         toast.error(message);
       }
     } catch (err) {
       const message = getErrorMessage(err, "Failed to clear completed tasks.");
-      setError(message);
       toast.error(message);
     }
   }
@@ -202,7 +188,6 @@ export function useTasks() {
   return {
     tasks,
     loading,
-    error,
     addTask,
     removeTask,
     toggleTask,

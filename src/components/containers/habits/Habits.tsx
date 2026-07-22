@@ -29,7 +29,6 @@ export default function Habits() {
     completionRate,
     longestStreak,
     loading,
-    error,
   } = useHabits();
   const { t, locale } = useTranslation();
 
@@ -133,12 +132,6 @@ export default function Habits() {
           onClick: () => handleOnboardingOpenChange(false),
         }}
       />
-
-      {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
-          {error}
-        </div>
-      ) : null}
 
       {/* Stats row — 2 cols on mobile, 4 on sm+ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
