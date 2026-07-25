@@ -4,6 +4,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 import Dashboard from "../components/containers/dashboard/Dashboard";
 import Tasks from "../components/containers/tasks/Tasks";
@@ -23,6 +24,7 @@ import { useApplyDensity } from "../hooks/useApplyDensity"; // Imported the layo
 import { Toaster } from "../components/ui/sonner";
 import { API_BASE, SIDEBAR_ROUTES } from "../lib/utils";
 import { useTranslation } from "../hooks/useTranslation";
+import { PageTransition } from "../components/shared/PageTransition";
 
 function AppLayout() {
   const location = useLocation();
@@ -75,6 +77,12 @@ function AppLayout() {
     return () => mq.removeEventListener("change", handler);
   }, [theme]);
 
+  // Reset scroll position on route change — AnimatePresence/Framer won't
+  // do this for us automatically.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const showSidebar = SIDEBAR_ROUTES.some(
     (r) => location.pathname.replace(/\/$/, "") === r,
   );
@@ -87,56 +95,96 @@ function AppLayout() {
         <main
           className={`flex-1 min-w-0 bg-background ${!showSidebar ? "w-full" : ""}`}
         >
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            {/* Auth callback — must be outside ProtectedRoute */}
-            <Route path="/auth/callback/google" element={<AuthCallback />} />
-            {/* Protected routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tasks"
-              element={
-                <ProtectedRoute>
-                  <Tasks />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/habits"
-              element={
-                <ProtectedRoute>
-                  <Habits />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/goals"
-              element={
-                <ProtectedRoute>
-                  <Goals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ai-coach"
-              element={
-                <ProtectedRoute>
-                  <AICoach />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatePresence mode="wait" initial={false}>
+            <Routes location={location} key={location.pathname}>
+              {/* Public routes */}
+              <Route
+                path="/"
+                element={
+                  <PageTransition>
+                    <LandingPage />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/sign-in"
+                element={
+                  <PageTransition>
+                    <SignIn />
+                  </PageTransition>
+                }
+              />
+              <Route
+                path="/sign-up"
+                element={
+                  <PageTransition>
+                    <SignUp />
+                  </PageTransition>
+                }
+              />
+              {/* Auth callback — must be outside ProtectedRoute */}
+              <Route path="/auth/callback/google" element={<AuthCallback />} />
+              {/* Protected routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <PageTransition>
+                      <Dashboard />
+                    </PageTransition>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute>
+                    <PageTransition>
+                      <Tasks />
+                    </PageTransition>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/habits"
+                element={
+                  <ProtectedRoute>
+                    <PageTransition>
+                      <Habits />
+                    </PageTransition>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/goals"
+                element={
+                  <ProtectedRoute>
+                    <PageTransition>
+                      <Goals />
+                    </PageTransition>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-coach"
+                element={
+                  <ProtectedRoute>
+                    <PageTransition>
+                      <AICoach />
+                    </PageTransition>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <PageTransition>
+                    <NotFound />
+                  </PageTransition>
+                }
+              />
+            </Routes>
+          </AnimatePresence>
         </main>
       </div>
       <Toaster richColors position="bottom-right" />
