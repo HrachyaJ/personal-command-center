@@ -87,6 +87,12 @@ export function useTasks() {
       completedAt: !task.completed ? new Date().toISOString() : null,
     };
 
+    // Snapshot so we can roll back if the request fails.
+    const previousTasks = tasks;
+
+    // Optimistic update — flip the checkbox instantly, sync in background.
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+
     try {
       const updated = await authFetchJson<Task>(
         `${API}/${id}`,
@@ -99,6 +105,7 @@ export function useTasks() {
       );
       setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
     } catch (err) {
+      setTasks(previousTasks); // roll back the optimistic flip
       const message = getErrorMessage(err, "Failed to update task.");
       toast.error(message);
     }

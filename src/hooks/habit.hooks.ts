@@ -86,13 +86,33 @@ export function useHabits() {
   }
 
   async function toggleHabitToday(id: string) {
+    const today = getTodayISO();
+    const habit = habits.find((h) => h.id === id);
+    if (!habit) return;
+
+    const alreadyDone = habit.completedDates?.includes(today);
+
+    // Snapshot so we can roll back if the request fails.
+    const previousHabits = habits;
+
+    // Optimistic update — flip today's completion instantly, sync in
+    // background. Streak/longestStreak are left alone here since they're
+    // server-computed; they'll settle to the correct value once the
+    // response comes back, which is fast enough not to be noticeable.
+    setHabits((prev) =>
+      prev.map((h) =>
+        h.id === id
+          ? {
+              ...h,
+              completedDates: alreadyDone
+                ? (h.completedDates ?? []).filter((d) => d !== today)
+                : [...(h.completedDates ?? []), today],
+            }
+          : h,
+      ),
+    );
+
     try {
-      const today = getTodayISO();
-      const habit = habits.find((h) => h.id === id);
-      if (!habit) return;
-
-      const alreadyDone = habit.completedDates?.includes(today);
-
       if (alreadyDone) {
         const updated = await authFetchJson<Habit>(
           `${API}/${id}/complete`,
@@ -117,6 +137,7 @@ export function useHabits() {
         setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
       }
     } catch (err) {
+      setHabits(previousHabits); // roll back the optimistic flip
       const message = getErrorMessage(err, "Failed to update habit.");
       toast.error(message);
     }

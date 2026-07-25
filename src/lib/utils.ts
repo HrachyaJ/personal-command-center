@@ -99,10 +99,15 @@ export const PRIORITY_STYLES: Record<
     dot: "bg-secondary",
   },
   medium: {
-    badge: "bg-amber-100 text-amber-700 border-amber-200",
+    badge:
+      "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
     dot: "bg-amber-400",
   },
-  high: { badge: "bg-red-100 text-red-700 border-red-200", dot: "bg-red-500" },
+  high: {
+    badge:
+      "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800",
+    dot: "bg-red-500",
+  },
 };
 
 export const CATEGORY_ICONS: Record<TaskCategory, string> = {
@@ -168,11 +173,11 @@ export const PRIORITY_DOT: Record<string, string> = {
 export const getStatusColor = (status: string) => {
   switch (status) {
     case "active":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
     case "completed":
-      return "bg-green-100 text-green-800 border-green-200";
+      return "bg-green-100 text-green-800 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800";
     case "paused":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-800";
     default:
       return "bg-muted text-foreground border-border";
   }
@@ -234,27 +239,31 @@ export function insightColors(type: InsightType) {
   switch (type) {
     case "tip":
       return {
-        badge: "bg-blue-100 text-blue-800 border-blue-200",
-        icon: "text-blue-600 bg-blue-50",
-        border: "border-l-blue-400",
+        badge:
+          "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
+        icon: "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/40",
+        border: "border-l-blue-400 dark:border-l-blue-500",
       };
     case "warning":
       return {
-        badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        icon: "text-yellow-600 bg-yellow-50",
-        border: "border-l-yellow-400",
+        badge:
+          "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-800",
+        icon: "text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950/40",
+        border: "border-l-yellow-400 dark:border-l-yellow-500",
       };
     case "achievement":
       return {
-        badge: "bg-green-100 text-green-800 border-green-200",
-        icon: "text-green-600 bg-green-50",
-        border: "border-l-green-400",
+        badge:
+          "bg-green-100 text-green-800 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800",
+        icon: "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/40",
+        border: "border-l-green-400 dark:border-l-green-500",
       };
     case "pattern":
       return {
-        badge: "bg-purple-100 text-purple-800 border-purple-200",
-        icon: "text-purple-600 bg-purple-50",
-        border: "border-l-purple-400",
+        badge:
+          "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800",
+        icon: "text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-950/40",
+        border: "border-l-purple-400 dark:border-l-purple-500",
       };
   }
 }
@@ -262,9 +271,9 @@ export function insightColors(type: InsightType) {
 export function priorityColors(priority: Priority) {
   switch (priority) {
     case "high":
-      return "bg-red-100 text-red-700 border-red-200";
+      return "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800";
     case "medium":
-      return "bg-orange-100 text-orange-700 border-orange-200";
+      return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800";
     case "low":
       return "bg-muted text-muted-foreground border-border";
   }
@@ -273,9 +282,9 @@ export function priorityColors(priority: Priority) {
 export function impactColors(impact: "high" | "medium" | "low") {
   switch (impact) {
     case "high":
-      return "bg-green-100 text-green-700 border-green-200";
+      return "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800";
     case "medium":
-      return "bg-blue-100 text-blue-700 border-blue-200";
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
     case "low":
       return "bg-muted text-muted-foreground border-border";
   }
@@ -284,11 +293,11 @@ export function impactColors(impact: "high" | "medium" | "low") {
 export function effortColors(effort: "easy" | "moderate" | "hard") {
   switch (effort) {
     case "easy":
-      return "bg-green-100 text-green-700 border-green-200";
+      return "bg-green-100 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-800";
     case "moderate":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-800";
     case "hard":
-      return "bg-red-100 text-red-700 border-red-200";
+      return "bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800";
   }
 }
 export function getCategoryLabels(

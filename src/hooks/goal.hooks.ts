@@ -63,6 +63,15 @@ export function useGoals() {
   }
 
   async function updateGoal(goalId: string, updates: Partial<Goal>) {
+    // Snapshot so we can roll back if the request fails. This single
+    // function backs updateProgress/setProgress/completeGoal/pauseGoal/
+    // activateGoal, so making it optimistic covers all of them at once.
+    const previousGoals = goals;
+
+    setGoals((prev) =>
+      prev.map((g) => (g.id === goalId ? { ...g, ...updates } : g)),
+    );
+
     try {
       const updated = await authFetchJson<Goal>(
         `${API}/${goalId}`,
@@ -75,6 +84,7 @@ export function useGoals() {
       );
       setGoals((prev) => prev.map((g) => (g.id === goalId ? updated : g)));
     } catch (err) {
+      setGoals(previousGoals); // roll back the optimistic update
       const message = getErrorMessage(err, "Failed to update goal.");
       toast.error(message);
     }
